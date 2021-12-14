@@ -1,4 +1,6 @@
-![](https://apptainer.org/user-docs/master/_static/logo.png)
+<img src="https://apptainer.org/user-docs/master/_static/logo.png" width="200">
+<img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Slurm_logo.svg" width="200">
+<img src="https://d33wubrfki0l68.cloudfront.net/9793121881b9ad1bec4cf4f42376814dc22f88b0/a4055/blog/announcing-rstudio-workbench/rsw-hero_hu007b6a0f508305501a3d7d60d416a97b_80909_2220x0_resize_q75_box.jpg" width="200">
 
 # Introduction
 
