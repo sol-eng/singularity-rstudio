@@ -1,5 +1,3 @@
-[toc]
-
 ![](https://apptainer.org/user-docs/master/_static/logo.png)
 
 # Introduction
@@ -76,7 +74,7 @@ We are therefore using an implementation from [GSI](https://git.gsi.de/SDE/slurm
 Further details with up-to-date information can be found in [slurm-singularity-exec](slurm-singularity-exec.md
 ).
 
-In order to install and configure the SPANK plugin for singularity specifically for our use case, please use the plugin from [github](https://github.com/rstudio/sol-eng-singularity/tree/main/slurm/slurm-singularity-exec). Before building and installing, please 
+In order to install and configure the SPANK plugin for singularity specifically for our use case, please use the plugin in the subfolder [slurm-singularity-exec](slurm-singularity-exec). Before building and installing, please 
 
 * replace in `singularity-exec-conf.tmpl`
    * `/efs/singularity/containers` by `container-path`
