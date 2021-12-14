@@ -144,7 +144,7 @@ If the above steps work, then the plugin is good to go for the next step.
 
 ## Singularity recipe
 
-Appropriate singularity recipes can be found for [CentOS7](data/centos7) and [Ubuntu 2004](data/ubuntu2004). 
+Appropriate singularity recipes can be found for [CentOS7](data/centos7) and [Ubuntu 2004](data/ubuntu2004). They have ample comments to help you decide which bits to keep and which to discard. 
 
 They can be built by running (using admin privileges)
 
@@ -167,4 +167,85 @@ constraints=Container=singularity-container
 which will activate a new element in the web UI where users can specify the respectivee image they want to load. The slurm launcher will then appen the option `--singularity-container` with the value specified in this field to the sbatch command that will spawn the session. 
 
 Thanks to setting up good defaults in the SPANK plugin (`--singularity-container-path|path`, `--singularity-bind|bind`) the user only needs to worry about the container name - even that is then being cached once typed in. 
+
+# Appendix
+
+## renv on an HPC cluster
+
+### A primer on renv
+
+[renv](https://rstudio.github.io/renv/articles/renv.html) is a R package that is used for R package management. It enables the reproducible usage of R packages. 
+
+### Dealing with renv in a version controlled workflow 
+
+renv maintains a project specific `renv.lock` file where all the metadata (packages, versions, repository information) is stored. When using a version-controlled workflow, this file needs to be stored in the source code repository. Any other file or directory (e.g. renv subfolder) can be considered transient and does not need to be added to version control.
+
+In the case of using `git` it is advisable to create file `.gitignore` in the root folder of the project and add the line 
+```bash
+renv
+```
+into that file. 
+
+### What does renv actually do ? 
+
+#### Initialisation of a project for renv
+
+`renv::init()` will initialize a project for the use of renv. It will check the R code files in the current directory and detect any needed package, check the renv cache if the package is there in the version it can download it from the defined repositories. If it is not there, it will install the same into the local subfolder (`renv`). With the exception of renv package itself any R package will then be moved to a cache and a symbolic link created to its original location. If the package is already in the cache in the requested version, a simple symlink will be created. 
+
+The advantage of this is that once a R package is in the cache,  subsequent installations of commonly used R packages will be much faster 
+
+#### renv package cache
+
+By default the package cache is created in each user's home-directory (`~/.local/share/renv`). This can be changed by defining `RENV_PATHS_CACHE` in `Renviron.site` of the R installation. The variable should point to a common folder with appropriate write permissions for everyone. 
+
+On systems where there is the use of multiple operating systems and linux distributions, setting 
+```bash
+RENV_PATHS_PREFIX_AUTO = TRUE
+```
+can be useful - the cache directory structure will then contain an extra directory level named according to the OS used. 
+
+For `r-session-complete` we set 
+
+```bash
+RENV_PATHS_PREFIX_AUTO = TRUE
+RENV_PATHS_CACHE=/scratch/renv
+```
+
+to create a global package cache shared by users and across nodes.
+
+If you want to use such a functionality, please make sure you are setting the appropriate ACL's and ensure that those are replicated further downstream
+
+A very open ACL for the packge cache would be 
+
+```bash
+# file: scratch/renv/
+# owner: root
+# group: root
+user::rwx
+group::rwx
+mask::rwx
+other::rwx
+default:user::rwx
+default:group::rwx
+default:mask::rwx
+default:other::rwx
+```
+
+
+#### Restoring an R environment when using an existing code
+
+If you would like to run the code of a colleague that uses `renv` in his work, you need to run `renv::restore()` in the root-folder of the project. This command will setup the environment and retrieve all the R packages as defined in `renv.lock`
+
+#### Keeping the R environment up-to-date 
+
+During the code development, new packages will be needed. In order to stay in sync with the renv.lock file, it is advisable to run `renv::snapshot()` from time to time and check-in the changes in `renv.lock` together with the code commits. 
+
+#### Speeding up renv 
+
+`renv` and package installation in general can be sped up using binary packages, either served from CRAN or from [RStudio Package Manager](https://packagemanager.rstudio.com/). 
+
+Unfortunately `renv` currently does not support the parallel installation of R packages but a [feature request ](https://github.com/rstudio/renv/issues/459)is in place. 
+
+
+
 
