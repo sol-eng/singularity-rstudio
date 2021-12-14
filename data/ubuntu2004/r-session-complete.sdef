@@ -1,17 +1,18 @@
 Bootstrap: docker
 From: rstudio/r-session-complete:bionic-2021.09.1-372.pro1 
 
+# needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
+# set binaryflag to "" in order to stick to source RPMs
 %files
     scripts/create.R /
 
 %post
-    # SLURM stuff
+    # SLURM integration (mandatory)
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
     apt-get update && apt-get install libmunge2 && rm -rf /var/cache/apt/*
 
-    # Install Java ----------------------------------------------------------------#
-
+    # Install Java JDK (optional) 
     apt-get update -y && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	    default-jdk && \
@@ -19,35 +20,32 @@ From: rstudio/r-session-complete:bionic-2021.09.1-372.pro1
 
     for R_VERSION in `ls /opt/R`
     do 
-    	# Reconfigure R  
+    	# Reconfigure R for Java (optional) 
     	/opt/R/${R_VERSION}/bin/R CMD javareconf 
 
-    	# Add ldpaths to rstudio config
-    	mkdir -p /etc/rstudio && \
-		echo "Path: /opt/R/${R_VERSION}\nScript: /opt/R/${R_VERSION}/lib/R/etc/ldpaths" > /etc/rstudio/r-versions
-
-    	# Add pointer to latest CRAN and bioconductor repositories (binary) from public package manager
+    	# Set up R to use latest CRAN and bioconductor repositories 
+        # from public RSPM (optional)
     	/opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
 
-    	# Add renv settings for global cache as well as linux distro specific directory hierarchy in cache
+    	# Add renv settings for global cache as well as linux distro specific 
+	# directory hierarchy in cache (optional but useful)
     	echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/scratch/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 
-    	# Disable local package installs 
+    	# Disable local package installs (optional)
     	echo "#Disable local package installs into R_LIBS_USER\nR_LIBS_USER=/dev/null\n" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 
-    	# Install renv 
+    	# Install renv (optional but useful)
     	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" 
 
-        # Install rjava
+        # Install rjava (optional) 
 	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')"
 
-
     done	
-
+    
+    # Needed if using CRAN and BioConductor repos from RSPM (optional)
     rm -f /create.R 
 
-    # Install zeromq
-
+    # Install zeromq as prereq for clustermq (optional) 
     apt-get update -y && \
     	DEBIAN_FRONTEND=noninteractive apt-get install -y \
         libzmq5 && \

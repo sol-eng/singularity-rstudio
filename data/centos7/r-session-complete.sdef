@@ -1,20 +1,27 @@
 Bootstrap: docker
 From: rstudio/r-session-complete:centos7-2021.09.1-372.pro1 
 
+# needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
+# set binaryflag to "" in order to stick to source RPMs
 %files
     scripts/create.R /
 
 %post
-    yum -y install curl pandoc zeromq java-11-openjdk-devel 
+    # Install Java JDK (optional) 
+    yum -y install java-11-openjdk-devel 
 
+    # Set up of developer toolset 11 to use a more recent version of the 
+    # compiler toolchain (optional)
     yum -y install centos-release-scl
-    yum -y install devtoolset-10
+    yum -y install devtoolset-11
 
     for R_VERSION in `ls /opt/R`
        do
+
+       # Set up developer toolset 11 for R only (optional)
        cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 # Developer Toolset Root directory
-DEVTOOLSROOT=/opt/rh/devtoolset-10/root
+DEVTOOLSROOT=/opt/rh/devtoolset-11/root
 
 # Environment variables needed
 PATH=\${DEVTOOLSROOT}/usr/bin:\${PATH}
@@ -28,12 +35,17 @@ LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib:\${LD_LIBRARY_PATH}:\${LD_TMP}
 PKG_CONFIG_PATH=\${DEVTOOLSROOT}/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
 INFOPATH=\${DEVTOOLSROOT}/usr/share/info:\${INFOPATH}
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}
-X_SCLS=devtoolset-10
+X_SCLS=devtoolset-11
 PCP_DIR=\${DEVTOOLSROOT}
 
 EOF
+
+    	# Set up R to use latest CRAN and bioconductor repositories 
+        # from public RSPM (optional)
         /opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
 
+        # Update R Makevars to use the new compiler features from  
+        # developer toolset 11 (optional)
         R_HOME=/opt/R/${R_VERSION}/lib/R
         if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi
         for std in 14 17 20
@@ -45,25 +57,31 @@ EOF
           $R_HOME/etc/Makeconf
         done
 
+    	# Add renv settings for global cache as well as linux distro specific 
+	# directory hierarchy in cache (optional but useful)
         echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/efs/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 
+    	# Disable local package installs (optional)
         echo "#Disable local package installs into R_LIBS_USER\nR_LIBS_USER=/dev/null\n" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+
+    	# Install renv (optional but useful)
         /opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')"
 
+        # Reconfigure R for Java (optional) 
         /opt/R/${R_VERSION}/bin/R CMD javareconf
-
+        
+	# Install rjava (optional)
         /opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')"
-
-        # Add ldpaths to rstudio config
-        mkdir -p /etc/rstudio && \
-                echo "Path: /opt/R/${R_VERSION}\nScript: /opt/R/${R_VERSION}/lib/R/etc/ldpaths" > /etc/rstudio/r-versions
 
     done
 
-    # SLURM stuff
+    # SLURM integration (mandatory) 
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
     yum -y install munge
+
+    # Install zeromq as prereq for clustermq (optional) 
+    yum -y install zeromq
 
     rm -rf /var/cache/yum/*
 
