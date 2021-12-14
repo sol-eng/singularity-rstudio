@@ -1,0 +1,32 @@
+FROM rstudio/r-session-complete:bionic-2021.09.1-372.pro1 
+
+COPY scripts/create.R /
+
+RUN groupadd -g 401 slurm && \ 
+       useradd -u 401 -g 401 slurm && \ 
+       apt-get update && apt-get install libmunge2 && rm -rf /var/cache/apt/*
+
+RUN apt-get update -y && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y \
+	    default-jdk && \
+	rm -rf /var/lib/apt/lists/*
+
+RUN for R_VERSION in `ls /opt/R`; \
+        do \ 
+    	/opt/R/${R_VERSION}/bin/R CMD javareconf && \ 
+    	/opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site && \
+    	echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/scratch/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
+    	echo "#Disable local package installs into R_LIBS_USER\nR_LIBS_USER=/dev/null\n" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
+    	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" && \ 
+	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')" ; \
+    done	
+    
+    # Needed if using CRAN and BioConductor repos from RSPM (optional)
+RUN rm -f /create.R 
+
+RUN apt-get update -y && \
+    	DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libzmq5 && \
+        rm -rf /var/lib/apt/lists/*
+
+
