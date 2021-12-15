@@ -8,6 +8,7 @@ services:
     volumes:
       - /opt/slurm/:/opt/slurm/
       - /efs:/efs
+      - /scratch:/scratch
       - ./etc/rserver.conf:/etc/rstudio/rserver.conf
       - ./etc/launcher.conf:/etc/rstudio/launcher.conf
       - ./etc/launcher.slurm.conf:/etc/rstudio/launcher.slurm.conf
