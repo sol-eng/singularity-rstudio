@@ -4,7 +4,7 @@ COPY scripts/create.R /
 
 RUN groupadd -g 401 slurm && \ 
        useradd -u 401 -g 401 slurm && \ 
-       apt-get update && apt-get install libmunge2 && rm -rf /var/cache/apt/*
+       apt-get update && apt-get install -y munge && rm -rf /var/cache/apt/*
 
 RUN apt-get update -y && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -29,4 +29,14 @@ RUN apt-get update -y && \
         libzmq5 && \
         rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update -y && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        supervisor && \
+        rm -rf /var/lib/apt/lists/*
 
+
+EXPOSE 8787/tcp
+EXPOSE 5559/tcp
+
+ENTRYPOINT []
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
