@@ -144,7 +144,7 @@ If the above steps work, then the plugin is good to go for the next step.
 
 ## Singularity recipe
 
-Appropriate singularity recipes can be found for [CentOS7](data/r-session-complete/centos7) and [Ubuntu 2004](data/r-session-complete/ubuntu2004). They have ample comments to help you decide which bits to keep and which to discard. 
+Appropriate singularity recipes can be found for [CentOS7](data/r-session-complete/centos7) and [Ubuntu 18.04 / Bionic](data/r-session-complete/bionic). They have ample comments to help you decide which bits to keep and which to discard. 
 
 They can be built by running (using admin privileges)
 
