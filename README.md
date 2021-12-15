@@ -17,7 +17,7 @@ The goal of this article is to
 
 # Target Architecture
 
-![](RSWB_Slurm_singularity1.drawio.png)
+![](images/RSWB_Slurm_singularity1.drawio.png)
 
 * Everything related to RStudio Workbench and R runs in containers (docker and singularity)
 * Look&feel of RStudio Workbench (almost) unchanged from a user perspective
@@ -190,8 +190,8 @@ docker-compose up -d
 
 ## Simple smoke test
 
-1. `http://<hostname of docker server>:8787` should now present the RSW login screen. (by default it has two users, `rstudio/rstudio` and `mm/test123`
-2. Once logged in you then can select between local and SLURM launcher and  
+1. Browsing to `http://<hostname of docker server>:8787` should now present the RSW login screen. (by default it has two users, `rstudio/rstudio` and `mm/test123`)
+2. Once logged in you then can select between local and SLURM launcher and run your R session.  
 
 
 ## Where are the singularity specifics ? 
