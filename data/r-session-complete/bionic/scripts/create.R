@@ -10,7 +10,7 @@
 binaryflag<-""
 
 if(file.exists("/etc/debian_version")) {
-    binaryflag <- "__linux__/focal"
+    binaryflag <- "__linux__/bionic"
 }
 
 if(file.exists("/etc/redhat-release")) {
