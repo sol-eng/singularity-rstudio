@@ -47,7 +47,7 @@ RUN chmod +s /usr/sbin/munged && \
 
 RUN apt-get update && apt-get install -y cracklib-runtime && \
 	groupadd --system --gid 1001 mm && \
-	useradd -s /bin/bash -d /efs/home/mm --system --gid mm --uid 1001 mm && \
+	useradd -s /bin/bash -d /scratch/mm --system --gid mm --uid 1001 mm && \
 	echo "test123\ntest123" | passwd mm && \
         rm -rf /var/lib/apt/lists/*
 
