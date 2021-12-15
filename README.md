@@ -208,6 +208,11 @@ Thanks to setting up good defaults in the SPANK plugin (`--singularity-container
 
 # Appendix
 
+## Known issues
+
+* With the current implementation, the slurm launcher will produce warning messages "Failed to get job metadata". This is due to the implementation of the launcher that expects the job metadata at the start of the slurm standard output file. With the SPANK plugin however the first line in standard output is "Start singularity container...". Customers that would like to get rid of this messages, need to comment out line 43 of [`slurm-singularity-wrapper.sh`](slurm-singularity-exec/slurm-singularity-wrapper.sh)
+* Start time of the Singularity R Sessions can be a little bit longer compared to native sessions. This is mostly due to the load time of the singularity container. 
+
 ## renv on an HPC cluster
 
 ### A primer on renv
