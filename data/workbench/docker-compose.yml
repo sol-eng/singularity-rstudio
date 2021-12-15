@@ -1,0 +1,18 @@
+version: "2.2"
+
+services:
+  rstudio-workbench-hpc: 
+    image: rstudio-workbench-hpc:bionic-2021.09.1-372.pro1
+    hostname: rstudio-workbench
+    privileged: true 
+    volumes:
+      - /opt/slurm/:/opt/slurm/
+      - /efs:/efs
+      - ./etc/rserver.conf:/etc/rstudio/rserver.conf
+      - ./etc/launcher.conf:/etc/rstudio/launcher.conf
+      - ./etc/launcher.slurm.conf:/etc/rstudio/launcher.slurm.conf
+      - ./etc/launcher.slurm.profiles.conf:/etc/rstudio/launcher.slurm.profiles.conf  
+    ports:
+      - "8787:8787"
+    environment:
+      RSP_LICENSE: ${RSP_LICENSE}
