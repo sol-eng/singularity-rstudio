@@ -15,12 +15,20 @@ The goal of this article is to
 * inform the installation and configuration of singularity on a HPC cluster running [SLURM](https://slurm.schedmd.com/) as a scheduler
 * Configure [R Studio Workbench (RSW)](https://www.rstudio.com/products/workbench/) to use singularity containers on the same HPC
 
+# Target Architecture
+
+![](RSWB_Slurm_singularity1.drawio.png)
+
+* Everything related to RStudio Workbench and R runs in containers (docker and singularity)
+* Look&feel of RStudio Workbench (almost) unchanged from a user perspective
+* Utilisation of shared storage for singularity containers and `renv` cache
+
 # High-level Overview of the steps 
 
 1. Installation of Singularity
 2. Setup a [SPANK](https://slurm.schedmd.com/spank.html) plugin for deep integration of singularity into SLURM
-3. Build Singularity Containers for R Session and RSW based on the docker containers for [r-session-complete](https://hub.docker.com/r/rstudio/r-session-complete)
-4. Configuration of RSW to use the singularity integration 
+3. Build Singularity Containers for R Session based on the docker containers for [r-session-complete](https://hub.docker.com/r/rstudio/r-session-complete)
+4. Build Docker Container for RSW based on [rstudio-workbench](https://hub.docker.com/r/rstudio/rstudio-workbench)
 5. Simple tests for the new functionality
 6. Hints and suggestions on how to use Singularity and R for increased reproducibility
 
@@ -154,13 +162,43 @@ singularity build r-session-complete.sif r-session-complete.sdef
 
 Please note that this can be a very time-consuming process. Ensure that your temporary folder (e.g. `/tmp` or wherever the environment variable `TMP`/`TMPDIR` etc. points to) has sufficient amounts of disk space available. You will definitely need around 4 GB of disk space. A benefit of singularity containers is that they are much smaller (<50 % of docker image size) but they take a while to build.
 
-# Configuration of RSW 
+# Docker container for RSW
 
-* Make sure the `launcher-sessions-callback-address` in `/etc/rstudio/rserver.conf` is set to an URL that is reachable from the compute nodes.
-* Append to `/etc/rstudio/launcher.slurm.conf` the lines 
+## Preparation 
 
+* Change into the directory [`data/workbench`](data/workbench) of this repository
+* Make sure the `launcher-sessions-callback-address` in `etc/rstudio/rserver.conf` is set to an URL that is reachable from the compute nodes.
+* Create a directory `munge` and copy your munge.key into that folder
+* Run (using admin privileges)
+
+```bash
+docker build -f workbench.docker -t rstudio-workbench-hpc:2021.09.1-372.pro1
 ```
-# Singularity specifics
+* You also may want to 
+    * push the new image to your docker registry
+    * configure your authentication mechanism in the docker container
+    * review in docker-compose.yml the bind mounts (e.g. /efs) to ensure that essential file systems (/home, ...) are mounted into the cntainer. 
+
+## Running the docker container
+
+Finally, you only need to set the environment variable `RSP_LICENSE` to your RSW license key and then start the docker container. 
+
+```bash
+export RSP_LICENSE=<your license key>
+docker-compose up -d 
+```
+
+## Simple smoke test
+
+1. `http://<hostname of docker server>:8787` should now present the RSW login screen. (by default it has two users, `rstudio/rstudio` and `mm/test123`
+2. Once logged in you then can select between local and SLURM launcher and  
+
+
+## Where are the singularity specifics ? 
+
+The singularity integration of the RSW ui is done in [`launcher.slurm.conf`](data/workbench/etc/launcher.slurm.conf). There you will find the line
+
+```bash
 constraints=Container=singularity-container
 ```
 
