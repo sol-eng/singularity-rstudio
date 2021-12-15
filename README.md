@@ -172,7 +172,7 @@ Please note that this can be a very time-consuming process. Ensure that your tem
 * Run (using admin privileges)
 
 ```bash
-docker build -f workbench.docker -t rstudio-workbench-hpc:2021.09.1-372.pro1
+docker build -f workbench.docker -t rstudio-workbench-hpc:2021.09.1-372.pro1 .
 ```
 * You also may want to 
     * push the new image to your docker registry
