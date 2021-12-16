@@ -23,7 +23,7 @@ trials <- 40000
 # Main loop
 res <- foreach(i=1:trials,.combine=rbind) %dopar% {
     ind <- sample(100, 100, replace=TRUE)
-    result1 <- glm(x[ind,2]~x[ind,1], family=binomial(logit))
+    result1 <- glm(x[ind,1]~x[ind,2], family=binomial(logit))
     coefficients(result1)
 }
 
