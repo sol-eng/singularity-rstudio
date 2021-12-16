@@ -1,0 +1,1 @@
+export SINGULARITYENV_APPEND_PATH=/opt/slurm/bin && /efs/singularity/3.8.5/bin/singularity exec -B /efs,/opt/slurm,/etc/munge,/run/munge,/scratch /efs/singularity/containers/R-4.0.5.ubuntu2004.img Rscript function.R 

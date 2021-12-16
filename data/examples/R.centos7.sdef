@@ -1,0 +1,74 @@
+Bootstrap: docker
+From: centos:7
+
+%files
+    scripts/create.R /
+
+%post
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum -y install curl pandoc zeromq java-11-openjdk-devel 
+
+    export R_VERSION=4.0.5
+    curl -O https://cdn.rstudio.com/r/centos-7/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
+    yum -y install R-${R_VERSION}-1-1.x86_64.rpm
+    rm -f R-${R_VERSION}-1-1.x86_64.rpm
+
+    yum -y install centos-release-scl
+    yum -y install devtoolset-10
+
+    ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin
+    ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin
+
+    /opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
+    rm -f /create.R
+
+    cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+# Developer Toolset Root directory
+DEVTOOLSROOT=/opt/rh/devtoolset-10/root
+
+# Environment variables needed
+PATH=\${DEVTOOLSROOT}/usr/bin:\${PATH}
+LD_TMP=\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib64
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib64/dyninst:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib/dyninst:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib64:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib:\${LD_LIBRARY_PATH}:\${LD_TMP}
+PKG_CONFIG_PATH=\${DEVTOOLSROOT}/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
+INFOPATH=\${DEVTOOLSROOT}/usr/share/info:\${INFOPATH}
+MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}
+X_SCLS=devtoolset-10
+PCP_DIR=\${DEVTOOLSROOT}
+
+EOF
+    R_HOME=/opt/R/${R_VERSION}/lib/R
+    if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi
+    for std in 14 17 20
+    do
+      sed -i "s/^CXX${std} .?*/CXX${std} = g++/ ; \
+      s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 \$(LTO)/ ; \
+      s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
+      s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
+      $R_HOME/etc/Makeconf
+    done
+
+    echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/efs/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+
+    echo "#Disable local package installs into R_LIBS_USER\nR_LIBS_USER=/dev/null\n" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+    /opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')"
+
+    /opt/R/${R_VERSION}/bin/R CMD javareconf
+
+    # SLURM stuff
+    groupadd -g 401 slurm 
+    useradd -u 401 -g 401 slurm  
+    yum -y install munge
+
+    rm -rf /var/cache/yum/*
+
+%environment
+    export LC_ALL=C
+
+%runscript
+    /usr/local/bin/R
