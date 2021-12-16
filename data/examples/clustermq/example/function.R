@@ -9,12 +9,13 @@ options(
 # Loading libraries
 library(clustermq)
 library(foreach)
+library(palmerpenguins)
 
 # Register parallel backend to foreach
-register_dopar_cmq(n_jobs=4, memory=1024, log_worker=TRUE, chunk_size=2000)
+register_dopar_cmq(n_jobs=2, memory=1024, log_worker=TRUE, chunk_size=20000)
 
 # Our dataset 
-x <- iris[which(iris[,5] != "setosa"), c(1,5)]
+x<-penguins[which(penguins[,1] != "Adelie"),c(1,3)]
 
 # Number of trials to simulate
 trials <- 40000
