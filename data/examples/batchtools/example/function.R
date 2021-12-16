@@ -14,7 +14,11 @@ glmfunction <- function(n) {
 }
 
 trials <- 40000
-x <- iris[which(iris[,5] != "setosa"), c(1,5)]
+
+library(palmerpenguins)
+
+# Our dataset
+x<-penguins[which(penguins[,1] != "Adelie"),c(1,3)]
 
 # Mapping input parameters to function
 ids<-batchMap(fun=glmfunction, n=1:trials)
