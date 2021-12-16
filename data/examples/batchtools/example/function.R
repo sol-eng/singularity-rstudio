@@ -13,7 +13,7 @@ glmfunction <- function(n) {
   coefficients(result1)
 }
 
-trials <- 4000
+trials <- 40000
 
 library(palmerpenguins)
 
