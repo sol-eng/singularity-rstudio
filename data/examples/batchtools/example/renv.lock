@@ -52,10 +52,15 @@
     },
     "batchtools": {
       "Package": "batchtools",
-      "Version": "0.9.15",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "1f8105b6e7c01c37b58559fbf91425e3"
+      "Version": "0.9.16",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "batchtools",
+      "RemoteUsername": "mllg",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "63a6f812927f6dc78595abbffac0f6bc9651f67a",
+      "Hash": "f7ce16335d0f2e6b9eef18dcc6644662"
     },
     "brew": {
       "Package": "brew",
