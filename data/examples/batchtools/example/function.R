@@ -9,11 +9,11 @@ reg = makeRegistry(file.dir = paste0(getwd(),"/registry"), seed = 1)
 # define function
 glmfunction <- function(n) {
   ind <- sample(100, 100, replace=TRUE)
-  result1 <- glm(x[ind,2]~x[ind,1], family=binomial(logit))
+  result1 <- glm(x[ind,1]~x[ind,2], family=binomial(logit))
   coefficients(result1)
 }
 
-trials <- 40000
+trials <- 4000
 
 library(palmerpenguins)
 
@@ -24,8 +24,8 @@ x<-penguins[which(penguins[,1] != "Adelie"),c(1,3)]
 ids<-batchMap(fun=glmfunction, n=1:trials)
 
 # Chunk jobs for better performance
-#ids[, chunk := chunk(job.id, chunk.size = 2000)]
-ids[, chunk := chunk(job.id, n.chunks = 20)]
+#ids[, chunk := chunk(job.id, chunk.size = 200)]
+ids[, chunk := chunk(job.id, n.chunks = 2)]
 
 # Exporting data (x) to slaves
 batchExport(export = list(x = x), reg = reg)
