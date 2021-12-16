@@ -13,7 +13,7 @@ glmfunction <- function(n) {
   coefficients(result1)
 }
 
-trials <- 40000
+trials <- 4000
 
 library(palmerpenguins)
 
@@ -28,7 +28,7 @@ ids<-batchMap(fun=glmfunction, n=1:trials)
 ids[, chunk := chunk(job.id, n.chunks = 2)]
 
 # Exporting data (x) to slaves
-batchExport(export = list(x = x), reg = reg)
+batchExport(export = list(x = as.data.frame(x)), reg = reg)
 
 # Submit jobs to queue 
 submitJobs(ids=ids,resources = list(walltime = 360, memory = 1024))
