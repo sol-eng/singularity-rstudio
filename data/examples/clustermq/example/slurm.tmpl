@@ -5,7 +5,7 @@
 #SBATCH --mem-per-cpu={{ memory | 1024 }}
 #SBATCH --array=1-{{ n_jobs }}
 #SBATCH --cpus-per-task={{ cores | 1 }}
-#SBATCH --singularity-container={{ container | R-4.0.5.bionic.sif }}
+#SBATCH --singularity-container={{ container | R-4.0.5.focal.sif }}
 ###SBATCH --singularity-bind=/var/spool/slurmd
 
 ulimit -v $(( 1024 * {{ memory | 1024 }} ))

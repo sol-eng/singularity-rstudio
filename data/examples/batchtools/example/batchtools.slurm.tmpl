@@ -30,7 +30,7 @@ log.file = fs::path_expand(log.file)
 #SBATCH --ntasks=1
 <%= if (!is.null(resources$ncpus)) sprintf(paste0("#SBATCH --cpus-per-task=", resources$ncpus)) %>
 #SBATCH --mem-per-cpu=<%= resources$memory %>
-#SBATCH --singularity-container=R-4.0.5.bionic.sif 
+#SBATCH --singularity-container=R-4.0.5.focal.sif 
 #SBATCH --singularity-bind=/var/spool/slurmd
 <%= if (!is.null(resources$partition)) sprintf(paste0("#SBATCH --partition='", resources$partition, "'")) %>
 <%= if (array.jobs) sprintf("#SBATCH --array=1-%i", nrow(jobs)) else "" %>

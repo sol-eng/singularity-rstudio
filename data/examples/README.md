@@ -7,7 +7,7 @@ Examples on how to use [batchtools](batchtools) and [clustermq](clustermq) are s
 You can build the singularity images via
 
 ```bash
-singularity build R-4.0.5.bionic.sif R.bionic.sdef
+singularity build R-4.0.5.focal.sif R.focal.sdef
 singularity build R-4.0.5.centos7.sif R.centos7.sdef 
 ```
 
