@@ -120,6 +120,13 @@
       "Repository": "RSPM",
       "Hash": "c64865aba235f36a49d798613cbfccf7"
     },
+    "palmerpenguins": {
+      "Package": "palmerpenguins",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "9a455031890b2adf20e19784a114ddd4"
+    },
     "pkgconfig": {
       "Package": "pkgconfig",
       "Version": "2.0.3",
