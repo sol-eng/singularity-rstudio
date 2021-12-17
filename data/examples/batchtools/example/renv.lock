@@ -38,10 +38,10 @@
     },
     "backports": {
       "Package": "backports",
-      "Version": "1.4.0",
+      "Version": "1.4.1",
       "Source": "Repository",
       "Repository": "RSPM",
-      "Hash": "00c7752ce37466d4a74774bcca1a507c"
+      "Hash": "c39fbec8a30d23e721980b8afb31984c"
     },
     "base64url": {
       "Package": "base64url",
@@ -53,10 +53,14 @@
     "batchtools": {
       "Package": "batchtools",
       "Version": "0.9.16",
-      "Source": "Local",
-      "RemoteType": "local",
-      "RemoteUrl": "/efs/tmp/batchtools_0.9.16.tar.gz",
-      "Hash": "f34a017876de0f87a34d6a781b529120"
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "batchtools",
+      "RemoteUsername": "mllg",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "63a6f812927f6dc78595abbffac0f6bc9651f67a",
+      "Hash": "f7ce16335d0f2e6b9eef18dcc6644662"
     },
     "brew": {
       "Package": "brew",
@@ -102,10 +106,10 @@
     },
     "fs": {
       "Package": "fs",
-      "Version": "1.5.1",
+      "Version": "1.5.2",
       "Source": "Repository",
       "Repository": "RSPM",
-      "Hash": "8142f0a2056d53ec2e15bf701185beb1"
+      "Hash": "7c89603d81793f0d5486d91ab1fc6f1d"
     },
     "glue": {
       "Package": "glue",
@@ -127,6 +131,13 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "a6b6d352e3ed897373ab19d8395c98d0"
+    },
+    "palmerpenguins": {
+      "Package": "palmerpenguins",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "9a455031890b2adf20e19784a114ddd4"
     },
     "pkgconfig": {
       "Package": "pkgconfig",

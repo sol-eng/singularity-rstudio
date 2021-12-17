@@ -8,23 +8,23 @@
       },
       {
         "Name": "BioCsoft",
-        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.12/bioc"
+        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.14/bioc"
       },
       {
         "Name": "BioCann",
-        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.12/data/annotation"
+        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.14/data/annotation"
       },
       {
         "Name": "BioCexp",
-        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.12/data/experiment"
+        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.14/data/experiment"
       },
       {
         "Name": "BioCworkflows",
-        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.12/workflows"
+        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.14/workflows"
       },
       {
         "Name": "BioCbooks",
-        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.12/books"
+        "URL": "https://packagemanager.rstudio.com/bioconductor/packages/3.14/books"
       }
     ]
   },
@@ -119,6 +119,13 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "c64865aba235f36a49d798613cbfccf7"
+    },
+    "palmerpenguins": {
+      "Package": "palmerpenguins",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Hash": "9a455031890b2adf20e19784a114ddd4"
     },
     "pkgconfig": {
       "Package": "pkgconfig",
