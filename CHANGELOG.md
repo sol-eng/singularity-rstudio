@@ -15,7 +15,7 @@ First version of the Singularity/RStudio Workbench integration
   
 ### Fixed
  
-## [0.2] - 2021-12-20 (in preparation)
+## [0.2] - 2021-12-20 
  
 ### Added
 
@@ -26,4 +26,5 @@ First version of the Singularity/RStudio Workbench integration
 ### Changed
  
 ### Fixed
- 
+
+- Preventing possible issues when bind-mounting SLURM installation from the submit node into the RSW docker images (e.g. software dependencies, incompatible linux distributions, ...) by building SLURM from sources during container build time   
