@@ -8,15 +8,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   
 ### Added
 
-First version of the Singularity/RStudio Workbench integration using the SLURM launcher
+First version of the Singularity/RStudio Workbench integration 
+					using the SLURM launcher
  
 ### Changed
   
 ### Fixed
  
-## [0.2] - 2021-12-20
+## [0.2] - 2021-12-20 (in preparation)
  
 ### Added
+
+- Integrating SLURM installation into docker container for Workbench 
+  as well into Singularity container for r-session-complete
+- Deferring [configless SLURM](https://slurm.schedmd.com/configless_slurm.html) to a later time.
    
 ### Changed
  
