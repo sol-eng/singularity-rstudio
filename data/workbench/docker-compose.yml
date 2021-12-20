@@ -6,7 +6,6 @@ services:
     hostname: rstudio-workbench
     privileged: true 
     volumes:
-      - /opt/slurm/:/opt/slurm/
       - /efs:/efs
       - /scratch:/scratch
       - ./etc/rserver.conf:/etc/rstudio/rserver.conf
