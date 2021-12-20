@@ -36,6 +36,7 @@ The goal of this article is to
 * (optional) application stack using [environment modules ](https://modules.readthedocs.io/en/latest/) or [Lmod](https://lmod.readthedocs.io/en/latest/) with base directory in `appstack-path`
 * persistent shared storage across the nodes (e.g. general NAS, NFS, GPFS, ...) to store the singularity images. Folder name will subsequently referred to as `container-path`
 * transient shared storage across the nodes (e.g. Lustre, GPFS, ...) for scratch storage, subsequently referred to as `scratch-path`
+* Using a docker container for RSW is not strictly needed - RSW can also be installed and configured natively
 
 # Installation of Singularity
 
@@ -160,6 +161,8 @@ singularity build r-session-complete.sif r-session-complete.sdef
 
 Please note that this can be a very time-consuming process. Ensure that your temporary folder (e.g. `/tmp` or wherever the environment variable `TMP`/`TMPDIR` etc. points to) has sufficient amounts of disk space available. You will definitely need around 4 GB of disk space. A benefit of singularity containers is that they are much smaller (<50 % of docker image size) but they take a while to build.
 
+Also make sure you set the 'SLURM_VERSION' variable to the same version  than your HPC cluster is using. 
+
 # Docker container for RSW
 
 ## Preparation 
@@ -172,6 +175,14 @@ Please note that this can be a very time-consuming process. Ensure that your tem
 ```bash
 docker build -f workbench.docker -t rstudio-workbench-hpc:2021.09.1-372.pro1 .
 ```
+If you need to use another SLURM version than "21.08.4", please specify 
+
+```bash
+--build-arg SLURM_VERSION=<your-slurm-version>
+```
+
+where '<your-slurm-version>' corresponds to the version of SLURM on your HPC cluster. 
+
 * You also may want to 
     * push the new image to your docker registry
     * configure your authentication mechanism in the docker container
