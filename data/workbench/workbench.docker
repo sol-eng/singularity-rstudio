@@ -1,10 +1,12 @@
 FROM rstudio/rstudio-workbench:2021.09.1-372.pro1 
 
+ARG SLURM_VERSION=21.08.4
+
 COPY scripts/create.R /
 
 RUN groupadd -g 401 slurm && \ 
        useradd -u 401 -g 401 slurm && \ 
-       apt-get update && apt-get install -y munge && rm -rf /var/cache/apt/*
+       apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
 
 RUN apt-get update -y && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -53,3 +55,15 @@ RUN apt-get update && apt-get install -y cracklib-runtime && \
 
 # Removing empty sssd conf as this seems to crash docker-compose
 RUN rm -f /startup/user-provisioning/sssd.conf 
+
+# Install SLURM
+
+RUN mkdir /tmp/build && \
+	cd /tmp/build && \
+	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
+	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
+	cd slurm-${SLURM_VERSION} && \
+	./configure --prefix /opt/slurm && \
+	make -j 4 && make install && \
+	cd / && \
+	rm -rf /tmp/build
