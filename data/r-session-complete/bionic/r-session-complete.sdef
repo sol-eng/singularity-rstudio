@@ -51,6 +51,17 @@ From: rstudio/r-session-complete:bionic-2021.09.1-372.pro1
         libzmq5 && \
         rm -rf /var/lib/apt/lists/*
 
+    # Install SLURM 
+    mkdir /tmp/build && \
+	cd /tmp/build && \
+	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
+	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
+	cd slurm-${SLURM_VERSION} && \
+	./configure --prefix /opt/slurm && \
+	make -j 4 && make install && \
+	cd / && \
+	rm -rf /tmp/build
+
 
 %environment
     export PATH=/opt/slurm/bin:$PATH

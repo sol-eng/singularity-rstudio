@@ -78,7 +78,17 @@ EOF
     # SLURM integration (mandatory) 
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
-    yum -y install munge
+    yum -y install munge-devel
+
+    mkdir /tmp/build && \
+	cd /tmp/build && \
+	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
+	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
+	cd slurm-${SLURM_VERSION} && \
+	./configure --prefix /opt/slurm && \
+	make -j 4 && make install && \
+	cd / && \
+	rm -rf /tmp/build
 
     # Install zeromq as prereq for clustermq (optional) 
     yum -y install zeromq
