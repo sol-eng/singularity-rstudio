@@ -13,7 +13,7 @@ glmfunction <- function(n) {
   coefficients(result1)
 }
 
-trials <- 4000
+trials <- 10000
 
 library(palmerpenguins)
 
@@ -25,7 +25,7 @@ ids<-batchMap(fun=glmfunction, n=1:trials)
 
 # Chunk jobs for better performance
 #ids[, chunk := chunk(job.id, chunk.size = 200)]
-ids[, chunk := chunk(job.id, n.chunks = 2)]
+ids[, chunk := chunk(job.id, n.chunks = 10)]
 
 # Exporting data (x) to slaves
 batchExport(export = list(x = as.data.frame(x)), reg = reg)
