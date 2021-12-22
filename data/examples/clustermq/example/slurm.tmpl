@@ -9,4 +9,4 @@
 ###SBATCH --singularity-bind=/var/spool/slurmd
 
 ulimit -v $(( 1024 * {{ memory | 1024 }} ))
-CMQ_AUTH={{ auth }} R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'
+CMQ_AUTH={{ auth }} ${R_HOME}/bin/R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'
