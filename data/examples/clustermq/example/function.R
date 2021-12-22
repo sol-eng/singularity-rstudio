@@ -12,13 +12,13 @@ library(foreach)
 library(palmerpenguins)
 
 # Register parallel backend to foreach
-register_dopar_cmq(n_jobs=2, memory=1024, log_worker=TRUE, chunk_size=20000)
+register_dopar_cmq(n_jobs=2, memory=1024, log_worker=TRUE, chunk_size=1000)
 
 # Our dataset 
 x<-penguins[which(penguins[,1] != "Adelie"),c(1,3)]
 
 # Number of trials to simulate
-trials <- 40000
+trials <- 10000
 
 # Main loop
 res <- foreach(i=1:trials,.combine=rbind) %dopar% {
