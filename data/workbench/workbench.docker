@@ -1,6 +1,6 @@
 FROM rstudio/rstudio-workbench:2021.09.1-372.pro1 
 
-ARG SLURM_VERSION=21.08.4
+ARG SLURM_VERSION=20.11.8
 
 COPY scripts/create.R /
 
