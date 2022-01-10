@@ -8,7 +8,7 @@ reg = makeRegistry(file.dir = paste0(getwd(),"/registry"), seed = 1)
 
 # define function
 glmfunction <- function(n) {
-  ind <- sample(100, 100, replace=TRUE)
+  ind <- sample(344,344, replace=TRUE)
   result1 <- glm(x[ind,1]~x[ind,2], family=binomial(logit))
   coefficients(result1)
 }
@@ -18,7 +18,7 @@ trials <- 10000
 library(palmerpenguins)
 
 # Our dataset
-x<-penguins[which(penguins[,1] != "Adelie"),c(1,3)]
+x<-penguins[c(4,1)]
 
 # Mapping input parameters to function
 ids<-batchMap(fun=glmfunction, n=1:trials)
