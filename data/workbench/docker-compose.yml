@@ -13,6 +13,7 @@ services:
       - ./etc/launcher.slurm.conf:/etc/rstudio/launcher.slurm.conf
       - ./etc/launcher.slurm.profiles.conf:/etc/rstudio/launcher.slurm.profiles.conf  
       - ./etc/jupyter.conf:/etc/rstudio/jupyter.conf
+      - /opt/slurm/etc:/opt/slurm/etc
     ports:
       - "8787:8787"
     environment:
