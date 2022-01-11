@@ -10,6 +10,8 @@ services:
       - /etc/passwd:/etc/passwd
       - /etc/group:/etc/group
       - /etc/shadow:/etc/shadow
+      - /scratch:/scratch
+      - ./rstudio-connect.gcfg:/etc/rstudio-connect/rstudio-connect.gcfg 
     ports:
             - "3939:3939"
     environment:
