@@ -7,6 +7,9 @@ services:
     privileged: true 
     volumes:
       - /efs:/efs
+      - /etc/passwd:/etc/passwd
+      - /etc/group:/etc/group
+      - /etc/shadow:/etc/shadow
     ports:
             - "3939:3939"
     environment:
