@@ -47,11 +47,11 @@ RUN chmod +s /usr/sbin/munged && \
 	echo "[program:munge]\ncommand=/usr/sbin/munged -F\nautorestart=false\nnumprocs=1\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0" > /startup/custom/munge.conf && \ 
 	cat /startup/custom/munge.conf
 
-RUN apt-get update && apt-get install -y cracklib-runtime && \
-	groupadd --system --gid 1001 mm && \
-	useradd -s /bin/bash -d /scratch/mm --system --gid mm --uid 1001 mm && \
-	echo "test123\ntest123" | passwd mm && \
-        rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y cracklib-runtime && \
+#	groupadd --system --gid 1001 mm && \
+#	useradd -s /bin/bash -d /scratch/mm --system --gid mm --uid 1001 mm && \
+#	echo "test123\ntest123" | passwd mm && \
+#        rm -rf /var/lib/apt/lists/*
 
 # Removing empty sssd conf as this seems to crash docker-compose
 RUN rm -f /startup/user-provisioning/sssd.conf 

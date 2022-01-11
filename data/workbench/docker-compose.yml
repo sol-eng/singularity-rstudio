@@ -14,6 +14,9 @@ services:
       - ./etc/launcher.slurm.profiles.conf:/etc/rstudio/launcher.slurm.profiles.conf  
       - ./etc/jupyter.conf:/etc/rstudio/jupyter.conf
       - /opt/slurm/etc:/opt/slurm/etc
+      - /etc/passwd:/etc/passwd
+      - /etc/group:/etc/group
+      - /etc/shadow:/etc/shadow
     ports:
       - "8787:8787"
     environment:
