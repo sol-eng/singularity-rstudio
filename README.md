@@ -296,7 +296,11 @@ During the code development, new packages will be needed. In order to stay in sy
 
 `renv` and package installation in general can be sped up using binary packages, either served from CRAN or from [RStudio Package Manager](https://packagemanager.rstudio.com/). 
 
-Unfortunately `renv` currently does not support the parallel installation of R packages but a [feature request ](https://github.com/rstudio/renv/issues/459)is in place. 
+As of `renv` 0.15.1, parallel installation of R packages is supported via the uise of `pak`. This can be activated by setting 
+
+```
+options(renv.config.pak.enabled = TRUE)
+```
 
 
 
