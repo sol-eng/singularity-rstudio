@@ -302,6 +302,8 @@ As of `renv` 0.15.1, parallel installation of R packages is supported via the ui
 options(renv.config.pak.enabled = TRUE)
 ```
 
+## Unified architecture with Docker/Kubernetes and Singularity/HPC
 
+![](images/rsw-k8s-hpc.drawio.png)
 
 
