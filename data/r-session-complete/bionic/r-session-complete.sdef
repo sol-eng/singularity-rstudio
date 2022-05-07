@@ -5,9 +5,10 @@ From: rstudio/r-session-complete:bionic-2021.09.1-372.pro1
 # set binaryflag to "" in order to stick to source RPMs
 %files
     scripts/create.R /
-
+#    /usr/lib/rstudio-server /usr/lib/
+     
 %post
-    export SLURM_VERSION=20.11.8
+    export SLURM_VERSION=21.08.8-2
     # SLURM integration (mandatory)
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
@@ -53,7 +54,7 @@ From: rstudio/r-session-complete:bionic-2021.09.1-372.pro1
         rm -rf /var/lib/apt/lists/*
 
     # Install SLURM 
-    mkdir /tmp/build && \
+    mkdir -p /tmp/build && \
 	cd /tmp/build && \
 	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
 	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
