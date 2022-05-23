@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:centos7-2021.09.1-372.pro1 
+From: rstudio/rstudio-workbench:2021.09.1-372.pro1 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -7,7 +7,6 @@ From: rstudio/r-session-complete:centos7-2021.09.1-372.pro1
     scripts/create.R /
 
 %post
-    export SLURM_VERSION=20.11.8
     # Install Java JDK (optional) 
     yum -y install java-11-openjdk-devel 
 
@@ -62,9 +61,6 @@ EOF
 	# directory hierarchy in cache (optional but useful)
         echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/efs/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 
-    	# Disable local package installs (optional)
-        echo "#Disable local package installs into R_LIBS_USER\nR_LIBS_USER=/dev/null\n" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
-
     	# Install renv (optional but useful)
         /opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')"
 
@@ -81,15 +77,17 @@ EOF
     useradd -u 401 -g 401 slurm  
     yum -y install munge-devel
 
-    mkdir /tmp/build && \
-	cd /tmp/build && \
-	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
-	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
-	cd slurm-${SLURM_VERSION} && \
-	./configure --prefix /opt/slurm && \
-	make -j 4 && make install && \
-	cd / && \
-	rm -rf /tmp/build
+    # Install SLURM
+    export SLURM_VERSION=20.02.4
+    mkdir -p /tmp/build && \
+        cd /tmp/build && \
+        wget http://134.100.28.207/files/src/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
+        tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
+        cd slurm-${SLURM_VERSION} && \
+        ./configure --prefix /opt/slurm && \
+        make -j 4 && make install && \
+        cd / && \
+        rm -rf /tmp/build
 
     # Install zeromq as prereq for clustermq (optional) 
     yum -y install zeromq

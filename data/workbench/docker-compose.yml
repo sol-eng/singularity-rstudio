@@ -6,14 +6,17 @@ services:
     hostname: rstudio-workbench
     privileged: true 
     volumes:
-      - /efs:/efs
-      - /scratch:/scratch
+      - /etc/passwd:/etc/passwd
+      - /etc/shadow:/etc/shadow
+      - /etc/group:/etc/group
       - ./etc/rserver.conf:/etc/rstudio/rserver.conf
       - ./etc/launcher.conf:/etc/rstudio/launcher.conf
       - ./etc/launcher.slurm.conf:/etc/rstudio/launcher.slurm.conf
       - ./etc/launcher.slurm.profiles.conf:/etc/rstudio/launcher.slurm.profiles.conf  
       - ./etc/jupyter.conf:/etc/rstudio/jupyter.conf
       - /opt/slurm/etc:/opt/slurm/etc
+      - /home:/home
+      - /shared:/shared
     ports:
       - "8787:8787"
     environment:
