@@ -2,6 +2,9 @@ version: "3.2"
 
 services:
   rstudio-workbench-hpc: 
+    build:
+      context: .
+      dockerfile: workbench.docker
     image: rstudio-workbench-hpc:bionic-2021.09.1-372.pro1
     hostname: rstudio-workbench
     privileged: true 
