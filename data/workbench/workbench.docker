@@ -48,10 +48,9 @@ RUN rm -f /startup/user-provisioning/sssd.conf
 ARG SLURM_VERSION=20.02.4
 
 RUN mkdir /tmp/build && \
-	cd /tmp/build && \
-        wget http://134.100.28.207/files/src/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
-	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
-	cd slurm-${SLURM_VERSION} && \
+        cd /tmp/build && \
+    	wget https://github.com/SchedMD/slurm/archive/refs/tags/slurm-`echo "${SLURM_VERSION}-1" | sed 's/\./-/g'`.tar.gz && \
+    	tar xvfz slurm-* && rm -rf *.tar.gz && cd slurm-* && \
 	./configure --prefix /opt/slurm && \
 	make -j 4  && make install && \
 	cd / && \
