@@ -1,19 +1,35 @@
-version: "2.2"
+version: "3.2"
 
 services:
   rstudio-workbench-hpc: 
+    build:
+      context: .
+      dockerfile: workbench.docker
     image: rstudio-workbench-hpc:bionic-2021.09.1-372.pro1
     hostname: rstudio-workbench
     privileged: true 
     volumes:
-      - /efs:/efs
-      - /scratch:/scratch
+      - type: bind
+        source: /etc/passwd
+        target: /etc/passwd
+      - type: bind 
+        source: /etc/shadow
+        target: /etc/shadow
+      - type: bind
+        source: /etc/group
+        target: /etc/group
       - ./etc/rserver.conf:/etc/rstudio/rserver.conf
       - ./etc/launcher.conf:/etc/rstudio/launcher.conf
       - ./etc/launcher.slurm.conf:/etc/rstudio/launcher.slurm.conf
       - ./etc/launcher.slurm.profiles.conf:/etc/rstudio/launcher.slurm.profiles.conf  
       - ./etc/jupyter.conf:/etc/rstudio/jupyter.conf
       - /opt/slurm/etc:/opt/slurm/etc
+      - type: bind
+        source: /home
+        target: /home
+      - type: bind 
+        source: /shared
+        target: /shared
     ports:
       - "8787:8787"
     environment:

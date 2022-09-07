@@ -1,7 +1,5 @@
 FROM rstudio/rstudio-workbench:2021.09.1-372.pro1 
 
-ARG SLURM_VERSION=20.11.8
-
 COPY scripts/create.R /
 
 RUN groupadd -g 401 slurm && \ 
@@ -17,8 +15,7 @@ RUN for R_VERSION in `ls /opt/R`; \
         do \ 
     	/opt/R/${R_VERSION}/bin/R CMD javareconf && \ 
     	/opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site && \
-    	echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/scratch/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
-    	echo "#Disable local package installs into R_LIBS_USER\nR_LIBS_USER=/dev/null\n" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
+    	echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/shared/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" && \ 
 	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')" ; \
     done	
@@ -32,9 +29,6 @@ RUN apt-get update -y && \
         libzmq5 && \
         rm -rf /var/lib/apt/lists/*
 
-# Workaround to get SLURM working (built on ubuntu 2004)
-RUN ln -s /lib/x86_64-linux-gnu/libreadline.so.7 /lib/x86_64-linux-gnu/libreadline.so.8
-
 # Configure munge
 COPY munge/munge.key /etc/munge
 
@@ -47,23 +41,17 @@ RUN chmod +s /usr/sbin/munged && \
 	echo "[program:munge]\ncommand=/usr/sbin/munged -F\nautorestart=false\nnumprocs=1\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0" > /startup/custom/munge.conf && \ 
 	cat /startup/custom/munge.conf
 
-RUN apt-get update && apt-get install -y cracklib-runtime && \
-	groupadd --system --gid 1001 mm && \
-	useradd -s /bin/bash -d /scratch/mm --system --gid mm --uid 1001 mm && \
-	echo "test123\ntest123" | passwd mm && \
-        rm -rf /var/lib/apt/lists/*
-
 # Removing empty sssd conf as this seems to crash docker-compose
 RUN rm -f /startup/user-provisioning/sssd.conf 
 
 # Install SLURM
+ARG SLURM_VERSION=20.02.4
 
 RUN mkdir /tmp/build && \
-	cd /tmp/build && \
-	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
-	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
-	cd slurm-${SLURM_VERSION} && \
+        cd /tmp/build && \
+    	wget https://github.com/SchedMD/slurm/archive/refs/tags/slurm-`echo "${SLURM_VERSION}-1" | sed 's/\./-/g'`.tar.gz && \
+    	tar xvfz slurm-* && rm -rf *.tar.gz && cd slurm-* && \
 	./configure --prefix /opt/slurm && \
-	make -j 4 && make install && \
+	make -j 4  && make install && \
 	cd / && \
 	rm -rf /tmp/build
