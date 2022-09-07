@@ -165,23 +165,20 @@ Also make sure you set the 'SLURM_VERSION' variable to the same version  than yo
 
 # Docker container for RSW
 
+## Default values
+
+It is mandatory to set the environment variable `RSW_LICENSE` to point to a valid license key. In addition, the docker container will be built for SLURM 19.05.2 and RStudio Workbench 2021.09.1-372.pro1 by default. Those defaults can be changed by defining the environment variables `SLURM_VERSION` and `RSW_VERSION`, respectively.   
+
 ## Preparation 
 
 * Change into the directory [`data/workbench`](data/workbench) of this repository
 * Make sure the `launcher-sessions-callback-address` in `etc/rstudio/rserver.conf` is set to an URL that is reachable from the compute nodes.
-* Create a directory `munge` and copy your munge.key into that folder
+* Create a directory `munge` and copy your munge.key into that folder. Change ownership to user and group 111 (e.g. `chown 111:111 munge/munge.key`). 
 * Run (using admin privileges)
 
 ```bash
-docker build -f workbench.docker -t rstudio-workbench-hpc:2021.09.1-372.pro1 .
+docker-compose build
 ```
-If you need to use another SLURM version than "21.08.4", please specify 
-
-```bash
---build-arg SLURM_VERSION=<your-slurm-version>
-```
-
-where '<your-slurm-version>' corresponds to the version of SLURM on your HPC cluster. 
 
 * You also may want to 
     * push the new image to your docker registry
@@ -190,10 +187,7 @@ where '<your-slurm-version>' corresponds to the version of SLURM on your HPC clu
 
 ## Running the docker container
 
-Finally, you only need to set the environment variable `RSP_LICENSE` to your RSW license key and then start the docker container. 
-
 ```bash
-export RSP_LICENSE=<your license key>
 docker-compose up -d 
 ```
 
