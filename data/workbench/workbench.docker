@@ -3,8 +3,12 @@ FROM rstudio/rstudio-workbench:2021.09.1-372.pro1
 COPY scripts/create.R /
 
 RUN groupadd -g 401 slurm && \ 
-       useradd -u 401 -g 401 slurm && \ 
-       apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
+       useradd -u 401 -g 401 slurm 
+
+RUN groupadd -g 111 munge && \
+	useradd -u 111 -s /usr/sbin/nologin -M -d /nonexistent -g 111 munge
+
+RUN apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
 
 RUN apt-get update -y && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y \
