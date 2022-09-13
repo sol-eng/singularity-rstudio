@@ -1,4 +1,4 @@
-FROM rstudio/rstudio-workbench:2021.09.1-372.pro1 
+FROM rstudio/rstudio-workbench:2027.07.1-354.pro3 
 
 COPY scripts/create.R /
 
