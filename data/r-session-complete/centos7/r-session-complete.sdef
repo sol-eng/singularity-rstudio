@@ -4,9 +4,11 @@ From: rstudio/rstudio-workbench:2022.07.1-354.pro3
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
 %files
-    scripts/create.R /
+    scripts/run.R /
 
 %post
+    export SLURM_VERSION=21.08.8-2
+
     # Install Java JDK (optional) 
     yum -y install java-11-openjdk-devel 
 
@@ -42,7 +44,7 @@ EOF
 
     	# Set up R to use latest CRAN and bioconductor repositories 
         # from public RSPM (optional)
-        /opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
+        /opt/R/${R_VERSION}/bin/Rscript /run.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
 
         # Update R Makevars to use the new compiler features from  
         # developer toolset 11 (optional)
@@ -57,10 +59,6 @@ EOF
           $R_HOME/etc/Makeconf
         done
 
-    	# Add renv settings for global cache as well as linux distro specific 
-	# directory hierarchy in cache (optional but useful)
-        echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/efs/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
-
     	# Install renv (optional but useful)
         /opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')"
 
@@ -71,20 +69,19 @@ EOF
         /opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')"
 
     done
+    rm -f /run.R
 
     # SLURM integration (mandatory) 
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
     yum -y install munge-devel
 
-    # Install SLURM
-    export SLURM_VERSION=20.02.4
+    # Install SLURM 
     mkdir -p /tmp/build && \
         cd /tmp/build && \
-        wget http://134.100.28.207/files/src/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
-        tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
-        cd slurm-${SLURM_VERSION} && \
-        ./configure --prefix /opt/slurm && \
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
+        cd slurm && \
+        ./configure --prefix /usr/local/slurm/bin && \
         make -j 4 && make install && \
         cd / && \
         rm -rf /tmp/build
@@ -93,4 +90,8 @@ EOF
     yum -y install zeromq
 
     rm -rf /var/cache/yum/*
+
+%environment
+    export PATH=/usr/local/slurm/bin:$PATH
+    export SLURM_CONF=/opt/slurm/etc/slurm.conf
 

@@ -1,6 +1,6 @@
-FROM rstudio/rstudio-workbench:2027.07.1-354.pro3 
+FROM rstudio/rstudio-workbench:2022.07.1-354.pro3 
 
-COPY scripts/create.R /
+COPY scripts/run.R /
 
 RUN groupadd -g 401 slurm && \ 
        useradd -u 401 -g 401 slurm 
@@ -18,8 +18,7 @@ RUN apt-get update -y && \
 RUN for R_VERSION in `ls /opt/R`; \
         do \ 
     	/opt/R/${R_VERSION}/bin/R CMD javareconf && \ 
-    	/opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site && \
-    	echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/shared/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
+    	/opt/R/${R_VERSION}/bin/Rscript /run.R  
     	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" && \ 
 	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')" ; \
     done	
@@ -49,13 +48,13 @@ RUN chmod +s /usr/sbin/munged && \
 RUN rm -f /startup/user-provisioning/sssd.conf 
 
 # Install SLURM
-ARG SLURM_VERSION=20.02.4
+ARG SLURM_VERSION=21.08.8-2
 
-RUN mkdir /tmp/build && \
+RUN mkdir -p /tmp/build && \
         cd /tmp/build && \
-    	wget https://github.com/SchedMD/slurm/archive/refs/tags/slurm-`echo "${SLURM_VERSION}-1" | sed 's/\./-/g'`.tar.gz && \
-    	tar xvfz slurm-* && rm -rf *.tar.gz && cd slurm-* && \
-	./configure --prefix /opt/slurm && \
-	make -j 4  && make install && \
-	cd / && \
-	rm -rf /tmp/build
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
+        cd slurm && \
+        ./configure --prefix /usr/local/slurm && \
+        make -j 4 && make install && \
+        cd / && \
+        rm -rf /tmp/build

@@ -1,12 +1,13 @@
 Bootstrap: docker
-From: rstudio/rstudio-workbench:2022.07.1-354.pro3 
+From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
 %files
-    scripts/create.R /
+    scripts/run.R /
      
 %post
+    export SLURM_VERSION=21.08.8-2
     # SLURM integration (mandatory)
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
@@ -25,11 +26,7 @@ From: rstudio/rstudio-workbench:2022.07.1-354.pro3
 
     	# Set up R to use latest CRAN and bioconductor repositories 
         # from public RSPM (optional)
-    	/opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
-
-    	# Add renv settings for global cache as well as linux distro specific 
-	# directory hierarchy in cache (optional but useful)
-    	echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/shared/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+    	/opt/R/${R_VERSION}/bin/Rscript /run.R 
 
     	# Install renv (optional but useful)
     	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" 
@@ -40,7 +37,7 @@ From: rstudio/rstudio-workbench:2022.07.1-354.pro3
     done	
     
     # Needed if using CRAN and BioConductor repos from RSPM (optional)
-    rm -f /create.R 
+    rm -f /run.R 
 
     # Install zeromq as prereq for clustermq (optional) 
     apt-get update -y && \
@@ -49,17 +46,18 @@ From: rstudio/rstudio-workbench:2022.07.1-354.pro3
         rm -rf /var/lib/apt/lists/*
 
     # Install SLURM
-    export SLURM_VERSION=20.02.4 
     mkdir -p /tmp/build && \
-	cd /tmp/build && \
-        wget http://134.100.28.207/files/src/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
-	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
-	cd slurm-${SLURM_VERSION} && \
-	./configure --prefix /opt/slurm && \
+        cd /tmp/build && \
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
+        cd slurm && \
+	./configure --prefix /usr/local/slurm && \
 	make -j 4 && make install && \
 	cd / && \
 	rm -rf /tmp/build
 
 
 %environment
-    export PATH=/opt/slurm/bin:$PATH
+    export PATH=/usr/local/slurm/bin:$PATH
+    export SLURM_CONF=/opt/slurm/etc/slurm.conf
+
+
