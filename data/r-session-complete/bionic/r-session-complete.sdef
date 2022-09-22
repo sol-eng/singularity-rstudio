@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
+From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -7,7 +7,7 @@ From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
     scripts/run.R /
      
 %post
-    export SLURM_VERSION=21.08.8-2
+    SLURM_VERSION=21.08.8-2 
     # SLURM integration (mandatory)
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
@@ -46,8 +46,10 @@ From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
         rm -rf /var/lib/apt/lists/*
 
     # Install SLURM
+    export SLURM_VERSION=21.08.8-2 && \
     mkdir -p /tmp/build && \
         cd /tmp/build && \
+        rm -rf slurm && \
         git clone --depth 1 -b slurm-`echo $SLURM_VERSION | sed 's/\./-/g'` https://github.com/SchedMD/slurm.git && \
         cd slurm && \
 	./configure --prefix /usr/local/slurm && \
@@ -59,5 +61,3 @@ From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
 %environment
     export PATH=/usr/local/slurm/bin:$PATH
     export SLURM_CONF=/opt/slurm/etc/slurm.conf
-
-

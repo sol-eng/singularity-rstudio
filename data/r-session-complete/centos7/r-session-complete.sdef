@@ -42,10 +42,6 @@ PCP_DIR=\${DEVTOOLSROOT}
 
 EOF
 
-    	# Set up R to use latest CRAN and bioconductor repositories 
-        # from public RSPM (optional)
-        /opt/R/${R_VERSION}/bin/Rscript /run.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
-
         # Update R Makevars to use the new compiler features from  
         # developer toolset 11 (optional)
         R_HOME=/opt/R/${R_VERSION}/lib/R
@@ -58,6 +54,10 @@ EOF
           s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
           $R_HOME/etc/Makeconf
         done
+
+        # Set up R to use latest CRAN and bioconductor repositories 
+        # from public RSPM (optional)
+        /opt/R/${R_VERSION}/bin/Rscript /run.R
 
     	# Install renv (optional but useful)
         /opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')"
@@ -79,7 +79,8 @@ EOF
     # Install SLURM 
     mkdir -p /tmp/build && \
         cd /tmp/build && \
-        git clone --depth 1 -b slurm-`echo $SLURM_VERSION | sed 's/\./-/g'` https://github.com/SchedMD/slurm.git && \
+        rm -rf slurm && \
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm/bin && \
         make -j 4 && make install && \
@@ -94,4 +95,6 @@ EOF
 %environment
     export PATH=/usr/local/slurm/bin:$PATH
     export SLURM_CONF=/opt/slurm/etc/slurm.conf
+
+
 

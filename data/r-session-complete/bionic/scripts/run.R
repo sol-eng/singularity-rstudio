@@ -37,7 +37,7 @@ dir.create(libdir,recursive=TRUE)
 
 if(dir.exists("/tmp/curl")) {unlink("/tmp/curl",recursive=TRUE)}
 dir.create("/tmp/curl")
-install.packages("RCurl","/tmp/curl", repos="stat.ethz.ch/CRAN")
+install.packages("RCurl","/tmp/curl", repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
 library(RCurl,lib.loc="/tmp/curl")
 
 
