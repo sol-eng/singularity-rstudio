@@ -79,7 +79,7 @@ EOF
     # Install SLURM 
     mkdir -p /tmp/build && \
         cd /tmp/build && \
-        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
+        git clone --depth 1 -b slurm-`echo $SLURM_VERSION | sed 's/\./-/g'` https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm/bin && \
         make -j 4 && make install && \

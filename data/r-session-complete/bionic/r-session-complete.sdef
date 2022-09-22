@@ -48,7 +48,7 @@ From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
     # Install SLURM
     mkdir -p /tmp/build && \
         cd /tmp/build && \
-        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
+        git clone --depth 1 -b slurm-`echo $SLURM_VERSION | sed 's/\./-/g'` https://github.com/SchedMD/slurm.git && \
         cd slurm && \
 	./configure --prefix /usr/local/slurm && \
 	make -j 4 && make install && \
