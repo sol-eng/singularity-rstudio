@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3 
+From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
