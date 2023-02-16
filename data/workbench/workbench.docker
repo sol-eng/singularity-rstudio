@@ -18,7 +18,7 @@ RUN apt-get update -y && \
 RUN for R_VERSION in `ls /opt/R`; \
         do \ 
     	/opt/R/${R_VERSION}/bin/R CMD javareconf && \ 
-    	/opt/R/${R_VERSION}/bin/Rscript /run.R  
+    	/opt/R/${R_VERSION}/bin/Rscript /run.R && \
     	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" && \ 
 	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')" ; \
     done	
