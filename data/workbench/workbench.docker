@@ -1,14 +1,6 @@
-FROM rstudio/rstudio-workbench:2022.07.1-354.pro3 
+FROM rstudio/rstudio-workbench:bionic-2022.12.0 
 
 COPY scripts/run.R /
-
-RUN groupadd -g 401 slurm && \ 
-       useradd -u 401 -g 401 slurm 
-
-RUN groupadd -g 111 munge && \
-	useradd -u 111 -s /usr/sbin/nologin -M -d /nonexistent -g 111 munge
-
-RUN apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
 
 RUN apt-get update -y && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -32,6 +24,16 @@ RUN apt-get update -y && \
         libzmq5 && \
         rm -rf /var/lib/apt/lists/*
 
+
+# SLURM Pre-Requisites
+RUN groupadd -g 401 slurm && \
+       useradd -u 401 -g 401 slurm
+
+RUN groupadd -g 111 munge && \
+        useradd -u 111 -s /usr/sbin/nologin -M -d /nonexistent -g 111 munge
+
+RUN apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
+
 # Configure munge
 COPY munge/munge.key /etc/munge
 
@@ -48,10 +50,16 @@ RUN chmod +s /usr/sbin/munged && \
 RUN rm -f /startup/user-provisioning/sssd.conf 
 
 # Install SLURM
-ARG SLURM_VERSION=21.08.8-2
+# Output of `sinfo -V`
+ARG SLURM_VERSION=22.05.8 && \ 
 
 RUN mkdir -p /tmp/build && \
         cd /tmp/build && \
+        # Note that the git branches on github do have a slightly different
+        # naming scheme - firstly the dots are replaced by dashes and
+        # secondly each SLURM version can have more than one release tag
+        # Here, we simply append "-1" to use the first git tag of a given
+        # SLURM version
         git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm && \
