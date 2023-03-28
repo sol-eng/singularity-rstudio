@@ -93,18 +93,20 @@ EOF
 
     # Install SLURM
     # Output of `sinfo -V`
-    export SLURM_VERSION=22.05.8 && \ 
+    export SLURM_VERSION=22.05.8 
+
+    # Note that the git branches on github do have a slightly different
+    # naming scheme - firstly the dots are replaced by dashes and
+    # secondly each SLURM version can have more than one release tag
+    # Here, we simply append "-1" to use the first git tag of a given
+    # SLURM version
+
     mkdir -p /tmp/build && \
         cd /tmp/build && \
         rm -rf slurm && \
-        # Note that the git branches on github do have a slightly different
-        # naming scheme - firstly the dots are replaced by dashes and
-        # secondly each SLURM version can have more than one release tag
-        # Here, we simply append "-1" to use the first git tag of a given
-        # SLURM version
         bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \
 	cd slurm && \
-        ./configure --prefix /usr/local/slurm/bin && \
+        ./configure --prefix /usr/local/slurm && \
         make -j 4 && make install && \
         cd / && \
         rm -rf /tmp/build
