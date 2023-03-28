@@ -148,6 +148,7 @@ If the above steps work, then the plugin is good to go for the next step.
 * add Java integration to the installed version of R since `rJava` is a problematic R package 
 * setup binary repositories for CRAN and BioConductor from public RSPM
 * for CentOS 7 add [devtoolset-10](https://access.redhat.com/documentation/en-us/red_hat_developer_toolset/10/html-single/user_guide/index) to allow for more recent compiler toolchain. 
+* Install SLURM binaries into the container to prevent any linux distribution dependency on the distribution used on the HPC cluster
 
 ## Singularity recipe
 
@@ -162,6 +163,8 @@ singularity build r-session-complete.sif r-session-complete.sdef
 Please note that this can be a very time-consuming process. Ensure that your temporary folder (e.g. `/tmp` or wherever the environment variable `TMP`/`TMPDIR` etc. points to) has sufficient amounts of disk space available. You will definitely need around 4 GB of disk space. A benefit of singularity containers is that they are much smaller (<50 % of docker image size) but they take a while to build.
 
 Also make sure you set the 'SLURM_VERSION' variable to the same version  than your HPC cluster is using. 
+
+If you intend to submit jobs from within the Singularity Container, please make sure to point the environment variable `SLURM_CONF` to the location of `slurm.conf` on the HPC cluster in `launcher-env`. For AWS ParallelCluster one would set `SLURM_CONF=/opt/slurm/etc/slurm.conf`. 
 
 # Docker container for RSW
 
