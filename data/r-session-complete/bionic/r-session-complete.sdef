@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3 
+From: rstudio/r-session-complete:bionic-2022.12.0 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -7,11 +7,6 @@ From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
     scripts/run.R /
      
 %post
-    SLURM_VERSION=21.08.8-2 
-    # SLURM integration (mandatory)
-    groupadd -g 401 slurm 
-    useradd -u 401 -g 401 slurm  
-    apt-get update && apt-get install libmunge-dev && rm -rf /var/cache/apt/*
 
     # Install Java JDK (optional) 
     apt-get update -y && \
@@ -46,11 +41,21 @@ From: rstudio/r-session-complete:bionic-2022.07.1-554.pro3
         rm -rf /var/lib/apt/lists/*
 
     # Install SLURM
-    export SLURM_VERSION=21.08.8-2 && \
+    groupadd -g 401 slurm
+    useradd -u 401 -g 401 slurm
+    apt-get update && apt-get install libmunge-dev && rm -rf /var/cache/apt/*
+
+    # Output of `sinfo -V`
+    export SLURM_VERSION=22.05.8 && \
     mkdir -p /tmp/build && \
         cd /tmp/build && \
         rm -rf slurm && \
-        git clone --depth 1 -b slurm-`echo $SLURM_VERSION | sed 's/\./-/g'` https://github.com/SchedMD/slurm.git && \
+        # Note that the git branches on github do have a slightly different 
+        # naming scheme - firstly the dots are replaced by dashes and
+        # secondly each SLURM version can have more than one release tag
+        # Here, we simply append "-1" to use the first git tag of a given 
+        # SLURM version
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
 	./configure --prefix /usr/local/slurm && \
 	make -j 4 && make install && \
