@@ -20,7 +20,7 @@ From: rstudio/r-session-complete:centos7-2022.12.0
     rpm -qa | grep ^R- | xargs rpm -e  
     rm -rf /opt/R /usr/local/bin/R /usr/local/bin/Rscript
 
-    # Install new set of defined R versions
+    # Install and configure new set of defined R versions
     R_VERSIONS="4.0.3 4.1.3 4.2.3"
     for R_VERSION in ${R_VERSIONS}
     do
@@ -30,13 +30,9 @@ From: rstudio/r-session-complete:centos7-2022.12.0
         rm -f /usr/local/bin/R /usr/local/bin/Rscript
         ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R
         ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
-    done
 
-    for R_VERSION in `ls /opt/R`
-       do
-
-       # Set up developer toolset 11 for R only (optional)
-       cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+        # Set up developer toolset 11 for R only (optional)
+        cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 # Developer Toolset Root directory
 DEVTOOLSROOT=/opt/rh/devtoolset-11/root
 
