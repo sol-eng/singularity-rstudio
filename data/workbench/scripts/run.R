@@ -37,12 +37,13 @@ dir.create(libdir,recursive=TRUE)
 
 if(dir.exists("/tmp/curl")) {unlink("/tmp/curl",recursive=TRUE)}
 dir.create("/tmp/curl")
-install.packages("RCurl","/tmp/curl", repos="stat.ethz.ch/CRAN")
+install.packages(c("rjson","RCurl"),"/tmp/curl", repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
 library(RCurl,lib.loc="/tmp/curl")
+library(rjson,lib.loc="/tmp/curl")
 
-
-pnames=c("DBI", "R6", "RJDBC", "RODBC", "RSQLite", "Rcpp", "base64enc", "checkmate", "crayon", "commonmark", "curl", "devtools", "digest", "evaluate", "ellipsis", "fastmap", "glue", "haven", "highr", "htmltools", "htmlwidgets", "httpuv", "jsonlite", "keyring", "knitr", "later", "learnr", "lifecycle", "magrittr", "markdown", "mime", "miniUI", "mongolite", "odbc", "openssl", "packrat", "plumber", "png", "profvis", "promises", "r2d3", "ragg", "rappdirs", "rJava", "readr", "readxl", "renv", "reticulate", "rlang", "rmarkdown", "roxygen2", "rprojroot", "rsconnect", "rstan", "rstudioapi", "shiny", "shinytest", "sourcetools", "stringi", "stringr", "testthat", "tinytex", "withr", "xfun", "xml2", "xtable", "yaml")
-
+jsondata<-fromJSON(file="https://raw.githubusercontent.com/rstudio/rstudio/main/src/cpp/session/resources/dependencies/r-packages.json")
+pnames<-c()
+for (feature in jsondata$features) { pnames<-unique(c(pnames,feature$packages)) }
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
 paste("version",currver)
@@ -77,11 +78,7 @@ repo=paste0(pmurl,"/cran/",binaryflag,releasedate)
 avpack<-available.packages(paste0(repo,"/src/contrib"))
 
 #Install all packages needed for RSW
-for (package in pnames) {
-  if (package %in% avpack) {
-    install.packages(package,repos=repo,libdir)
-  }
-}
+install.packages(pnames[pnames %in% avpack],repos=repo,libdir)
 
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
