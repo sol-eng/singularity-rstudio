@@ -258,6 +258,7 @@ For `r-session-complete` we set
 ```bash
 RENV_PATHS_PREFIX_AUTO = TRUE
 RENV_PATHS_CACHE=/scratch/renv
+RENV_PATHS_SANDBOX=/scratch/renv/sandbox
 ```
 
 to create a global package cache shared by users and across nodes.
