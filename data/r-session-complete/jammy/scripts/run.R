@@ -79,8 +79,14 @@ avpack<-available.packages(paste0(repo,"/src/contrib"))
 
 library(pak,lib.loc="/tmp/curl")
 .libPaths("/tmp/curl")
-#Install all packages needed for RSW
-pkg_install(pnames[pnames %in% avpack],repos=repo,lib=libdir)
+
+#Install all packages and their dependencies needed for RSW
+os_name=system(". /etc/os-release && echo $VERSION_CODENAME", intern = TRUE)
+os_vers=system(". /etc/os-release && echo $VERSION_ID", intern = TRUE)
+packages_needed<-pnames[pnames %in% avpack]
+
+system(pkg_system_requirements(packages_needed,os_name,os_vers)
+pkg_install(packages_needed,repos=repo,lib=libdir)
 
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")

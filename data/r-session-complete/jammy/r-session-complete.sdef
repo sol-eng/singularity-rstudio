@@ -37,13 +37,6 @@ From: rstudio/r-session-complete:jammy-2022.12.0
     	# Set up R to use latest CRAN and bioconductor repositories 
         # from public RSPM (optional)
     	/opt/R/${R_VERSION}/bin/Rscript /run.R 
-
-    	# Install renv (optional but useful)
-    	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" 
-
-        # Install rjava (optional) 
-	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')"
-
     done	
     
     # Needed if using CRAN and BioConductor repos from RSPM (optional)
