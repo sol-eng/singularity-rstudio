@@ -37,7 +37,7 @@ dir.create(libdir,recursive=TRUE)
 
 if(dir.exists("/tmp/curl")) {unlink("/tmp/curl",recursive=TRUE)}
 dir.create("/tmp/curl")
-install.packages(c("rjson","RCurl"),"/tmp/curl", repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
+install.packages(c("rjson","RCurl","pak","BiocManager"),"/tmp/curl", repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
 library(RCurl,lib.loc="/tmp/curl")
 library(rjson,lib.loc="/tmp/curl")
 
@@ -77,8 +77,10 @@ repo=paste0(pmurl,"/cran/",binaryflag,releasedate)
 
 avpack<-available.packages(paste0(repo,"/src/contrib"))
 
+library(pak,lib.loc="/tmp/curl")
+.libPaths("/tmp/curl")
 #Install all packages needed for RSW
-install.packages(pnames[pnames %in% avpack],repos=repo,libdir)
+pkg_install(pnames[pnames %in% avpack],repos=repo,lib=libdir)
 
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
@@ -90,10 +92,7 @@ sink()
 options(BioC_mirror = "https://packagemanager.rstudio.com/bioconductor")
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
-if(dir.exists("/tmp/bioc")) {unlink("/tmp/bioc",recursive=TRUE)}
-dir.create("/tmp/bioc")
-install.packages("BiocManager","/tmp/bioc", repos="stat.ethz.ch/CRAN")
-library(BiocManager,lib.loc="/tmp/bioc",quietly=TRUE,verbose=FALSE)
+library(BiocManager,lib.loc="/tmp/curl",quietly=TRUE,verbose=FALSE)
 
 # Version of BioConductor as given by BiocManager (can also be manually set)
 biocvers <- BiocManager::version()
