@@ -49,7 +49,7 @@ currver <- paste0(R.Version()$major,".",R.Version()$minor)
 paste("version",currver)
 
 #Start with a starting date for the time-based snapshot 60 days past the R release
-releasedate <- as.Date(paste0(R.version$year,"-",R.version$month,"-",R.version$day))+60
+releasedate <- as.Date(paste0(R.version$year,"-",R.version$month,"-",R.version$day))
 paste("release", releasedate)
  
 #Attempt to install packages from snapshot - if snapshot does not exist, decrease day by 1 and try again
@@ -61,8 +61,7 @@ getreleasedate <- function(repodate){
   while(!URLfound) {
    if (!RCurl::url.exists(paste0(repo,"/src/contrib/PACKAGES"),useragent="curl/7.39.0 Rcurl/1.95.4.5")) {
 	repodate<-as.Date(repodate)-1
-        paste(repodate)
-        repo=paste0(pmurl,"/cran/",repodate)
+        repo=paste0(pmurl,"/cran/",binaryflag,repodate)
    } else {
    URLfound=TRUE
    }
@@ -70,11 +69,14 @@ getreleasedate <- function(repodate){
  return(repodate)
 }
 
-releasedate <- getreleasedate(as.Date(releasedate))
+releasedate <- getreleasedate(as.Date(releasedate)+60)
+paste("snapshot selected", releasedate)
 
 #Final CRAN snapsot URL
 repo=paste0(pmurl,"/cran/",binaryflag,releasedate)
 options(repos=c(CRAN=repo))
+
+paste("CRAN Snapshot", repo)
 
 avpack<-available.packages(paste0(repo,"/src/contrib"))
 
