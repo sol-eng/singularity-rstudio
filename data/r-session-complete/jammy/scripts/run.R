@@ -83,6 +83,7 @@ install.packages(pnames[pnames %in% avpack],repos=repo,libdir)
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
   cat("RENV_PATHS_CACHE=/scratch/renv\n")
+  cat("RENV_PATHS_SANDBOX=/scratch/renv/sandbox\n")
 sink()
 
 # Prepare for BioConductor
