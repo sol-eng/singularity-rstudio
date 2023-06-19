@@ -70,8 +70,11 @@ From: rstudio/r-session-complete:jammy-2022.12.0
         # SLURM version
         bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \
         cd slurm && \
-	./configure --prefix /usr/local/slurm && \
-	make -j 4 && make install && \
+	./configure --prefix /usr/local/slurm >& /var/log/slurm-configure.log && \
+        echo "Compiling SLURM" && \
+	make -j 4 >& /var/log/slurm-compile.log && \
+	echo "Installing SLURM" && \
+	make install >& /var/log/slurm-install.log && \
 	cd / && \
 	rm -rf /tmp/build
 
