@@ -108,12 +108,13 @@ EOF
     yum -y install zeromq
 
     # Install JAGS 4.3.0 as requirement for rjags
+    # Relies on the presence of openblas-devel from the R install
     dir=`mktemp -d`
     cd $dir 
     curl -O -L  https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Source/JAGS-4.3.2.tar.gz/download
     tar xvfz download
     cd JAGS-4.3.2
-    ./configure && make && make install 
+    ./configure --with-blas="-lopenblas" && make && make install 
     cd 
     rm -rf $dir 
 
