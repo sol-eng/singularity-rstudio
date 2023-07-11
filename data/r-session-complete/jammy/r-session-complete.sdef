@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:jammy-2022.12.0 
+From: rstudio/r-session-complete:jammy-2023.06.0 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -46,6 +46,10 @@ From: rstudio/r-session-complete:jammy-2022.12.0
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
         libzmq5 
 
+    # Install JAGS as prereq for rjags (optional)
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        jags
+
     # Install SLURM
     groupadd -g 401 slurm
     useradd -u 401 -g 401 slurm
@@ -60,8 +64,8 @@ From: rstudio/r-session-complete:jammy-2022.12.0
     # Here, we simply append "-1" to use the first git tag of a given
     # SLURM version
 
-    mkdir -p /tmp/build && \
-        cd /tmp/build && \
+    dir=`mktemp -d` && \
+        cd $dir && \
         rm -rf slurm && \
         bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \
         cd slurm && \
@@ -71,7 +75,9 @@ From: rstudio/r-session-complete:jammy-2022.12.0
         echo "Installing SLURM" && \
         make install > /var/log/slurm-install.log && \
         cd / && \
-        rm -rf /tmp/build 
+        rm -rf $dir 
+
+    rm -rf /var/cache/yum/*
 
 
 %environment

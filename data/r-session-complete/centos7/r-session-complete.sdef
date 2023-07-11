@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:centos7-2022.12.0
+From: rstudio/r-session-complete:centos7-2023.06.0
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -90,8 +90,8 @@ EOF
     # Here, we simply append "-1" to use the first git tag of a given
     # SLURM version
 
-    mkdir -p /tmp/build && \
-        cd /tmp/build && \
+    dir=`mktemp -d` && \
+        cd $dir && \
         rm -rf slurm && \
         bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \
         cd slurm && \
@@ -101,11 +101,22 @@ EOF
         echo "Installing SLURM" && \
         make install > /var/log/slurm-install.log && \
         cd / && \
-        rm -rf /tmp/build
+        rm -rf $dir
 
 
     # Install zeromq as prereq for clustermq (optional) 
     yum -y install zeromq
+
+    # Install JAGS 4.3.0 as requirement for rjags
+    # Relies on the presence of openblas-devel from the R install
+    dir=`mktemp -d`
+    cd $dir 
+    curl -O -L  https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Source/JAGS-4.3.2.tar.gz/download
+    tar xvfz download
+    cd JAGS-4.3.2
+    ./configure --with-blas="-lopenblas" && make && make install 
+    cd 
+    rm -rf $dir 
 
     rm -rf /var/cache/yum/*
 
