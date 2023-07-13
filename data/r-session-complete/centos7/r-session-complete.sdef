@@ -121,10 +121,8 @@ EOF
     rm -rf /var/cache/yum/*
 
 %startscript
-    env | grep -e ^SINGULARITY -e ^SLURM | sed 's/^/export /' > /tmp/$USER-$SLURM_JOBID.env 
-    $@
-
-%environment
+    env | env | grep -e ^SINGULARITY -e ^SLURM | grep -v NAME | grep -v BIND | sed 's/^/export /' > /tmp/$USER-$SLURM_JOBID.env 
     export PATH=/usr/local/slurm/bin:$PATH
     export SLURM_CONF=/opt/slurm/etc/slurm.conf
+    $@
 
