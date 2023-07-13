@@ -96,7 +96,7 @@ In order to install and configure the SPANK plugin for singularity specifically 
     
 
 * replace in `slurm-singularity-wrapper.sh`
-   * `/efs/singularity/3.8.5/bin/` with the full path to the singularity binary or the appropriate `ml`/`module` commands to load the module
+   * `/usr/bin/singularity` with the full path to the singularity binary or the appropriate `ml`/`module` commands to load the module
 
 Once done, simply run (with admin rights).
 

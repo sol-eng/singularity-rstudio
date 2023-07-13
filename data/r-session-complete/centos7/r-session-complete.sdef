@@ -5,6 +5,7 @@ From: rstudio/r-session-complete:centos7-2023.06.0
 # set binaryflag to "" in order to stick to source RPMs
 %files
     scripts/run.R /
+    scripts/zz_workbench_singularity_env_vars.sh /etc/profile.d/
 
 %post
 
@@ -101,7 +102,8 @@ EOF
         echo "Installing SLURM" && \
         make install > /var/log/slurm-install.log && \
         cd / && \
-        rm -rf $dir
+        rm -rf $dir && \
+        ln -s /usr/local/slurm/bin/* /usr/local/bin
 
 
     # Install zeromq as prereq for clustermq (optional) 
@@ -121,8 +123,11 @@ EOF
     rm -rf /var/cache/yum/*
 
 %startscript
-    env | env | grep -e ^SINGULARITY -e ^SLURM | grep -v NAME | grep -v BIND | sed 's/^/export /' > /tmp/$USER-$SLURM_JOBID.env 
-    export PATH=/usr/local/slurm/bin:$PATH
-    export SLURM_CONF=/opt/slurm/etc/slurm.conf
+    # The below is saving the necessary environment variables so they can eb inherited into
+    # subsequent singularity calls
+    env | grep -e ^SINGULARITY -e ^SLURM | grep -v NAME | grep -v BIND | sed 's/^/export /' > /tmp/.slurm-$USER-$SLURM_JOBID.env
     $@
+
+%environment
+    export SLURM_CONF=/opt/slurm/etc/slurm.conf
 
