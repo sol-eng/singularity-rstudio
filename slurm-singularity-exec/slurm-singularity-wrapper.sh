@@ -37,11 +37,14 @@ run_in() {
 	local global="$SLURM_SINGULARITY_GLOBAL"
         _debug "SLURM_SINGULARITY_GLOBAL=$global"
 
-        local command="/efs/singularity/3.8.5/bin/singularity $global exec --bind=$bind $args $container $@"
+        local instance_name="singularity-`cat /proc/sys/kernel/random/uuid | sed 's/[-]//g'`"
+        _debug "instance_name=$instance_name"
+
+        local command="/usr/bin/singularity instance start $global --bind=$bind $args $container $instance_name && /usr/bin/singularity shell instance://$instance_name $@ && /usr/bin/singularity instance stop $instance_name"
         _debug "$command"
 
         echo "Start Singularity container $container"
-        exec $command
+        bash -c  "$command"
 }
 
 run_in "$@"
