@@ -1,4 +1,7 @@
-FROM rstudio/rstudio-workbench:bionic-2022.12.0 
+ARG RSW_VERSION
+ARG SLURM_VERSION
+
+FROM rstudio/rstudio-workbench:jammy-$RSW_VERSION 
 
 COPY scripts/run.R /
 
@@ -60,7 +63,7 @@ RUN mkdir -p /tmp/build && \
         # secondly each SLURM version can have more than one release tag
         # Here, we simply append "-1" to use the first git tag of a given
         # SLURM version
-        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm && \
         make -j 4 && make install && \

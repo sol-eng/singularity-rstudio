@@ -6,9 +6,9 @@ services:
       context: .
       dockerfile: workbench.docker
       args: 
-        - SLURM_VERSION=${SLURM_VERSION:-19.05.2}
-        - RSW_VERSION=${RSW_VERSION:-2022.07.1-354.pro3}
-    image: rstudio-workbench-hpc:bionic-rsw-${RSW_VERSION:-2022.07.1-354.pro3}-slurm-${SLURM_VERSION:-19.05.2}
+        - SLURM_VERSION=${SLURM_VERSION:-22.05.8}
+        - RSW_VERSION=${RSW_VERSION:-2023.06.1}
+    image: rstudio-workbench-hpc:bionic-rsw-${RSW_VERSION:-2023.06.1}-slurm-${SLURM_VERSION:-22.05.8}
     hostname: rstudio-workbench
     privileged: true 
     volumes:
