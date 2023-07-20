@@ -54,7 +54,6 @@ RUN rm -f /startup/user-provisioning/sssd.conf
 
 # Install SLURM
 # Output of `sinfo -V`
-ARG SLURM_VERSION=22.05.8 && \ 
 
 RUN mkdir -p /tmp/build && \
         cd /tmp/build && \
@@ -63,7 +62,8 @@ RUN mkdir -p /tmp/build && \
         # secondly each SLURM version can have more than one release tag
         # Here, we simply append "-1" to use the first git tag of a given
         # SLURM version
-        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
+        bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://g
+ithub.com/SchedMD/slurm.git" && \  
         cd slurm && \
         ./configure --prefix /usr/local/slurm && \
         make -j 4 && make install && \
