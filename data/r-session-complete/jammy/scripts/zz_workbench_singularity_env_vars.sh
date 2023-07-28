@@ -9,7 +9,7 @@ if (which squeue >/dev/null) && [ ! -z $SESSION_ID ]; then
   SLURM_ID=`squeue -o '%.7i %55j' | grep $SESSION_ID | awk '{print $1}'`
 else
   # SESSION_ID could not be determined, e.g. R session only starting up
-  SLURM_ID=`ls -tra /tmp/.slurm-rstudio-*.env  | tail -1 | cut -d "-" -f 3 | sed 's/.env//'`
+  SLURM_ID=`ls -tra /tmp/.slurm-$USER-*.env  | tail -1 | cut -d "-" -f 3 | sed 's/.env//'`
 fi
 
 if [ ! -z $SLURM_ID ]; then
