@@ -43,7 +43,8 @@ run_in() {
         local command="/usr/bin/singularity instance start $global --bind=$bind $args $container $instance_name && /usr/bin/singularity run instance://$instance_name $@ && /usr/bin/singularity instance stop $instance_name"
         _debug "$command"
 
-        echo "Start Singularity container $container"
+        _debug "Start Singularity container $container"
+        _debug "Command used: $command"
         bash -c  "$command"
 }
 
