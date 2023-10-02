@@ -29,7 +29,7 @@ currver <- paste0(R.Version()$major,".",R.Version()$minor)
 
 libdir <- paste0("/opt/rstudio/rver/",currver)
 
-pmurl <- "https://packagemanager.rstudio.com"
+pmurl <- "https://packagemanager.posit.co"
 
 if(dir.exists(libdir)) {unlink(libdir,recursive=TRUE)}
 dir.create(libdir,recursive=TRUE)
@@ -90,7 +90,10 @@ os_vers=system(". /etc/os-release && echo $VERSION_ID", intern = TRUE)
 packages_needed<-pnames[pnames %in% avpack]
 
 paste("Installing system dependencies")
-system(pkg_system_requirements(packages_needed,os_name,os_vers))
+sysdeps<-pkg_sysreqs(packages_needed)
+system(sysdeps$pre_install)
+system(sysdeps$install_scripts)
+system(sysdeps$post_install)
 
 paste("Installing packages for RSW integration")
 pkg_install(packages_needed,lib=libdir)
@@ -102,7 +105,12 @@ sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
 sink()
 
 # Prepare for BioConductor
-options(BioC_mirror = "https://packagemanager.rstudio.com/bioconductor")
+options(BioC_mirror = paste0(pmurl,"/bioconductor"))
+options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
+sink(paste0("/opt/R/",currver,"/lib/R/etc/Rprofile.site"),append=FALSE)
+options(BioC_mirror = paste0(pmurl,"/bioconductor"))
+options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
+sink()
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
 library(BiocManager,lib.loc="/tmp/curl",quietly=TRUE,verbose=FALSE)
@@ -124,11 +132,8 @@ r["CRAN"]<-repo
 nr=length(r)
 r<-c(r[nr],r[1:nr-1])
 
-# Populate r-versions and repos config for RSW
-rverstring=paste0(R.version$major,".",R.version$minor)
- 
 system("mkdir -p /opt/rstudio/etc/rstudio/repos")
-filename=paste0("/opt/rstudio/etc/rstudio/repos/repos-",rverstring,".conf")
+filename=paste0("/opt/rstudio/etc/rstudio/repos/repos-",currver,".conf")
 sink(filename)
 for (i in names(r)) {cat(noquote(paste0(i,"=",r[i],"\n"))) }
 sink()
@@ -141,12 +146,12 @@ cat("\n")
 cat(paste0("Path: ",r_home,"\n"))
 cat(paste0("Label: R","\n"))
 cat(paste0("Repo: ",filename,"\n"))
-cat(paste0("Script: /opt/R/",rverstring,"/lib/R/etc/ldpaths \n"))
+cat(paste0("Script: /opt/R/",currver,"/lib/R/etc/ldpaths \n"))
 cat("\n")
 sink()
 
-sink(paste0("/opt/R/",rverstring,"/lib/R/etc/Rprofile.site"),append=TRUE)
-if ( rverstring < "4.1.0" ) {
+sink(paste0("/opt/R/",currver,"/lib/R/etc/Rprofile.site"),append=FALSE)
+if ( currver < "4.1.0" ) {
   cat('.env = new.env()\n')
 }
 cat('local({\n')
@@ -156,9 +161,12 @@ for (line in names(r)) {
 }
 cat('options(repos=r)\n') 
 
-libdir <- paste0("/opt/rstudio/rver/",rverstring)
+options(BioC_mirror = paste0(pmurl,"/bioconductor"))
+options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
+
+libdir <- paste0("/opt/rstudio/rver/",currver)
 cat(paste0('.libPaths(c(.libPaths(),"',libdir,'"))\n'))
-if ( rverstring < "4.1.0" ) {
+if ( currver < "4.1.0" ) {
 cat('}, envir = .env)\n')
 cat('attach(.env)\n')
 } else {
