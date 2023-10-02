@@ -129,5 +129,6 @@ EOF
     $@
 
 %environment
+    TINI_SUBREAPER=true
     export SLURM_CONF=/opt/slurm/etc/slurm.conf
 
