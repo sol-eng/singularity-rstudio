@@ -10,8 +10,10 @@
 # * update Rprofile.site with the same repository informations 
 # * add renv config into Renviron.site to use 
 #       a global cache in $renvdir  
-# * install all needed R packages for Workbench to work and add them 
+# * install all needed R packages for the R <-> RStudio IDE integration 
+#.      to work and add them 
 #       in a separate .libPath() ($basepackagedir/x.y.z)
+#       provided that $rspintegration is set to TRUE
 # * create a pak pkg.lock file in $basepackagedir/x.y.z
 #       for increased reproducibility
 # * auto-detect which OS it is running on and add binary package support
@@ -27,11 +29,18 @@ renvdir<-"/scratch/renv"
 # base folder site libraries for additional packages 
 basepackagedir<-"/opt/rstudio/rver"
 
+# Install packages for RStudio IDE integration into the site library
+rspintegration<-TRUE
+
+# List of additional packages to be installed into the site library
+# (must be stored in the scripts directory)
+extrapkglist<-"r-packages-install.txt"
+
 # packagemanager URL to be used
 pmurl <- "https://packagemanager.posit.co"
 
 # place to create rstudio integration for package repos
-rsconfigdir <- "/opt/rstudio/etc/rstudio" 
+rspconfigdir <- "/opt/rstudio/etc/rstudio" 
 
 binaryflag<-""
 
@@ -53,13 +62,25 @@ dir.create(libdir,recursive=TRUE)
 
 if(dir.exists("/tmp/curl")) {unlink("/tmp/curl",recursive=TRUE)}
 dir.create("/tmp/curl")
-install.packages(c("rjson","RCurl","pak","BiocManager"),"/tmp/curl", repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
+install.packages(c("rjson","RCurl","BiocManager"),"/tmp/curl", repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
+install.packages("pak", "/tmp/curl", repos = sprintf("https://r-lib.github.io/p/pak/devel/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
 library(RCurl,lib.loc="/tmp/curl")
 library(rjson,lib.loc="/tmp/curl")
 
-jsondata<-fromJSON(file="https://raw.githubusercontent.com/rstudio/rstudio/main/src/cpp/session/resources/dependencies/r-packages.json")
 pnames<-c()
-for (feature in jsondata$features) { pnames<-unique(c(pnames,feature$packages)) }
+if (rspintegration) {
+  paste("Reading package list for RStudio IDE integration")
+  jsondata<-fromJSON(file="https://raw.githubusercontent.com/rstudio/rstudio/main/src/cpp/session/resources/dependencies/r-packages.json")
+  for (feature in jsondata$features) { pnames<-unique(c(pnames,feature$packages)) }
+}
+
+if (file.exists(paste0("/",extrapkglist))) {
+  paste("Reading package list for additional packages to be installed")
+  pnames<-unique(c(pnames,readLines(paste0("/",extrapkglist))))
+}
+
+#ignore MASS for the time being as this is a problem with pak/pkgdepends
+pnames=pnames[!("MASS" %in% pnames)]
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
 paste("version",currver)
@@ -85,7 +106,8 @@ getreleasedate <- function(repodate){
  return(repodate)
 }
 
-releasedate <- getreleasedate(as.Date(releasedate)+60)
+releasedate <- getreleasedate(as.Date(releasedate)+94) 
+
 paste("snapshot selected", releasedate)
 
 #Final CRAN snapsot URL
@@ -96,6 +118,9 @@ paste("CRAN Snapshot", repo)
 
 avpack<-available.packages(paste0(repo,"/src/contrib"))
 
+# suppress extra pak messages
+options(pak.no_extra_messages = TRUE)
+ 
 library(pak,lib.loc="/tmp/curl")
 .libPaths("/tmp/curl")
 
@@ -103,16 +128,19 @@ library(pak,lib.loc="/tmp/curl")
 os_name=system(". /etc/os-release && echo $ID", intern = TRUE)
 os_vers=system(". /etc/os-release && echo $VERSION_ID", intern = TRUE)
 
-packages_needed<-pnames[pnames %in% avpack]
+#packages_needed<-pnames[pnames %in% avpack]
+packages_needed<-pnames
 
-paste("Installing system dependencies")
-sysdeps<-pak::pkg_sysreqs(packages_needed)
-system(sysdeps$pre_install)
-system(sysdeps$install_scripts)
-system(sysdeps$post_install)
+paste("preconfigure Bioconductor for offline use")
+options(BioC_mirror = paste0(pmurl,"/bioconductor"))
+options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
+sink(paste0("/opt/R/",currver,"/lib/R/etc/Rprofile.site"),append=FALSE)
+options(BioC_mirror = paste0(pmurl,"/bioconductor"))
+options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
+sink()
 
-paste("Installing packages for RSW integration")
-pak::pkg_install(packages_needed,lib=libdir)
+paste("Installing packages")
+pak::pkg_install(packages_needed,lib=libdir,upgrade=FALSE,dependencies=NA)
 paste("Creating lock file for further reproducibility")
 pak::lockfile_create(packages_needed,lockfile=paste0(libdir,"/pkg.lock"))
 
@@ -124,13 +152,6 @@ sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
 sink()
 
 paste("Configuring Bioconductor")
-# Prepare for Bioconductor
-options(BioC_mirror = paste0(pmurl,"/bioconductor"))
-options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
-sink(paste0("/opt/R/",currver,"/lib/R/etc/Rprofile.site"),append=FALSE)
-options(BioC_mirror = paste0(pmurl,"/bioconductor"))
-options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
-sink()
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
 library(BiocManager,lib.loc="/tmp/curl",quietly=TRUE,verbose=FALSE)
@@ -153,8 +174,8 @@ r["CRAN"]<-repo
 nr=length(r)
 r<-c(r[nr],r[1:nr-1])
 
-system(paste0("mkdir -p ",rsconfigdir,"/repos"))
-filename=paste0(rsconfigdir,"/repos/repos-",currver,".conf")
+system(paste0("mkdir -p ",rspconfigdir,"/repos"))
+filename=paste0(rspconfigdir,"/repos/repos-",currver,".conf")
 sink(filename)
 for (i in names(r)) {cat(noquote(paste0(i,"=",r[i],"\n"))) }
 sink()
@@ -162,7 +183,7 @@ sink()
 x<-unlist(strsplit(R.home(),"[/]"))
 r_home<-paste0(x[2:length(x)-2],"/",collapse="")
 
-sink(paste0(rsconfigdir,"/r-versions"), append=TRUE)
+sink(paste0(rspconfigdir,"/r-versions"), append=TRUE)
 cat("\n")
 cat(paste0("Path: ",r_home,"\n"))
 cat(paste0("Label: R","\n"))
