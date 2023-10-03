@@ -9,11 +9,29 @@
 #       R version (x.y.z) and point to the repos.conf file  
 # * update Rprofile.site with the same repository informations 
 # * add renv config into Renviron.site to use 
-#       a global cache in /scratch/renv
+#       a global cache in $renvdir  
 # * install all needed R packages for Workbench to work and add them 
-#       in a separate .libPath()
+#       in a separate .libPath() ($basepackagedir/x.y.z)
+# * create a pak pkg.lock file in $basepackagedir/x.y.z
+#       for increased reproducibility
 # * auto-detect which OS it is running on and add binary package support
+# * uses a packagemanager running at $pmurl 
+#       with repositories bioconductor and cran configured and named as such
+# * assumes R binaries are installed into /opt/R/x.y.z
 
+# main config parameters
+
+# root folder for global renv cache 
+renvdir<-"/scratch/renv"
+
+# base folder site libraries for additional packages 
+basepackagedir<-"/opt/rstudio/rver"
+
+# packagemanager URL to be used
+pmurl <- "https://packagemanager.posit.co"
+
+# place to create rstudio integration for package repos
+rsconfigdir <- "/opt/rstudio/etc/rstudio" 
 
 binaryflag<-""
 
@@ -27,9 +45,7 @@ if(file.exists("/etc/redhat-release")) {
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
 
-libdir <- paste0("/opt/rstudio/rver/",currver)
-
-pmurl <- "https://packagemanager.posit.co"
+libdir <- paste0(basepackagedir,"/",currver)
 
 if(dir.exists(libdir)) {unlink(libdir,recursive=TRUE)}
 dir.create(libdir,recursive=TRUE)
@@ -90,21 +106,25 @@ os_vers=system(". /etc/os-release && echo $VERSION_ID", intern = TRUE)
 packages_needed<-pnames[pnames %in% avpack]
 
 paste("Installing system dependencies")
-sysdeps<-pkg_sysreqs(packages_needed)
+sysdeps<-pak::pkg_sysreqs(packages_needed)
 system(sysdeps$pre_install)
 system(sysdeps$install_scripts)
 system(sysdeps$post_install)
 
 paste("Installing packages for RSW integration")
-pkg_install(packages_needed,lib=libdir)
+pak::pkg_install(packages_needed,lib=libdir)
+paste("Creating lock file for further reproducibility")
+pak::lockfile_create(packages_needed,lockfile=paste0(libdir,"/pkg.lock"))
 
+paste("Setting up global renv cache")
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
-  cat("RENV_PATHS_CACHE=/scratch/renv\n")
-  cat("RENV_PATHS_SANDBOX=/scratch/renv/sandbox\n")
+  cat(paste0("RENV_PATHS_CACHE=", renvdir, "\n"))
+  cat(paste0("RENV_PATHS_SANDBOX=", renvdir, "/sandbox\n"))
 sink()
 
-# Prepare for BioConductor
+paste("Configuring Bioconductor")
+# Prepare for Bioconductor
 options(BioC_mirror = paste0(pmurl,"/bioconductor"))
 options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Rprofile.site"),append=FALSE)
@@ -118,6 +138,7 @@ library(BiocManager,lib.loc="/tmp/curl",quietly=TRUE,verbose=FALSE)
 # Version of BioConductor as given by BiocManager (can also be manually set)
 biocvers <- BiocManager::version()
 
+paste("Defining repos and setting them up in repos.conf as well as Rprofile.site")
 # Bioconductor Repositories
 r<-BiocManager::repositories(version=biocvers)
 
@@ -132,8 +153,8 @@ r["CRAN"]<-repo
 nr=length(r)
 r<-c(r[nr],r[1:nr-1])
 
-system("mkdir -p /opt/rstudio/etc/rstudio/repos")
-filename=paste0("/opt/rstudio/etc/rstudio/repos/repos-",currver,".conf")
+system(paste0("mkdir -p ",rsconfigdir,"/repos"))
+filename=paste0(rsconfigdir,"/repos/repos-",currver,".conf")
 sink(filename)
 for (i in names(r)) {cat(noquote(paste0(i,"=",r[i],"\n"))) }
 sink()
@@ -141,7 +162,7 @@ sink()
 x<-unlist(strsplit(R.home(),"[/]"))
 r_home<-paste0(x[2:length(x)-2],"/",collapse="")
 
-sink("/opt/rstudio/etc/rstudio/r-versions", append=TRUE)
+sink(paste0(rsconfigdir,"/r-versions"), append=TRUE)
 cat("\n")
 cat(paste0("Path: ",r_home,"\n"))
 cat(paste0("Label: R","\n"))
@@ -164,7 +185,7 @@ cat('options(repos=r)\n')
 options(BioC_mirror = paste0(pmurl,"/bioconductor"))
 options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
 
-libdir <- paste0("/opt/rstudio/rver/",currver)
+libdir <- paste0(basepackagedir,"/",currver)
 cat(paste0('.libPaths(c(.libPaths(),"',libdir,'"))\n'))
 if ( currver < "4.1.0" ) {
 cat('}, envir = .env)\n')
