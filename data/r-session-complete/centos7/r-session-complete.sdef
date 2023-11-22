@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:centos7-2023.06.0
+From: rstudio/r-session-complete:centos7-2023.09.1
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -83,7 +83,7 @@ EOF
 
     # Install SLURM
     # Output of `sinfo -V`
-    export SLURM_VERSION=22.05.8 
+    export SLURM_VERSION=23.02.6 
 
     # Note that the git branches on github do have a slightly different
     # naming scheme - firstly the dots are replaced by dashes and
