@@ -51,11 +51,13 @@ if(dir.exists(libdir)) {unlink(libdir,recursive=TRUE)}
 dir.create(libdir,recursive=TRUE)
 .libPaths(libdir)
 
-if(dir.exists("/tmp/curl")) {unlink("/tmp/curl",recursive=TRUE)}
-dir.create("/tmp/curl")
-install.packages(c("rjson","RCurl","pak","BiocManager"),"/tmp/curl", repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
-library(RCurl,lib.loc="/tmp/curl")
-library(rjson,lib.loc="/tmp/curl")
+#directory for temporary packages
+pkgtempdir<-tempdir()
+.libPaths(pkgtempdir)
+
+install.packages(c("rjson","RCurl","pak","BiocManager"),pkgtempdir, repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
+library(RCurl)
+library(rjson)
 
 jsondata<-fromJSON(file="https://raw.githubusercontent.com/rstudio/rstudio/main/src/cpp/session/resources/dependencies/r-packages.json")
 pnames<-c()
@@ -63,6 +65,21 @@ for (feature in jsondata$features) { pnames<-unique(c(pnames,feature$packages)) 
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
 paste("version",currver)
+
+#Try to figure out if the needed Bioconductor release is older than the most recents
+# If yes, use the release date of bioconduct version + 1 as a start date for looking 
+# into CRAN snapshots - if no, use the current date
+getbiocreleasedate <- function(biocvers){
+  biocdata<-read.csv("bioc.txt")
+  
+  splitbioc<-strsplit(as.character(biocvers),"[.]")[[1]]
+  biocversnext<-paste0(splitbioc[1],".",as.integer(splitbioc[2])+1)
+  
+  repodate<-biocdata$Date[which(biocdata$X.Release==biocversnext)]
+  if (identical(repodate,character(0))) repodate<-"latest"
+
+  return(repodate)
+}
 
 #Start with a starting date for the time-based snapshot 60 days past the R release
 releasedate <- as.Date(paste0(R.version$year,"-",R.version$month,"-",R.version$day))
@@ -85,7 +102,17 @@ getreleasedate <- function(repodate){
  return(repodate)
 }
 
-releasedate <- getreleasedate(as.Date(releasedate)+60)
+# Version of BioConductor as given by BiocManager (can also be manually set)
+biocvers <- BiocManager::version()
+
+paste("Determining compatible CRAN snapshot")
+biocreleasedate <- getbiocreleasedate(biocvers)
+if (identical(biocreleasedate,"latest")) {
+    releasedate <- "latest" 
+} else {
+  releasedate <- getreleasedate(biocreleasedate)
+}
+
 paste("snapshot selected", releasedate)
 
 #Final CRAN snapsot URL
@@ -93,35 +120,6 @@ repo=paste0(pmurl,"/cran/",binaryflag,releasedate)
 options(repos=c(CRAN=repo))
 
 paste("CRAN Snapshot", repo)
-
-avpack<-available.packages(paste0(repo,"/src/contrib"))
-
-library(pak,lib.loc="/tmp/curl")
-.libPaths("/tmp/curl")
-
-#Install all packages and their dependencies needed for RSW
-os_name=system(". /etc/os-release && echo $ID", intern = TRUE)
-os_vers=system(". /etc/os-release && echo $VERSION_ID", intern = TRUE)
-
-packages_needed<-pnames[pnames %in% avpack]
-
-paste("Installing system dependencies")
-sysdeps<-pak::pkg_sysreqs(packages_needed)
-system(sysdeps$pre_install)
-system(sysdeps$install_scripts)
-system(sysdeps$post_install)
-
-paste("Installing packages for RSW integration")
-pak::pkg_install(packages_needed,lib=libdir)
-paste("Creating lock file for further reproducibility")
-pak::lockfile_create(packages_needed,lockfile=paste0(libdir,"/pkg.lock"))
-
-paste("Setting up global renv cache")
-sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
-  cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
-  cat(paste0("RENV_PATHS_CACHE=", renvdir, "\n"))
-  cat(paste0("RENV_PATHS_SANDBOX=", renvdir, "/sandbox\n"))
-sink()
 
 paste("Configuring Bioconductor")
 # Prepare for Bioconductor
@@ -134,9 +132,6 @@ sink()
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
 library(BiocManager,lib.loc="/tmp/curl",quietly=TRUE,verbose=FALSE)
-
-# Version of BioConductor as given by BiocManager (can also be manually set)
-biocvers <- BiocManager::version()
 
 paste("Defining repos and setting them up in repos.conf as well as Rprofile.site")
 # Bioconductor Repositories
@@ -194,3 +189,26 @@ cat('attach(.env)\n')
 cat('})\n')
 }
 sink()
+
+
+
+
+avpack<-available.packages(paste0(repo,"/src/contrib"))
+
+library(pak)
+
+packages_needed<-pnames[pnames %in% avpack]
+
+paste("Installing packages for RSW integration")
+pak::pkg_install(packages_needed,lib=libdir)
+paste("Creating lock file for further reproducibility")
+pak::lockfile_create(packages_needed,lockfile=paste0(libdir,"/pkg.lock"))
+
+paste("Setting up global renv cache")
+sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
+  cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
+  cat(paste0("RENV_PATHS_CACHE=", renvdir, "\n"))
+  cat(paste0("RENV_PATHS_SANDBOX=", renvdir, "/sandbox\n"))
+sink()
+
+unlink(pkgtempdir)

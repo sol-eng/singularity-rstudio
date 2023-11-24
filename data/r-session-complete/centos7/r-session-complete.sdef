@@ -6,7 +6,7 @@ From: rstudio/r-session-complete:centos7-2023.09.1
 %files
     scripts/run.R /
     scripts/zz_workbench_singularity_env_vars.sh /etc/profile.d/
-
+    scripts/bioc.txt / 
 %post
 
     # Install Java JDK (optional) 
@@ -83,7 +83,7 @@ EOF
 
     # Install SLURM
     # Output of `sinfo -V`
-    export SLURM_VERSION=23.02.6 
+    export SLURM_VERSION=23.02.6
 
     # Note that the git branches on github do have a slightly different
     # naming scheme - firstly the dots are replaced by dashes and

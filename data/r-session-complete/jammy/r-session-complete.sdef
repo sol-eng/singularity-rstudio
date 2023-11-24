@@ -6,6 +6,7 @@ From: rstudio/r-session-complete:jammy-2023.09.1
 %files
     scripts/run.R /
     scripts/zz_workbench_singularity_env_vars.sh /etc/profile.d/     
+    scripts/bioc.txt /
 
 %post
     #!/bin/bash
