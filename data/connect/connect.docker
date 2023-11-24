@@ -1,0 +1,79 @@
+FROM rstudio/rstudio-connect:jammy-2023.09.0--6f29f2a
+
+ARG SLURM_VERSION="23.02.6" 
+ARG SLURM_CONF="/opt/slurm/etc/slurm.conf"
+ARG R_VERSIONS="4.1.3 4.2.3 4.3.1"
+
+# Install and configure munge
+
+RUN groupadd -g 111 munge && \
+        useradd -u 111 -s /usr/sbin/nologin -M -d /nonexistent -g 111 munge
+
+RUN apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
+
+RUN chmod +s /usr/sbin/munged && \
+	chown munge /usr/sbin/munged && \
+	chmod u+s /usr/sbin/munged && \
+	mkdir -p /var/run/munge && \
+	chown munge /var/run/munge/ && \
+   	chown munge /etc/munge/munge.key && \
+	echo "[program:munge]\ncommand=/usr/sbin/munged -F\nautorestart=false\nnumprocs=1\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0" > /startup/custom/munge.conf && \ 
+	cat /startup/custom/munge.conf
+COPY munge/munge.key /etc/munge
+
+# Removing empty sssd conf as this seems to crash docker-compose
+#RUN rm -f /startup/user-provisioning/sssd.conf 
+
+
+RUN mkdir -p /tmp/build && \
+        cd /tmp/build && \
+        # Note that the git branches on github do have a slightly different
+        # naming scheme - firstly the dots are replaced by dashes and
+        # secondly each SLURM version can have more than one release tag
+        # Here, we simply append "-1" to use the first git tag of a given
+        # SLURM version
+        bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \  
+        cd slurm && \
+	echo "SLURM: Configure step" && \
+        ./configure --prefix /usr/local/slurm >& /var/log/slurm-configure.log && \
+	echo "SLURM: Compile" && \
+        make -j 4 >& /var/log/slurm-build.log && \
+	echo "SLURM: Install" && \
+	make install >& /var/log/slurm-install.log && \
+        cd / && \
+        rm -rf /tmp/build
+
+
+RUN echo "export SLURM_CONF=$SLURM_CONF" > /etc/profile.d/slurm-env.sh
+RUN echo "export PATH=$PATH:/usr/local/slurm/bin" >> /etc/profile.d/slurm-env.sh
+
+RUN sed -i '/unset RSC_LICENSE_SERVER/a /usr/sbin/munged' /usr/local/bin/startup.sh
+
+# Install Java JDK (optional) 
+RUN apt-get update -y && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            default-jdk 
+
+# Install gdebi-core
+RUN apt-get -y install gdebi-core
+
+# clean any pre-existing R installation
+RUN dpkg -l | grep "  r-" | awk '{print $2}' | xargs apt remove  -y
+
+RUN rm -rf /opt/R /usr/local/bin/R /usr/local/bin/Rscript
+
+# Install and configure new set of defined R versions
+RUN for R_VERSION in ${R_VERSIONS} ;\
+    do \
+        curl -O https://cdn.rstudio.com/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd6
+4.deb && \
+        gdebi -n r-${R_VERSION}_1_amd64.deb && \
+        rm -f r-${R_VERSION}_1_amd64.deb && \
+        rm -f /usr/local/bin/R /usr/local/bin/Rscript && \
+        /opt/R/${R_VERSION}/bin/R CMD javareconf ; \ 
+    done        
+
+
+# Install zeromq as prereq for clustermq (optional) 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libzmq5 
