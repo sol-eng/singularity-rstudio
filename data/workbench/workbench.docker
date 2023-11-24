@@ -1,6 +1,7 @@
-FROM rstudio/rstudio-workbench:bionic-2022.12.0 
+FROM rstudio/rstudio-workbench:jammy-2023.09.1--6f29f2a
 
-COPY scripts/run.R /
+ARG SLURM_VERSION="23.02.6" 
+ARG SLURM_CONF="/opt/slurm/etc/slurm.conf"
 
 RUN apt-get update -y && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -10,32 +11,14 @@ RUN apt-get update -y && \
 RUN for R_VERSION in `ls /opt/R`; \
         do \ 
     	/opt/R/${R_VERSION}/bin/R CMD javareconf && \ 
-    	/opt/R/${R_VERSION}/bin/Rscript /run.R && \
-    	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')" && \ 
-	/opt/R/${R_VERSION}/bin/R -q -e "install.packages('rJava',lib='/opt/R/${R_VERSION}/lib/R/library/')" ; \
-    done	
-    
-    # Needed if using CRAN and BioConductor repos from RSPM (optional)
-RUN rm -f /create.R 
+        done	
 
-# Dependency for clustermq
-RUN apt-get update -y && \
-    	DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        libzmq5 && \
-        rm -rf /var/lib/apt/lists/*
-
-
-# SLURM Pre-Requisites
-RUN groupadd -g 401 slurm && \
-       useradd -u 401 -g 401 slurm
+# Install and configure munge
 
 RUN groupadd -g 111 munge && \
         useradd -u 111 -s /usr/sbin/nologin -M -d /nonexistent -g 111 munge
 
 RUN apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
-
-# Configure munge
-COPY munge/munge.key /etc/munge
 
 RUN chmod +s /usr/sbin/munged && \
 	chown munge /usr/sbin/munged && \
@@ -45,24 +28,34 @@ RUN chmod +s /usr/sbin/munged && \
    	chown munge /etc/munge/munge.key && \
 	echo "[program:munge]\ncommand=/usr/sbin/munged -F\nautorestart=false\nnumprocs=1\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0" > /startup/custom/munge.conf && \ 
 	cat /startup/custom/munge.conf
+COPY munge/munge.key /etc/munge
+
 
 # Removing empty sssd conf as this seems to crash docker-compose
 RUN rm -f /startup/user-provisioning/sssd.conf 
 
 # Install SLURM
-# Output of `sinfo -V`
-ARG SLURM_VERSION=22.05.8 && \ 
+RUN groupadd -g 401 slurm && \
+       useradd -u 401 -g 401 slurm
 
-RUN mkdir -p /tmp/build && \
-        cd /tmp/build && \
+RUN tmpdir=`mktemp -d` && \
+        cd $tmpdir && \
         # Note that the git branches on github do have a slightly different
         # naming scheme - firstly the dots are replaced by dashes and
         # secondly each SLURM version can have more than one release tag
         # Here, we simply append "-1" to use the first git tag of a given
         # SLURM version
-        git clone --depth 1 -b slurm-${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git && \
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
-        ./configure --prefix /usr/local/slurm && \
-        make -j 4 && make install && \
+        echo "SLURM: Configure step" && \
+        ./configure --prefix /usr/local/slurm >& /var/log/slurm-configure.log && \
+	echo "SLURM: Compile" && \
+        make -j 4 >& /var/log/slurm-build.log && \
+	echo "SLURM: Install" && \
+	make install >& /var/log/slurm-install.log && \
         cd / && \
-        rm -rf /tmp/build
+        rm -rf $tmpdir
+
+RUN echo "export SLURM_CONF=$SLURM_CONF" > /etc/profile.d/slurm-env.sh
+RUN echo "export PATH=$PATH:/usr/local/slurm/bin" >> /etc/profile.d/slurm-env.sh
+
