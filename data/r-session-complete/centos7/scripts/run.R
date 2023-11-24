@@ -131,7 +131,7 @@ options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
 sink()
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
-library(BiocManager,lib.loc="/tmp/curl",quietly=TRUE,verbose=FALSE)
+library(BiocManager,quietly=TRUE,verbose=FALSE)
 
 paste("Defining repos and setting them up in repos.conf as well as Rprofile.site")
 # Bioconductor Repositories
