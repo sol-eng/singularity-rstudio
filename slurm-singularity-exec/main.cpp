@@ -28,8 +28,8 @@
 
 extern "C"
 { // SPANK include
-#include "spank.h"
-#include "slurm.h"
+#include "slurm/spank.h"
+#include "slurm/slurm.h"
 }
 
 /// string_view::starts_with replacement
