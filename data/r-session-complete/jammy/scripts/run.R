@@ -209,6 +209,10 @@ sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
   cat(paste0("RENV_PATHS_CACHE=", renvdir, "\n"))
   cat(paste0("RENV_PATHS_SANDBOX=", renvdir, "/sandbox\n"))
+  cat(paste0('R_LIBS_USER=~/R/',R.Version()$platform,'/', 
+    system('. /etc/os-release  && echo ${ID}${VERSION_ID}',intern=TRUE), 
+    '/', R.Version()$major,'.',strsplit(R.Version()$minor,'[.]')[[1]][1])
+    )
 sink()
 
 unlink(pkgtempdir)
