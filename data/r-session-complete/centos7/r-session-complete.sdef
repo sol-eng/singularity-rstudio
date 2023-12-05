@@ -125,7 +125,7 @@ EOF
     dir=`mktemp -d`
     cd $dir 
     curl -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-${APPTAINER_VERSION}-1.x86_64.rpm
-    curl -O https://github.com/apptainer/apptainer/releases/download/v1.2.5/apptainer-suid-${APPTAINER_VERSION}-1.x86_64.rpm
+    curl -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-suid-${APPTAINER_VERSION}-1.x86_64.rpm
     yum install -y apptainer-${APPTAINER_VERSION}-1.x86_64.rpm 
     yum install -y apptainer-suid-${APPTAINER_VERSION}-1.x86_64.rpm
     rm -f apptainer* 

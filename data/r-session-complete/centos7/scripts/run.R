@@ -195,6 +195,10 @@ sink()
 
 avpack<-available.packages(paste0(repo,"/src/contrib"))
 
+#let's also install clustermq,tidyverse and batchtools
+Sys.setenv("CLUSTERMQ_USE_SYSTEM_LIBZMQ" = 0)
+pnames=c(pnames,"clustermq","tidyverse","batchtools")
+
 library(pak)
 
 packages_needed<-pnames[pnames %in% avpack]
