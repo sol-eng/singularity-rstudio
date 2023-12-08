@@ -41,7 +41,7 @@ From: centos:7
 
     curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.tar.gz \
     && mkdir -p /opt/quarto/${QUARTO_VERSION} \
-    && tar -zxvf quarto.tar.gz -C "/opt/quarto/${QUARTO_VERSION}" --strip-components=1 \
+    && tar -zxf quarto.tar.gz -C "/opt/quarto/${QUARTO_VERSION}" --strip-components=1 \
     && rm -f quarto.tar.gz \
     && ln -s /opt/quarto/${QUARTO_VERSION}/bin/quarto /usr/local/bin/quarto
 
@@ -97,7 +97,7 @@ EOF
     mkdir -p /usr/lib/rstudio-server
     yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
     curl -O https://s3.amazonaws.com/rstudio-ide-build/session/centos7/x86_64/rsp-session-centos7-${PWB_VERSION}-x86_64.tar.gz
-    tar xvfz rsp-session-centos7-${PWB_VERSION}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
+    tar xfz rsp-session-centos7-${PWB_VERSION}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
     rm -f rsp-session-centos7-${PWB_VERSION}-x86_64.tar.gz
 
     # Install Java JDK (optional) 
