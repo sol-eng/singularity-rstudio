@@ -22,15 +22,15 @@ From: ubuntu:jammy
 
     # Install Pro Drivers
 
-    apt-get update && apt-get install -y gdebi-core 
+    apt-get update && apt-get install -y gdebi-core curl
     curl -O https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers_${DRIVERS_VERSION}_amd64.deb && \
-        gdebi rstudio-drivers_${DRIVERS_VERSION}_amd64.deb && \
+        gdebi -n rstudio-drivers_${DRIVERS_VERSION}_amd64.deb && \
         rm -f rstudio-drivers_${DRIVERS_VERSION}_amd64.deb
 
     
     # Install TinyTeX 
 
-    apt-get install -y curl wget perl-modules-5.34
+    apt-get install -y curl wget perl-modules
     curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
         && /root/.TinyTeX/bin/*/tlmgr path remove \
         && mv /root/.TinyTeX/ /opt/TinyTeX \
