@@ -43,7 +43,7 @@ if(file.exists("/etc/debian_version")) {
 }
 
 if(file.exists("/etc/redhat-release")) {
-    binaryflag <- paste0("__linux__/centos",system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),"/")
+    binaryflag <- paste0("__linux__/centos",strsplit(system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),"[.]")[[1]][1],"/")
 }
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)

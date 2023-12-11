@@ -24,7 +24,7 @@ From: centos:7
 
     # Install Pro Drivers
 
-    yum install -y unixODBC unixODBC-devel \
+    yum install -y \
         https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-${DRIVERS_VERSION}.el7.x86_64.rpm \
         && cp -f /opt/rstudio-drivers/odbcinst.ini.sample /etc/odbcinst.ini
 
@@ -84,7 +84,7 @@ EOF
         /opt/python/${PYTHON_VERSION}/bin/python -m ipykernel install --name py${PYTHON_VERSION} --display-name "Python ${PYTHON_VERSION}" & 
     done
     wait
- 
+
     # Use default version to point to jupyter and python 
     if [ ! -z ${PYTHON_VERSION_DEFAULT} ]; then
         ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/jupyter /usr/local/bin
@@ -101,7 +101,7 @@ EOF
     rm -f rsp-session-centos7-${PWB_VERSION}-x86_64.tar.gz
 
     # Install Java JDK (optional) 
-    yum -y install java-11-openjdk-devel 
+    yum -y install java-1.8.0-openjdk-devel 
 
     # Set up of developer toolset 11 to use a more recent version of the 
     # compiler toolchain (optional)
@@ -148,12 +148,19 @@ EOF
           $R_HOME/etc/Makeconf
         done
 
+        # Reconfigure R for Java (optional) 
+        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+        /opt/R/${R_VERSION}/bin/R CMD javareconf
+
         # Set up R to use latest CRAN and bioconductor repositories 
         # from public RSPM (optional)
+        
+	# Need to make sure R is in PATH so that pak can run R as a subprocess
+	rm -f /usr/local/bin/{R,Rscript}
+       	ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin
         /opt/R/${R_VERSION}/bin/Rscript /run.R
+	rm -f /usr/local/bin/{R,Rscript}
 
-        # Reconfigure R for Java (optional) 
-        /opt/R/${R_VERSION}/bin/R CMD javareconf
     done
     rm -f /run.R
 
@@ -178,6 +185,7 @@ EOF
     # Here, we simply append "-1" to use the first git tag of a given
     # SLURM version
 
+    yum -y install git 
     dir=`mktemp -d` && \
         cd $dir && \
         rm -rf slurm && \
