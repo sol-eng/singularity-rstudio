@@ -63,6 +63,7 @@ From: rockylinux:9
 
     cat << EOF > /etc/pip.conf
 [global]
+timeout = 60
 index-url = https://packagemanager.posit.co/pypi/latest/simple
 EOF
 
