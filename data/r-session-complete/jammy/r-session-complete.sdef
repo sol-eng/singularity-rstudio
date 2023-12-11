@@ -101,7 +101,7 @@ EOF
     apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser1-dev rrdtool libpq5
     curl -O https://s3.amazonaws.com/rstudio-ide-build/session/jammy/amd64/rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz
     tar xfz rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz -C /usr/lib/rstudio-server --strip=1
-    rm -f rsp-session--jammy-${PWB_VERSION}-amd64.tar.gz
+    rm -f rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz
 
     #!/bin/bash
     # Install Java JDK (optional) 
