@@ -16,6 +16,7 @@ From: rockylinux:8
     PYTHON_VERSION_LIST="3.11.6 3.10.13 3.9.18"
     PYTHON_VERSION_DEFAULT=3.11.6
     PWB_VERSION=2023.09.1-494.pro2
+    SLURM_VERSION=23.02.6
 
     # Activate EPEL Release and powertools
 
@@ -167,8 +168,6 @@ EOF
     yum -y install munge-devel
 
     # Install SLURM
-    # Output of `sinfo -V`
-    export SLURM_VERSION=23.02.6
 
     # Note that the git branches on github do have a slightly different
     # naming scheme - firstly the dots are replaced by dashes and
