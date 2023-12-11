@@ -121,7 +121,7 @@ EOF
         rm -f r-${R_VERSION}_1_amd64.deb
 
         # Reconfigure R for Java (optional) 
-        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+        export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
         /opt/R/${R_VERSION}/bin/R CMD javareconf
 
         # Need to make sure R is in PATH so that pak can run R as a subprocess
