@@ -99,7 +99,7 @@ EOF
 
     mkdir -p /usr/lib/rstudio-server
 
-    apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser1-dev rrdtool libpq5
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser1-dev rrdtool libpq5
     curl -O https://s3.amazonaws.com/rstudio-ide-build/session/jammy/amd64/rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz
     tar xfz rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz -C /usr/lib/rstudio-server --strip=1
     rm -f rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz
@@ -117,21 +117,16 @@ EOF
     for R_VERSION in ${R_VERSIONS_LIST}
     do
         curl -O https://cdn.rstudio.com/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd64.deb && \
-        gdebi -n r-${R_VERSION}_1_amd64.deb && \
+        DEBIAN_FRONTEND=noninteractive gdebi -n r-${R_VERSION}_1_amd64.deb && \
         rm -f r-${R_VERSION}_1_amd64.deb
-        rm -f /usr/local/bin/R /usr/local/bin/Rscript
-        ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R
-        ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
 
         # Reconfigure R for Java (optional) 
         export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
         /opt/R/${R_VERSION}/bin/R CMD javareconf
 
         # Need to make sure R is in PATH so that pak can run R as a subprocess
-        rm -f /usr/local/bin/{R,Rscript}
-        ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin
-        /opt/R/${R_VERSION}/bin/Rscript /run.R
-        rm -f /usr/local/bin/{R,Rscript}
+
+        PATH=/opt/R/${R_VERSION}/bin:$PATH /opt/R/${R_VERSION}/bin/Rscript /run.R
     done
     rm -f /run.R
 
@@ -163,7 +158,7 @@ EOF
     dir=`mktemp -d` && \
         cd $dir && \
         rm -rf slurm && \
-        bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
         echo "Compiling SLURM" && \

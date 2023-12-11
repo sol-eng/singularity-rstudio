@@ -181,7 +181,7 @@ EOF
     dir=`mktemp -d` && \
         cd $dir && \
         rm -rf slurm && \
-        bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
         echo "Compiling SLURM" && \
