@@ -17,6 +17,7 @@ From: rockylinux:8
     PYTHON_VERSION_DEFAULT=3.11.6
     PWB_VERSION=2023.09.1-494.pro2
     SLURM_VERSION=23.02.6
+    APPTAINER_VERSION=1.2.5
 
     # Activate EPEL Release and powertools
 
@@ -196,7 +197,6 @@ EOF
 
 
     # install apptainer 
-    APPTAINER_VERSION=1.2.5
     dir=`mktemp -d`
     cd $dir 
     curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-${APPTAINER_VERSION}-1.x86_64.rpm
