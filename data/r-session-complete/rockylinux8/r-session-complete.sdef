@@ -150,9 +150,9 @@ EOF
     rm -f /run.R
 
     # Defining system default version
-    if [ ! -z $R_VERSION_DEFAULT ]; then
-        ln -s /opt/R/$R_VERSION_DEFAULT/bin/R /usr/local/bin
-        ln -s /opt/R/$R_VERSION_DEFAULT/bin/Rscript /usr/local/bin
+    if [ ! -z {{ R_VERSION_DEFAULT }} ]; then
+        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/R /usr/local/bin
+        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/Rscript /usr/local/bin
     fi
 
     # SLURM integration (mandatory) 

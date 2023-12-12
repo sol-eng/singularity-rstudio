@@ -79,10 +79,10 @@ EOF
     wait
 
     # Use default version to point to jupyter and python 
-    if [ ! -z ${PYTHON_VERSION_DEFAULT} ]; then
-        ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/jupyter /usr/local/bin
-        ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/python /usr/local/bin
-        ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/python3 /usr/local/bin
+    if [ ! -z {{ PYTHON_VERSION_DEFAULT }} ]; then
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/jupyter /usr/local/bin
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python /usr/local/bin
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python3 /usr/local/bin
     fi
 
     # Install PWB session components 
