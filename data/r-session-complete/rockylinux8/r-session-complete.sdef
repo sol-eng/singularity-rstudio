@@ -10,16 +10,6 @@ From: rockylinux:8
 
 %post -c /bin/bash
 
-    PRO_DRIVERS_VERSION=2023.05.0
-    QUARTO_VERSION=1.3.340
-    R_VERSIONS_LIST="4.1.3 4.2.3 4.3.2"
-    R_VERSION_DEFAULT="4.3.2"
-    PYTHON_VERSION_LIST="3.11.6 3.10.13 3.9.18"
-    PYTHON_VERSION_DEFAULT=3.11.6
-    PWB_VERSION=2023.09.1-494.pro2
-    SLURM_VERSION=23.02.6
-    APPTAINER_VERSION=1.2.5
-
     # Activate EPEL Release and powertools
 
     yum -y install yum-utils epel-release
@@ -28,7 +18,7 @@ From: rockylinux:8
     # Install Pro Drivers
 
     yum install -y \
-        https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-${PRO_DRIVERS_VERSION}-1.el7.x86_64.rpm \
+        https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-{{ PRO_DRIVERS_VERSION }}-1.el7.x86_64.rpm \
         && cp -f /opt/rstudio-drivers/odbcinst.ini.sample /etc/odbcinst.ini
 
     # Install TinyTex
@@ -42,16 +32,16 @@ From: rockylinux:8
 
     # Install Quarto
 
-    curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.tar.gz \
-    && mkdir -p /opt/quarto/${QUARTO_VERSION} \
-    && tar -zxf quarto.tar.gz -C "/opt/quarto/${QUARTO_VERSION}" --strip-components=1 \
+    curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/download/v{{ QUARTO_VERSION }}/quarto-{{ QUARTO_VERSION }}-linux-amd64.tar.gz \
+    && mkdir -p /opt/quarto/{{ QUARTO_VERSION }} \
+    && tar -zxf quarto.tar.gz -C "/opt/quarto/{{ QUARTO_VERSION }}" --strip-components=1 \
     && rm -f quarto.tar.gz \
-    && ln -s /opt/quarto/${QUARTO_VERSION}/bin/quarto /usr/local/bin/quarto
+    && ln -s /opt/quarto/{{ QUARTO_VERSION }}/bin/quarto /usr/local/bin/quarto
 
 
     # Install Python 
 
-    for PYTHON_VERSION in ${PYTHON_VERSION_LIST}
+    for PYTHON_VERSION in {{ PYTHON_VERSION_LIST }}
     do
         yum install -y https://cdn.rstudio.com/python/centos-8/pkgs/python-${PYTHON_VERSION}-1-1.x86_64.rpm
     done
@@ -68,7 +58,7 @@ timeout = 60
 index-url = https://packagemanager.posit.co/pypi/latest/simple
 EOF
 
-    for PYTHON_VERSION in ${PYTHON_VERSION_LIST}
+    for PYTHON_VERSION in {{ PYTHON_VERSION_LIST }}
     do
         /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
             pip setuptools wheel && \
@@ -90,19 +80,19 @@ EOF
     wait
  
     # Use default version to point to jupyter and python 
-    if [ ! -z ${PYTHON_VERSION_DEFAULT} ]; then
-        ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/jupyter /usr/local/bin
-        ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/python /usr/local/bin
-        ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/python3 /usr/local/bin
+    if [ ! -z {{ PYTHON_VERSION_DEFAULT }} ]; then
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/jupyter /usr/local/bin
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python /usr/local/bin
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python3 /usr/local/bin
     fi
 
     # Install PWB session components 
 
     mkdir -p /usr/lib/rstudio-server
     yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
-    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/rhel8/x86_64/rsp-session-rhel8-${PWB_VERSION}-x86_64.tar.gz
-    tar xfz rsp-session-rhel8-${PWB_VERSION}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
-    rm -f rsp-session-rhel8-${PWB_VERSION}-x86_64.tar.gz
+    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/rhel8/x86_64/rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz
+    tar xfz rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
+    rm -f rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz
 
     # Install Java JDK (optional) 
     yum -y install java-1.8.0-openjdk-devel 
@@ -112,7 +102,7 @@ EOF
     yum -y install gcc-toolset-13
 
     # Install and configure new set of defined R versions
-    for R_VERSION in ${R_VERSIONS_LIST}
+    for R_VERSION in {{ R_VERSIONS_LIST }}
     do
     	yum install -y https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
 
@@ -182,7 +172,7 @@ EOF
     dir=`mktemp -d` && \
         cd $dir && \
         rm -rf slurm && \
-        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
+        SLURM_VER={{ SLURM_VERSION }} git clone --depth 1 -b slurm-${SLURM_VERS//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
         echo "Compiling SLURM" && \
@@ -201,11 +191,11 @@ EOF
     # install apptainer 
     dir=`mktemp -d`
     cd $dir 
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-${APPTAINER_VERSION}-1.x86_64.rpm
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-suid-${APPTAINER_VERSION}-1.x86_64.rpm
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
     yum install -y /usr/*bin/fuse2fs
-    yum localinstall -y apptainer-${APPTAINER_VERSION}-1.x86_64.rpm 
-    yum localinstall -y apptainer-suid-${APPTAINER_VERSION}-1.x86_64.rpm
+    yum localinstall -y apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm 
+    yum localinstall -y apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
     rm -f apptainer* 
     cd 
     rm -rf $dir 
