@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rockylinux:8 
+From: rockylinux:9 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -13,7 +13,7 @@ From: rockylinux:8
     # Activate EPEL Release and powertools
 
     yum -y install yum-utils epel-release
-    yum-config-manager --enable powertools
+    yum-config-manager --enable crb 
 
     # Install Pro Drivers
 
@@ -23,7 +23,7 @@ From: rockylinux:8
 
     # Install TinyTex
 
-    yum install -y wget which perl-Digest-MD5
+    yum install -y wget which perl-Digest-MD5 perl-File-Find
     curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
         && /root/.TinyTeX/bin/*/tlmgr path remove \
         && mv /root/.TinyTeX/ /opt/TinyTeX \
@@ -43,7 +43,7 @@ From: rockylinux:8
 
     for PYTHON_VERSION in {{ PYTHON_VERSION_LIST }}
     do
-        yum install -y https://cdn.rstudio.com/python/centos-8/pkgs/python-${PYTHON_VERSION}-1-1.x86_64.rpm
+        yum install -y https://cdn.rstudio.com/python/rhel-9/pkgs/python-${PYTHON_VERSION}-1-1.x86_64.rpm
     done
 
     # Configure Python versions to have 
@@ -82,7 +82,7 @@ EOF
     # Use default version to point to jupyter and python 
     if [ ! -z {{ PYTHON_VERSION_DEFAULT }} ]; then
         ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/jupyter /usr/local/bin
-        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python /usr/local/bin
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}bin/python /usr/local/bin
         ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python3 /usr/local/bin
     fi
 
@@ -90,9 +90,9 @@ EOF
 
     mkdir -p /usr/lib/rstudio-server
     yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
-    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/rhel8/x86_64/rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz
-    tar xfz rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
-    rm -f rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz
+    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/rhel9/x86_64/rsp-session-rhel9-{{ PWB_VERSION }}-x86_64.tar.gz
+    tar xfz rsp-session-rhel9-{{ PWB_VERSION }}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
+    rm -f rsp-session-rhel9-{{ PWB_VERSION }}-x86_64.tar.gz
 
     # Install Java JDK (optional) 
     yum -y install java-1.8.0-openjdk-devel 
@@ -104,7 +104,7 @@ EOF
     # Install and configure new set of defined R versions
     for R_VERSION in {{ R_VERSIONS_LIST }}
     do
-    	yum install -y https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
+    	yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
 
         # Set up gcc toolset 13 for R only (optional)
         cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
@@ -150,9 +150,9 @@ EOF
     rm -f /run.R
 
     # Defining system default version
-    if [ ! -z {{ R_VERSION_DEFAULT }} ]; then
-        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/R /usr/local/bin
-        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/Rscript /usr/local/bin
+    if [ ! -z {{ R_VERSION_DEFAULT}} ]; then
+        ln -s /opt/R/{{ R_VERSION_DEFAULT}}/bin/R /usr/local/bin
+        ln -s /opt/R/{{ R_VERSION_DEFAULT}}/bin/Rscript /usr/local/bin
     fi
 
     # SLURM integration (mandatory) 
@@ -167,7 +167,7 @@ EOF
     # secondly each SLURM version can have more than one release tag
     # Here, we simply append "-1" to use the first git tag of a given
     # SLURM version
- 
+
     yum -y install git 
     dir=`mktemp -d` && \
         cd $dir && \
@@ -192,10 +192,10 @@ EOF
     dir=`mktemp -d`
     cd $dir 
     curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}//apptainer-suid-{{ APPTAINER_VERSION }}/-1.x86_64.rpm
     yum install -y /usr/*bin/fuse2fs
-    yum localinstall -y apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm 
-    yum localinstall -y apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
+    yum localinstall -y apptainer-{{ APPTAINER_VERSION }}/-1.x86_64.rpm 
+    yum localinstall -y apptainer-suid-{{ APPTAINER_VERSION }}/-1.x86_64.rpm
     rm -f apptainer* 
     cd 
     rm -rf $dir 

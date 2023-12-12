@@ -33,7 +33,7 @@ pmurl <- "https://packagemanager.posit.co"
 # place to create rstudio integration for package repos
 rsconfigdir <- "/opt/rstudio/etc/rstudio" 
 
-# increase timeout for packagemanager 
+# increase timeout for packagemanager
 options(timeout = max(300, getOption("timeout")))
 
 binaryflag<-""
@@ -43,7 +43,7 @@ if(file.exists("/etc/debian_version")) {
 }
 
 if(file.exists("/etc/redhat-release")) {
-    binaryflag <- paste0("__linux__/centos",strsplit(system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),"[.]")[[1]][1],"/")
+    binaryflag <- paste0("__linux__/centos",system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),"/")
 }
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)

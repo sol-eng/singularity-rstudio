@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:centos7-2023.09.1
+From: centos:7
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -7,31 +7,106 @@ From: rstudio/r-session-complete:centos7-2023.09.1
     scripts/run.R /
     #scripts/zz_workbench_singularity_env_vars.sh /etc/profile.d/
     scripts/bioc.txt / 
-%post
+
+%post -c /bin/bash
+
+    # Activate EPEL Release and powertools
+
+    yum -y install yum-utils epel-release
+    yum-config-manager --enable powertools
+
+    # Install Pro Drivers
+
+    yum install -y \
+        https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-{{ PRO_DRIVERS_VERSION }}-1.el7.x86_64.rpm \
+        && cp -f /opt/rstudio-drivers/odbcinst.ini.sample /etc/odbcinst.ini
+
+    # Install TinyTex
+
+    yum install -y wget which perl-Digest-MD5
+    curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
+        && /root/.TinyTeX/bin/*/tlmgr path remove \
+        && mv /root/.TinyTeX/ /opt/TinyTeX \
+        && /opt/TinyTeX/bin/*/tlmgr option sys_bin /usr/local/bin \
+        && /opt/TinyTeX/bin/*/tlmgr path add
+
+    # Install Quarto
+
+    curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/download/v{{ QUARTO_VERSION }}/quarto-{{ QUARTO_VERSION }}-linux-amd64.tar.gz \
+    && mkdir -p /opt/quarto/{{ QUARTO_VERSION }} \
+    && tar -xf quarto.tar.gz -C "/opt/quarto/{{ QUARTO_VERSION }}" --strip-components=1 \
+    && rm -f quarto.tar.gz \
+    && ln -s /opt/quarto/{{ QUARTO_VERSION }}/bin/quarto /usr/local/bin/quarto
+
+
+    # Install Python 
+
+    for PYTHON_VERSION in {{ PYTHON_VERSION_LIST }}
+    do
+        yum install -y https://cdn.rstudio.com/python/centos-7/pkgs/python-${PYTHON_VERSION}-1-1.x86_64.rpm
+    done
+
+    # Configure Python versions to have 
+    #  - upgraded pip 
+    #  - configure pip to use posit package manager 
+    #  - preinstalling packages needed for the integration with other tools (e.g Connect) 
+    # Note: Install will run in parallel to speed up things
+
+    cat << EOF > /etc/pip.conf
+[global]
+timeout = 60
+index-url = https://packagemanager.posit.co/pypi/latest/simple
+EOF
+
+    for PYTHON_VERSION in {{ PYTHON_VERSION_LIST }}
+    do
+        /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
+            pip setuptools wheel && \
+        /opt/python/${PYTHON_VERSION}/bin/pip install \
+            ipykernel \
+            jupyter \
+            jupyterlab \
+            rsconnect_jupyter \
+            rsconnect_python \
+            rsp_jupyter \
+            workbench_jupyterlab && \
+        /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
+        /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
+        /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
+        /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
+        /opt/python/${PYTHON_VERSION}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter && \
+        /opt/python/${PYTHON_VERSION}/bin/python -m ipykernel install --name py${PYTHON_VERSION} --display-name "Python ${PYTHON_VERSION}" & 
+    done
+    wait
+
+    # Use default version to point to jupyter and python 
+    if [ ! -z {{ PYTHON_VERSION_DEFAULT }} ]; then
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/jupyter /usr/local/bin
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python /usr/local/bin
+        ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/python3 /usr/local/bin
+    fi
+
+    # Install PWB session components 
+
+    mkdir -p /usr/lib/rstudio-server
+    yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
+    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/centos7/x86_64/rsp-session-centos7-{{ PWB_VERSION }}-x86_64.tar.gz
+    tar xfz rsp-session-centos7-{{ PWB_VERSION }}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
+    rm -f rsp-session-centos7-{{ PWB_VERSION }}-x86_64.tar.gz
 
     # Install Java JDK (optional) 
-    yum -y install java-11-openjdk-devel 
+    yum -y install java-1.8.0-openjdk-devel 
 
     # Set up of developer toolset 11 to use a more recent version of the 
     # compiler toolchain (optional)
     yum -y install centos-release-scl
     yum -y install devtoolset-11
 
-    # clean any pre-existing R installation
-    rpm -qa | grep ^R- | xargs rpm -e  
-    rm -rf /opt/R /usr/local/bin/R /usr/local/bin/Rscript
-
     # Install and configure new set of defined R versions
-    R_VERSIONS="4.1.3 4.2.3 4.3.1"
-    for R_VERSION in ${R_VERSIONS}
+    for R_VERSION in {{R_VERSIONS_LIST}}
     do
-    	curl -O https://cdn.rstudio.com/r/centos-7/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
-	yum install -y R-${R_VERSION}-1-1.x86_64.rpm
-        rm -f R-${R_VERSION}-1-1.x86_64.rpm 
-        rm -f /usr/local/bin/R /usr/local/bin/Rscript
-        ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R
-        ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
-
+    	yum install -y https://cdn.rstudio.com/r/centos-7/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
+    
         # Set up developer toolset 11 for R only (optional)
         cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 # Developer Toolset Root directory
@@ -67,14 +142,27 @@ EOF
           $R_HOME/etc/Makeconf
         done
 
+        # Reconfigure R for Java (optional) 
+        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+        /opt/R/${R_VERSION}/bin/R CMD javareconf
+
         # Set up R to use latest CRAN and bioconductor repositories 
         # from public RSPM (optional)
+        
+	# Need to make sure R is in PATH so that pak can run R as a subprocess
+	rm -f /usr/local/bin/{R,Rscript}
+       	ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin
         /opt/R/${R_VERSION}/bin/Rscript /run.R
+	rm -f /usr/local/bin/{R,Rscript}
 
-        # Reconfigure R for Java (optional) 
-        /opt/R/${R_VERSION}/bin/R CMD javareconf
     done
     rm -f /run.R
+
+    # Defining system default version
+    if [ ! -z {{ R_VERSION_DEFAULT }} ]; then
+        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/R /usr/local/bin
+        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/Rscript /usr/local/bin
+    fi
 
     # SLURM integration (mandatory) 
     groupadd -g 401 slurm 
@@ -82,8 +170,6 @@ EOF
     yum -y install munge-devel
 
     # Install SLURM
-    # Output of `sinfo -V`
-    export SLURM_VERSION=23.02.6
 
     # Note that the git branches on github do have a slightly different
     # naming scheme - firstly the dots are replaced by dashes and
@@ -91,10 +177,11 @@ EOF
     # Here, we simply append "-1" to use the first git tag of a given
     # SLURM version
 
+    yum -y install git 
     dir=`mktemp -d` && \
         cd $dir && \
         rm -rf slurm && \
-        bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git" && \
+        SLURM_VER={{ SLURM_VERSION }} git clone --depth 1 -b slurm-${SLURM_VER//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
         echo "Compiling SLURM" && \
@@ -121,14 +208,13 @@ EOF
     rm -rf $dir 
 
     # install apptainer 
-    APPTAINER_VERSION=1.2.5
     dir=`mktemp -d`
     cd $dir 
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-${APPTAINER_VERSION}-1.x86_64.rpm
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-suid-${APPTAINER_VERSION}-1.x86_64.rpm
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
     yum install -y /usr/*bin/fuse2fs
-    yum localinstall -y apptainer-${APPTAINER_VERSION}-1.x86_64.rpm 
-    yum localinstall -y apptainer-suid-${APPTAINER_VERSION}-1.x86_64.rpm
+    yum localinstall -y apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm 
+    yum localinstall -y apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
     rm -f apptainer* 
     cd 
     rm -rf $dir 

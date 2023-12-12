@@ -148,16 +148,37 @@ If the above steps work, then the plugin is good to go for the next step.
 * add Java integration to the installed version of R since `rJava` is a problematic R package 
 * setup binary repositories for CRAN and BioConductor from public RSPM
 * for CentOS 7 add [devtoolset-10](https://access.redhat.com/documentation/en-us/red_hat_developer_toolset/10/html-single/user_guide/index) to allow for more recent compiler toolchain. 
+* for RockyLinux8 and 9 add [gcc-toolset-13](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/developing_c_and_cpp_applications_in_rhel_8/additional-toolsets-for-development_developing-applications#tools-and-versions-provided-by-gcc-toolset-13_gcc-toolset-13) to allow a more recent compiler toolchain, too
 * Install SLURM binaries into the container to prevent any linux distribution dependency on the distribution used on the HPC cluster
+* Install all R packages needed for the RStudio IDE integration into a site library
 
 ## Singularity recipe
 
-Appropriate singularity recipes can be found for [CentOS7](data/r-session-complete/centos7) and [Ubuntu 18.04 / Bionic](data/r-session-complete/bionic). They have ample comments to help you decide which bits to keep and which to discard. 
+Appropriate singularity recipes can be found for 
 
-They can be built by running (using admin privileges)
+* [CentOS 7](data/r-session-complete/centos7) 
+* [Rocky Linux 8](data/r-session-complete/rockylinux8)
+* [Rocky Linux 9](data/r-session-complete/rockylinux9)
+* [Ubuntu 20.04 LTS (Focal)](data/r-session-complete/focal)
+* [Ubuntu 22.04 LTS (Jammy)](data/r-session-complete/jammy). 
+ 
+They have ample comments to help you decide which bits to keep and which to discard. 
+
+They can be built by using the following process
+
+First, you will need to define various parameters for the container. A [sample file](data/r-session-complete/build.env) can be used to get started. While the parameters should be mostly self-explanatory, here is a summary of each 
+
+* `PRO_DRIVERS_VERSION` - version of [Posit Professional Drivers](https://docs.posit.co/pro-drivers/workbench-connect/)
+* `QUARTO_VERSION` - version of [Quarto](https://quarto.org/docs/get-started/) 
+* `R_VERSIONS_LIST` and `R_VERSION_DEFAULT` - list of R versions and the system default R version 
+* `PYTHON_VERSION_LIST` and `PYTHON_VERSION_DEFAULT` - list of Python versions and the system default Python version 
+* `PWB_VERSION` - [Posit Workbench](https://docs.posit.co/ide/server-pro/getting_started/installation/installation.html) Version. Please note that we are using the version names as specified at https://dailies.rstudio.com/release/. Also please replace any "+" with "-". 
+* `SLURM_VERSION` - Version of [Slurm](https://www.schedmd.com/downloads.php)
+* `APPTAINER_VERSION` - Version of [Apptainer](https://github.com/apptainer/apptainer/releases)
+
 
 ```
-singularity build r-session-complete.sif r-session-complete.sdef
+singularity build --build-arg-file ../build.env containers.sif r-session-complete.sdef
 ```
 
 Please note that this can be a very time-consuming process. Ensure that your temporary folder (e.g. `/tmp` or wherever the environment variable `TMP`/`TMPDIR` etc. points to) has sufficient amounts of disk space available. You will definitely need around 4 GB of disk space. A benefit of singularity containers is that they are much smaller (<50 % of docker image size) but they take a while to build.

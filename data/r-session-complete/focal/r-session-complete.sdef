@@ -1,49 +1,48 @@
 Bootstrap: docker
-From: rockylinux:8 
+From: ubuntu:focal 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
 %files
     scripts/run.R /
-    #scripts/zz_workbench_singularity_env_vars.sh /etc/profile.d/
-    scripts/bioc.txt / 
+#    scripts/zz_workbench_singularity_env_vars.sh /etc/profile.d/     
+    scripts/bioc.txt /
 
 %post -c /bin/bash
 
-    # Activate EPEL Release and powertools
-
-    yum -y install yum-utils epel-release
-    yum-config-manager --enable powertools
-
     # Install Pro Drivers
 
-    yum install -y \
-        https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-{{ PRO_DRIVERS_VERSION }}-1.el7.x86_64.rpm \
-        && cp -f /opt/rstudio-drivers/odbcinst.ini.sample /etc/odbcinst.ini
+    apt-get update && apt-get install -y gdebi-core curl
+    curl -O https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers_{{ PRO_DRIVERS_VERSION }}_amd64.deb && \
+        gdebi -n rstudio-drivers_{{ PRO_DRIVERS_VERSION }}_amd64.deb && \
+        rm -f rstudio-drivers_{{ PRO_DRIVERS_VERSION }}_amd64.deb
 
-    # Install TinyTex
+    
+    # Install TinyTeX 
 
-    yum install -y wget which perl-Digest-MD5
+    apt-get install -y curl wget perl-modules
     curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
         && /root/.TinyTeX/bin/*/tlmgr path remove \
         && mv /root/.TinyTeX/ /opt/TinyTeX \
         && /opt/TinyTeX/bin/*/tlmgr option sys_bin /usr/local/bin \
         && /opt/TinyTeX/bin/*/tlmgr path add
 
+    
     # Install Quarto
 
     curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/download/v{{ QUARTO_VERSION }}/quarto-{{ QUARTO_VERSION }}-linux-amd64.tar.gz \
     && mkdir -p /opt/quarto/{{ QUARTO_VERSION }} \
     && tar -zxf quarto.tar.gz -C "/opt/quarto/{{ QUARTO_VERSION }}" --strip-components=1 \
     && rm -f quarto.tar.gz \
-    && ln -s /opt/quarto/{{ QUARTO_VERSION }}/bin/quarto /usr/local/bin/quarto
-
+    && ln -s /opt/quarto/{{ QUARTO_VERSION }}bin/quarto /usr/local/bin/quarto
 
     # Install Python 
 
     for PYTHON_VERSION in {{ PYTHON_VERSION_LIST }}
     do
-        yum install -y https://cdn.rstudio.com/python/centos-8/pkgs/python-${PYTHON_VERSION}-1-1.x86_64.rpm
+        curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION}_1_amd64.deb
+        gdebi -n python-${PYTHON_VERSION}_1_amd64.deb
+        rm -f python-${PYTHON_VERSION}_1_amd64.deb
     done
 
     # Configure Python versions to have 
@@ -78,7 +77,7 @@ EOF
         /opt/python/${PYTHON_VERSION}/bin/python -m ipykernel install --name py${PYTHON_VERSION} --display-name "Python ${PYTHON_VERSION}" & 
     done
     wait
- 
+
     # Use default version to point to jupyter and python 
     if [ ! -z {{ PYTHON_VERSION_DEFAULT }} ]; then
         ln -s /opt/python/{{ PYTHON_VERSION_DEFAULT }}/bin/jupyter /usr/local/bin
@@ -89,63 +88,33 @@ EOF
     # Install PWB session components 
 
     mkdir -p /usr/lib/rstudio-server
-    yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
-    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/rhel8/x86_64/rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz
-    tar xfz rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1
-    rm -f rsp-session-rhel8-{{ PWB_VERSION }}-x86_64.tar.gz
 
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser libuser1-dev rrdtool libpq5
+
+    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/focal/amd64/rsp-session-focal-{{ PWB_VERSION }}-amd64.tar.gz
+    tar xfz rsp-session-focal-{{ PWB_VERSION }}-amd64.tar.gz -C /usr/lib/rstudio-server --strip=1
+    rm -f rsp-session-focal-{{ PWB_VERSION }}-amd64.tar.gz
+
+    #!/bin/bash
     # Install Java JDK (optional) 
-    yum -y install java-1.8.0-openjdk-devel 
-
-    # Set up of gcc toolset 13 to use a more recent version of the 
-    # compiler toolchain (optional)
-    yum -y install gcc-toolset-13
+    apt-get update -y && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y \
+	    default-jdk 
 
     # Install and configure new set of defined R versions
     for R_VERSION in {{ R_VERSIONS_LIST }}
     do
-    	yum install -y https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
-
-        # Set up gcc toolset 13 for R only (optional)
-        cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
-# GCC Toolset Root directory
-DEVTOOLSROOT=/opt/rh/gcc-toolset-13/root
-
-# Environment variables needed
-PCP_DIR=\${DEVTOOLSROOT}
-X_SCLS=gcc-toolset-13 
-SHLVL=4
-DEBUGINFOD_URLS=https://debuginfod.centos.org/ 
-
-MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}
-PATH=/opt/rh/gcc-toolset-13/root/usr/bin:\${PATH}
-LD_LIBRARY_PATH=/opt/rh/gcc-toolset-13/root/usr/lib64:/opt/rh/gcc-toolset-13/root/usr/lib:\${LD_LIBRARY_PATH}
-PKG_CONFIG_PATH=/opt/rh/gcc-toolset-13/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
-INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}
-EOF
-
-        # Update R Makevars to use the new compiler features from  
-        # gcc toolset 13 (optional)
-        R_HOME=/opt/R/${R_VERSION}/lib/R
-        if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi
-        for std in 20 23
-        do
-          sed -i "s/^CXX${std} .?*/CXX${std} = g++/ ; \
-          s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 \$(LTO)/ ; \
-          s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
-          s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
-          $R_HOME/etc/Makeconf
-        done
+        curl -O https://cdn.rstudio.com/r/ubuntu-2004/pkgs/r-${R_VERSION}_1_amd64.deb && \
+        gdebi -n r-${R_VERSION}_1_amd64.deb && \
+        rm -f r-${R_VERSION}_1_amd64.deb
 
         # Reconfigure R for Java (optional) 
-        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+        export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
         /opt/R/${R_VERSION}/bin/R CMD javareconf
 
         # Need to make sure R is in PATH so that pak can run R as a subprocess
-        rm -f /usr/local/bin/{R,Rscript}
-        ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin
-        /opt/R/${R_VERSION}/bin/Rscript /run.R
-        rm -f /usr/local/bin/{R,Rscript}
+
+        PATH=/opt/R/${R_VERSION}/bin:$PATH /opt/R/${R_VERSION}/bin/Rscript /run.R
     done
     rm -f /run.R
 
@@ -155,20 +124,25 @@ EOF
         ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/Rscript /usr/local/bin
     fi
 
-    # SLURM integration (mandatory) 
-    groupadd -g 401 slurm 
-    useradd -u 401 -g 401 slurm  
-    yum -y install munge-devel
+    # Install zeromq as prereq for clustermq (optional) 
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libzmq5 
+
+    # Install JAGS as prereq for rjags (optional)
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        jags
 
     # Install SLURM
+    groupadd -g 401 slurm
+    useradd -u 401 -g 401 slurm
+    apt-get install -y libmunge-dev
 
     # Note that the git branches on github do have a slightly different
     # naming scheme - firstly the dots are replaced by dashes and
     # secondly each SLURM version can have more than one release tag
     # Here, we simply append "-1" to use the first git tag of a given
     # SLURM version
- 
-    yum -y install git 
+
     dir=`mktemp -d` && \
         cd $dir && \
         rm -rf slurm && \
@@ -183,24 +157,19 @@ EOF
         rm -rf $dir && \
         ln -s /usr/local/slurm/bin/* /usr/local/bin
 
-
-    # Install zeromq as prereq for clustermq (optional) 
-    yum -y install zeromq
-
-
-    # install apptainer 
+    #Install Apptainer
     dir=`mktemp -d`
-    cd $dir 
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
-    yum install -y /usr/*bin/fuse2fs
-    yum localinstall -y apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm 
-    yum localinstall -y apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
-    rm -f apptainer* 
+    cd $dir  
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/{{ APPTAINER_VERSION }}/apptainer_{{ APPTAINER_VERSION }}_amd64.deb
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/{{ APPTAINER_VERSION }}/apptainer-suid_{{ APPTAINER_VERSION }}_amd64.deb
+    gdebi -n apptainer_{{ APPTAINER_VERSION }}_amd64.deb 
+    gdebi -n apptainer-suid_{{ APPTAINER_VERSION }}_amd64.deb
+    rm -f apptainer*
     cd 
     rm -rf $dir 
 
     rm -rf /var/cache/yum/*
+
 
 #%startscript
 #    # The below is saving the necessary environment variables so they can eb inherited into
@@ -208,7 +177,6 @@ EOF
 #    env | grep -e ^SINGULARITY -e ^SLURM | grep -v NAME | grep -v BIND | sed 's/^/export /' > /tmp/.slurm-$USER-$SLURM_JOBID.env
 #    $@
 
-%environment
+%environment  
     TINI_SUBREAPER=true
     export SLURM_CONF=/opt/slurm/etc/slurm.conf
-
