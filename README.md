@@ -170,7 +170,7 @@ First, you will need to define various parameters for the container. A [sample f
 
 * `PRO_DRIVERS_VERSION` - version of [Posit Professional Drivers](https://docs.posit.co/pro-drivers/workbench-connect/)
 * `QUARTO_VERSION` - version of [Quarto](https://quarto.org/docs/get-started/) 
-* `R_VERSIONS_LIST` and `R_VERSION_DEFAULT` - list of R versions and the system default R version 
+* `R_VERSION_LIST` and `R_VERSION_DEFAULT` - list of R versions and the system default R version 
 * `PYTHON_VERSION_LIST` and `PYTHON_VERSION_DEFAULT` - list of Python versions and the system default Python version 
 * `PWB_VERSION` - [Posit Workbench](https://docs.posit.co/ide/server-pro/getting_started/installation/installation.html) Version. Please note that we are using the version names as specified at https://dailies.rstudio.com/release/. Also please replace any "+" with "-". 
 * `SLURM_VERSION` - Version of [Slurm](https://www.schedmd.com/downloads.php)

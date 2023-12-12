@@ -102,7 +102,7 @@ EOF
     yum -y install gcc-toolset-13
 
     # Install and configure new set of defined R versions
-    for R_VERSION in {{ R_VERSIONS_LIST }}
+    for R_VERSION in {{ R_VERSION_LIST }}
     do
     	yum install -y https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
 
