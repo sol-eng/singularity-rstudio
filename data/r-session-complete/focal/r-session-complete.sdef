@@ -22,6 +22,25 @@ From: ubuntu:focal
 
     apt-get install -y curl wget perl-modules
     curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
+        && /root/.TinyTeX/bin/*/tlmgr install \
+            bookmark \
+            caption \
+            environ \
+            fancyhdr \
+            hardwrap \
+            koma-script \
+            morefloats \
+            ms \
+            oberdiek \
+            pgf \
+            setspace \
+            tcolorbox \
+            textcase \
+            titlesec \
+            tufte-latex \
+            units \
+            ulem \
+            xcolor
         && /root/.TinyTeX/bin/*/tlmgr path remove \
         && mv /root/.TinyTeX/ /opt/TinyTeX \
         && /opt/TinyTeX/bin/*/tlmgr option sys_bin /usr/local/bin \
