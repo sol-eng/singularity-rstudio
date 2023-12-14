@@ -53,7 +53,7 @@ From: ubuntu:focal
     && mkdir -p /opt/quarto/{{ QUARTO_VERSION }} \
     && tar -zxf quarto.tar.gz -C "/opt/quarto/{{ QUARTO_VERSION }}" --strip-components=1 \
     && rm -f quarto.tar.gz \
-    && ln -s /opt/quarto/{{ QUARTO_VERSION }}bin/quarto /usr/local/bin/quarto
+    && ln -s /opt/quarto/{{ QUARTO_VERSION }}/bin/quarto /usr/local/bin/quarto
 
     # Install Python 
 
