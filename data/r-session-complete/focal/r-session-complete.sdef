@@ -165,7 +165,7 @@ EOF
     dir=`mktemp -d` && \
         cd $dir && \
         rm -rf slurm && \
-        SLURM_VER={{ SLURM_VERSION }} git clone --depth 1 -b slurm-${SLURM_VERS//./-}-1 https://github.com/SchedMD/slurm.git && \
+        SLURM_VER={{ SLURM_VERSION }} git clone --depth 1 -b slurm-${SLURM_VER//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
         echo "Compiling SLURM" && \
@@ -179,8 +179,8 @@ EOF
     #Install Apptainer
     dir=`mktemp -d`
     cd $dir  
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/{{ APPTAINER_VERSION }}/apptainer_{{ APPTAINER_VERSION }}_amd64.deb
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/{{ APPTAINER_VERSION }}/apptainer-suid_{{ APPTAINER_VERSION }}_amd64.deb
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer_{{ APPTAINER_VERSION }}_amd64.deb
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-suid_{{ APPTAINER_VERSION }}_amd64.deb
     gdebi -n apptainer_{{ APPTAINER_VERSION }}_amd64.deb 
     gdebi -n apptainer-suid_{{ APPTAINER_VERSION }}_amd64.deb
     rm -f apptainer*
