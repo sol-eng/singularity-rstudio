@@ -43,7 +43,7 @@ From: centos:7
             tufte-latex \
             units \
             ulem \
-            xcolor
+            xcolor \
         && /root/.TinyTeX/bin/*/tlmgr path remove \
         && mv /root/.TinyTeX/ /opt/TinyTeX \
         && /opt/TinyTeX/bin/*/tlmgr option sys_bin /usr/local/bin \
