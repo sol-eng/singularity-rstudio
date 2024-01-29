@@ -9,7 +9,7 @@ COPY scripts/bioc.txt /
 ARG PRO_DRIVERS_VERSION
 RUN apt-get update && apt-get install -y gdebi-core curl && \
     curl -O https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
-    gdebi -n rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
+    DEBIAN_FRONTEND=noninteractive gdebi -n rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
     rm -f rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb
 
     
@@ -54,7 +54,7 @@ RUN curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/d
 RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
         curl -O https://cdn.rstudio.com/python/ubuntu-2204/pkgs/python-${PYTHON_VERSION}_1_amd64.deb && \
-        gdebi -n python-${PYTHON_VERSION}_1_amd64.deb && \
+        DEBIAN_FRONTEND=noninteractive gdebi -n python-${PYTHON_VERSION}_1_amd64.deb && \
         rm -f python-${PYTHON_VERSION}_1_amd64.deb ; \
     done
 
@@ -113,7 +113,7 @@ ARG R_VERSION_LIST
 RUN for R_VERSION in ${R_VERSION_LIST}; \
     do \
         curl -O https://cdn.rstudio.com/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd64.deb && \
-        gdebi -n r-${R_VERSION}_1_amd64.deb && \
+        DEBIAN_FRONTEND=noninteractive gdebi -n r-${R_VERSION}_1_amd64.deb && \
         rm -f r-${R_VERSION}_1_amd64.deb && \
 
         # Reconfigure R for Java (optional) 
@@ -177,8 +177,8 @@ RUN dir=`mktemp -d` && \
     cd $dir  && \
     curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer_${APPTAINER_VERSION}_amd64.deb && \
     curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-suid_${APPTAINER_VERSION}_amd64.deb && \
-    gdebi -n apptainer_${APPTAINER_VERSION}_amd64.deb && \
-    gdebi -n apptainer-suid_${APPTAINER_VERSION}_amd64.deb && \
+    DEBIAN_FRONTEND=noninteractive gdebi -n apptainer_${APPTAINER_VERSION}_amd64.deb && \
+    DEBIAN_FRONTEND=noninteractive gdebi -n apptainer-suid_${APPTAINER_VERSION}_amd64.deb && \
     rm -f apptainer* && \
     cd && \
     rm -rf $dir && \
