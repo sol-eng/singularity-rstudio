@@ -3,7 +3,7 @@ version: "3.2"
 services:
   r-session-complete-hpc: 
     build:
-      context: ${LINUX_DISTRO}
+      context: ${LINUX_DISTRO:-rockylinux9}
       dockerfile: Dockerfile
       args: 
         - PRO_DRIVERS_VERSION=${PRO_DRIVERS_VERSION:-2023.05.0}
@@ -15,4 +15,4 @@ services:
         - PWB_VERSION=${RSW_VERSION:-2023.09.1-494.pro2}
         - SLURM_VERSION=${SLURM_VERSION:-23.02.6}
         - APPTAINER_VERSION=${APPTAINER_VERSION:-1.2.5}
-    image: r-session-complete-hpc:pwb-${RSW_VERSION:-2023.09.1-494.pro2}-slurm-${SLURM_VERSION:-23.02.6}
+    image: r-session-complete-hpc:${LINUX_DISTRO:-rockylinux9}-pwb-${RSW_VERSION:-2023.09.1-494.pro2}-slurm-${SLURM_VERSION:-23.02.6}

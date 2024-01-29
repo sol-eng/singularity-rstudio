@@ -1,4 +1,4 @@
-FROM ubuntu:focal 
+FROM ubuntu:jammy
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -53,7 +53,7 @@ RUN curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/d
 
 RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
-        curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION}_1_amd64.deb && \
+        curl -O https://cdn.rstudio.com/python/ubuntu-2204/pkgs/python-${PYTHON_VERSION}_1_amd64.deb && \
         gdebi -n python-${PYTHON_VERSION}_1_amd64.deb && \
         rm -f python-${PYTHON_VERSION}_1_amd64.deb ; \
     done
@@ -98,10 +98,10 @@ RUN if [ ! -z ${PYTHON_VERSION_DEFAULT} ]; then \
 # Install PWB session components 
 ARG PWB_VERSION
 RUN mkdir -p /usr/lib/rstudio-server && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser libuser1-dev rrdtool libpq5 && \
-    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/focal/amd64/rsp-session-focal-${PWB_VERSION}-amd64.tar.gz && \
-    tar xfz rsp-session-focal-${PWB_VERSION}-amd64.tar.gz -C /usr/lib/rstudio-server --strip=1 && \
-    rm -f rsp-session-focal-${PWB_VERSION}-amd64.tar.gz
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser1-dev rrdtool libpq5 && \
+    curl -O https://s3.amazonaws.com/rstudio-ide-build/session/jammy/amd64/rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz && \
+    tar xfz rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz -C /usr/lib/rstudio-server --strip=1 && \
+    rm -f rsp-session-jammy-${PWB_VERSION}-amd64.tar.gz
 
 # Install Java JDK (optional) 
 RUN apt-get update -y && \
@@ -112,7 +112,7 @@ RUN apt-get update -y && \
 ARG R_VERSION_LIST
 RUN for R_VERSION in ${R_VERSION_LIST}; \
     do \
-        curl -O https://cdn.rstudio.com/r/ubuntu-2004/pkgs/r-${R_VERSION}_1_amd64.deb && \
+        curl -O https://cdn.rstudio.com/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd64.deb && \
         gdebi -n r-${R_VERSION}_1_amd64.deb && \
         rm -f r-${R_VERSION}_1_amd64.deb && \
 
@@ -176,7 +176,7 @@ ARG APPTAINER_VERSION
 RUN dir=`mktemp -d` && \
     cd $dir  && \
     curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer_${PPTAINER_VERSION}_amd64.deb && \
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-suid_${APPTAINER_VERSION}_amd64.deb \
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-suid_${APPTAINER_VERSION}_amd64.deb && \
     gdebi -n apptainer_${APPTAINER_VERSION}_amd64.deb && \
     gdebi -n apptainer-suid_${APPTAINER_VERSION}_amd64.deb && \
     rm -f apptainer* && \

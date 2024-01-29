@@ -187,6 +187,35 @@ Also make sure you set the 'SLURM_VERSION' variable to the same version  than yo
 
 If you intend to submit jobs from within the Singularity Container, please make sure to point the environment variable `SLURM_CONF` to the location of `slurm.conf` on the HPC cluster in `launcher-env`. For AWS ParallelCluster one would set `SLURM_CONF=/opt/slurm/etc/slurm.conf`. 
 
+## Dockerfiles
+
+While singularity recipes as detailed in the previous section are using the native apptainer/singularity software, the absence of layering in singularity/apptainer can make development of singularity containers very tedious. Assume you are working on a singularity/apptainer container but the build fails after 80 % of the build time. You now have to fix the error and rebuild the container. Singularity/Apptainer will start from scratch again. 
+
+With dockerfiles and Docker containers, due to the use of layers, a rebuild of the container will always re-use layers that have successfully been built already from the docker build cache. This significantly speeds up the development time. Once your docker container is fully functional, you then can convert the same into a singularity image on-the-fly. 
+
+Only disadvantage of this approach is that you may need to create a docker registry unless you already have access to one. 
+
+### Docker registry
+
+Create your own little provate docker registry via 
+
+```
+docker run -p 5000:5000 -d registry:2
+```
+
+and then tag and push your containers like 
+
+```
+docker tag r-session-complete-hpc:rockylinux9-pwb-2023.09.1-494.pro2-slurm-23.02.6 localhost:5000/r-session-complete-hpc:rockylinux9-pwb-2023.09.1-494.pro2-slurm-23.02.6
+docker push localhost:5000/r-session-complete-hpc:rockylinux9-pwb-2023.09.1-494.pro2-slurm-23.02.6
+```
+
+Once the container is in the registry, you can directly convert it into an apptainer/singularity container via 
+
+```
+SINGULARITY_NOHTTPS=1 singularity build r-session-complete-hpc-rockylinux9-pwb-2023.09.1-494.pro2-slurm-23.02.6.sif docker://localhost:5000/r-session-complete-hpc:rockylinux9-pwb-2023.09.1-494.pro2-slurm-23.02.6 
+```
+
 # Docker container for RSW
 
 ## Default values
