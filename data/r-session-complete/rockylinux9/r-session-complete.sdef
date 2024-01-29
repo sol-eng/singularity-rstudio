@@ -170,9 +170,9 @@ EOF
     rm -f /run.R
 
     # Defining system default version
-    if [ ! -z {{ R_VERSION_DEFAULT}} ]; then
-        ln -s /opt/R/{{ R_VERSION_DEFAULT}}/bin/R /usr/local/bin
-        ln -s /opt/R/{{ R_VERSION_DEFAULT}}/bin/Rscript /usr/local/bin
+    if [ ! -z {{ R_VERSION_DEFAULT }} ]; then
+        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/R /usr/local/bin
+        ln -s /opt/R/{{ R_VERSION_DEFAULT }}/bin/Rscript /usr/local/bin
     fi
 
     # SLURM integration (mandatory) 
@@ -212,7 +212,7 @@ EOF
     dir=`mktemp -d`
     cd $dir 
     curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}//apptainer-suid-{{ APPTAINER_VERSION }}/-1.x86_64.rpm
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v{{ APPTAINER_VERSION }}/apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
     yum install -y /usr/*bin/fuse2fs
     yum localinstall -y apptainer-{{ APPTAINER_VERSION }}-1.x86_64.rpm 
     yum localinstall -y apptainer-suid-{{ APPTAINER_VERSION }}-1.x86_64.rpm
