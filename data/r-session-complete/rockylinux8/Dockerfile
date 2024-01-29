@@ -191,9 +191,8 @@ ARG SLURM_VERSION
 RUN dir=`mktemp -d` && \
         cd $dir && \
         export SLURM_VER=${SLURM_VERSION} && git clone --depth 1 -b slurm-${SLURM_VER//./-}-1 https://github.com/SchedMD/slurm.git && \
-        rm -rf slurm && \
-        ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
         cd slurm && \
+        ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
         echo "Compiling SLURM" && \
         make -j 4 > /var/log/slurm-compile.log && \
         make install > /var/log/slurm-install.log && \

@@ -190,7 +190,6 @@ RUN yum -y install git
 ARG SLURM_VERSION
 RUN dir=`mktemp -d` && \
         cd $dir && \
-        rm -rf slurm && \
         export SLURM_VER=${SLURM_VERSION} && git clone --depth 1 -b slurm-${SLURM_VER//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         ./configure --prefix /usr/local/slurm > /var/log/slurm-configure.log && \
