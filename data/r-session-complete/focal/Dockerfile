@@ -175,7 +175,7 @@ ARG APPTAINER_VERSION
 
 RUN dir=`mktemp -d` && \
     cd $dir  && \
-    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer_${PPTAINER_VERSION}_amd64.deb && \
+    curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer_${APPTAINER_VERSION}_amd64.deb && \
     curl -L -O https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer-suid_${APPTAINER_VERSION}_amd64.deb && \
     gdebi -n apptainer_${APPTAINER_VERSION}_amd64.deb && \
     gdebi -n apptainer-suid_${APPTAINER_VERSION}_amd64.deb && \
