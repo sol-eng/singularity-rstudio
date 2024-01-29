@@ -50,7 +50,7 @@ RUN curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/d
     && ln -s /opt/quarto/${QUARTO_VERSION}/bin/quarto /usr/local/bin/quarto
 
 # Install Python 
-
+ARG PYTHON_VERSION_LIST
 RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
         curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION}_1_amd64.deb && \
@@ -65,7 +65,6 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
 # Note: Install will run in parallel to speed up things
 RUN echo -e "[global]\ntimeout = 60 \nindex-url = https://packagemanager.posit.co/pypi/latest/simple" > /etc/pip.conf 
 
-ARG PYTHON_VERSION_LIST
 RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
         /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
