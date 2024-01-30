@@ -123,7 +123,6 @@ ARG R_VERSION_LIST
 RUN for R_VERSION in ${R_VERSION_LIST}; \
 do \
     yum install -y https://cdn.rstudio.com/r/centos-7/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
-
     # Set up gcc toolset 13 for R only (optional)
     echo -e "# GCC Toolset Root directory \n\
 DEVTOOLSROOT=/opt/rh/devtoolset-11/root \n\
@@ -142,12 +141,11 @@ INFOPATH=\${DEVTOOLSROOT}/usr/share/info:\${INFOPATH}\n\
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}\n\
 \n\
 X_SCLS=devtoolset-11\n\
-PCP_DIR=\${DEVTOOLSROOT}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site; \
-
+PCP_DIR=\${DEVTOOLSROOT}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # devtoolset-11 (optional)
-    R_HOME=/opt/R/${R_VERSION}/lib/R ; \
-    if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi ; \
+    R_HOME=/opt/R/${R_VERSION}/lib/R && \
+    if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi && \
     for std in 14 17 20 ;\
     do \
         sed -i "s/^CXX${std} .?*/CXX${std} = g++/ ; \
@@ -155,19 +153,17 @@ PCP_DIR=\${DEVTOOLSROOT}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site; \
             s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
             s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
             $R_HOME/etc/Makeconf; \
-    done ;\
-
+    done &&\
     # Reconfigure R for Java (optional) 
-    export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk; \
-    /opt/R/${R_VERSION}/bin/R CMD javareconf; \
-	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf; \
-
+    export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk && \
+    /opt/R/${R_VERSION}/bin/R CMD javareconf && \
+	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
     # Need to make sure R is in PATH so that pak can run R as a subprocess
+    rm -f /usr/local/bin/{R,Rscript} && \
+    ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin && \
+    /opt/R/${R_VERSION}/bin/Rscript /run.R && \
     rm -f /usr/local/bin/{R,Rscript}; \
-    ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin; \
-    /opt/R/${R_VERSION}/bin/Rscript /run.R; \
-    rm -f /usr/local/bin/{R,Rscript}; \
-done ; \
+done && \
 rm -f /run.R
 
 # Defining system default version

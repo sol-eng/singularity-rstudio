@@ -122,7 +122,6 @@ ARG R_VERSION_LIST
 RUN for R_VERSION in ${R_VERSION_LIST}; \
 do \
     yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
-
     # Set up gcc toolset 13 for R only (optional)
     echo -e "# GCC Toolset Root directory \n\
 DEVTOOLSROOT=/opt/rh/gcc-toolset-13/root \n\
@@ -137,12 +136,11 @@ MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
 PATH=/opt/rh/gcc-toolset-13/root/usr/bin:\${PATH} \n\
 LD_LIBRARY_PATH=/opt/rh/gcc-toolset-13/root/usr/lib64:/opt/rh/gcc-toolset-13/root/usr/lib:\${LD_LIBRARY_PATH} \n\
 PKG_CONFIG_PATH=/opt/rh/gcc-toolset-13/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
-INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site; \
-
+INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # gcc toolset 13 (optional)
-    R_HOME=/opt/R/${R_VERSION}/lib/R ; \
-    if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi ; \
+    R_HOME=/opt/R/${R_VERSION}/lib/R && \
+    if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi && \
     for std in 20 23 ;\
     do \
         sed -i "s/^CXX${std} .?*/CXX${std} = g++/ ; \
@@ -150,25 +148,23 @@ INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
             s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
             s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
             $R_HOME/etc/Makeconf; \
-    done ;\
-
+    done &&\
     # Reconfigure R for Java (optional) 
-    export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk; \
-    /opt/R/${R_VERSION}/bin/R CMD javareconf; \
-	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf; \
-
+    export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk && \
+    /opt/R/${R_VERSION}/bin/R CMD javareconf && \
+	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
     # Need to make sure R is in PATH so that pak can run R as a subprocess
+    rm -f /usr/local/bin/{R,Rscript} && \
+    ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin && \
+    /opt/R/${R_VERSION}/bin/Rscript /run.R && \
     rm -f /usr/local/bin/{R,Rscript}; \
-    ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin; \
-    /opt/R/${R_VERSION}/bin/Rscript /run.R; \
-    rm -f /usr/local/bin/{R,Rscript}; \
-done ; \
+done && \
 rm -f /run.R
 
 # Defining system default version
 ARG R_VERSION_DEFAULT
 RUN if [ ! -z ${R_VERSION_DEFAULT} ]; then \
-        ln -s /opt/R/${R_VERSION_DEFAULT}/bin/R /usr/local/bin; \
+        ln -s /opt/R/${R_VERSION_DEFAULT}/bin/R /usr/local/bin && \
         ln -s /opt/R/${R_VERSION_DEFAULT}/bin/Rscript /usr/local/bin; \
     fi
 
