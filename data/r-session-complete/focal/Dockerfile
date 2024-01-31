@@ -63,7 +63,7 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
 #  - configure pip to use posit package manager 
 #  - preinstalling packages needed for the integration with other tools (e.g Connect) 
 # Note: Install will run in parallel to speed up things
-RUN echo -e "[global]\ntimeout = 60 \nindex-url = https://packagemanager.posit.co/pypi/latest/simple" > /etc/pip.conf 
+RUN bash -c echo -e "[global]\ntimeout = 60 \nindex-url = https://packagemanager.posit.co/pypi/latest/simple" > /etc/pip.conf 
 
 RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
@@ -83,7 +83,7 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/python -m ipykernel install --name py${PYTHON_VERSION} --display-name "Python ${PYTHON_VERSION}" & \
-    done ;\
+    done; \
     wait
 
 # Use default version to point to jupyter and python
@@ -117,7 +117,7 @@ RUN for R_VERSION in ${R_VERSION_LIST}; \
         # Reconfigure R for Java (optional) 
         export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 && \
         /opt/R/${R_VERSION}/bin/R CMD javareconf && \
-	    echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf \
+	    echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
         # Need to make sure R is in PATH so that pak can run R as a subprocess
         PATH=/opt/R/${R_VERSION}/bin:$PATH /opt/R/${R_VERSION}/bin/Rscript /run.R; \
     done && \
