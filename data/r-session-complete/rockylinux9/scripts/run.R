@@ -212,7 +212,7 @@ paste("Installing packages for RSW integration")
 pak::pkg_install(packages_needed,lib=libdir)
 paste("Creating lock file for further reproducibility")
 pak::lockfile_create(packages_needed,lockfile=paste0(libdir,"/pkg.lock"))
-pak::pak_clean(force=TRUE)
+pak::pak_cleanup(force=TRUE)
 
 paste("Setting up global renv cache")
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
