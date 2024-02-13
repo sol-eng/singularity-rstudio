@@ -81,7 +81,7 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
         /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
             pip setuptools wheel && \
-        scl_enable devtoolset-11 "/opt/python/${PYTHON_VERSION}/bin/pip install \
+        scl enable devtoolset-11 "/opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
             jupyterlab \
