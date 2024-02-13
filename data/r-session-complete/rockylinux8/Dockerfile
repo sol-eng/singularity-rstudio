@@ -11,6 +11,10 @@ COPY scripts/bioc.txt /
 
 RUN yum -y install yum-utils epel-release && yum-config-manager --enable powertools 
 
+# Set up of gcc toolset 13 to use a more recent version of the 
+# compiler toolchain 
+RUN yum -y install gcc-toolset-13
+
 # Install Pro Drivers
 
 ARG PRO_DRIVERS_VERSION
@@ -76,14 +80,14 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
         /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
             pip setuptools wheel && \
-        /opt/python/${PYTHON_VERSION}/bin/pip install \
+        scl enable gcc-toolset-13 "/opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
             jupyterlab \
             rsconnect_jupyter \
             rsconnect_python \
             rsp_jupyter \
-            workbench_jupyterlab && \
+            workbench_jupyterlab" && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
@@ -111,10 +115,6 @@ RUN mkdir -p /usr/lib/rstudio-server && \
 
 # Install Java JDK (optional) 
 RUN yum -y install java-1.8.0-openjdk-devel 
-
-# Set up of gcc toolset 13 to use a more recent version of the 
-# compiler toolchain (optional)
-RUN yum -y install gcc-toolset-13
 
 ARG R_VERSION_LIST
 

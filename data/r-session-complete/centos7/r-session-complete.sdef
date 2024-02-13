@@ -15,6 +15,12 @@ From: centos:7
     yum -y install yum-utils epel-release
     yum-config-manager --enable powertools
 
+
+    # Set up of developer toolset 11 to use a more recent version of the 
+    # compiler toolchain
+    yum -y install centos-release-scl
+    yum -y install devtoolset-11
+
     # Install Pro Drivers
 
     yum install -y \
@@ -81,14 +87,14 @@ EOF
     do
         /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
             pip setuptools wheel && \
-        /opt/python/${PYTHON_VERSION}/bin/pip install \
+        scl enable devtoolset-11 "/opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
             jupyterlab \
             rsconnect_jupyter \
             rsconnect_python \
             rsp_jupyter \
-            workbench_jupyterlab && \
+            workbench_jupyterlab" && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
@@ -115,11 +121,6 @@ EOF
 
     # Install Java JDK (optional) 
     yum -y install java-1.8.0-openjdk-devel 
-
-    # Set up of developer toolset 11 to use a more recent version of the 
-    # compiler toolchain (optional)
-    yum -y install centos-release-scl
-    yum -y install devtoolset-11
 
     # Install and configure new set of defined R versions
     for R_VERSION in {{R_VERSION_LIST}}
