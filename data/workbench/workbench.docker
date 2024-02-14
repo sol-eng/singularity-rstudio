@@ -1,6 +1,6 @@
-FROM rstudio/rstudio-workbench:jammy-2023.09.1--6f29f2a
+FROM rstudio/rstudio-workbench:jammy-2023.12.1--0e977e6
 
-ARG SLURM_VERSION="23.02.6" 
+ARG SLURM_VERSION="23.02.7" 
 ARG SLURM_CONF="/opt/slurm/etc/slurm.conf"
 
 RUN apt-get update -y && \
@@ -48,7 +48,7 @@ RUN tmpdir=`mktemp -d` && \
         git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
         cd slurm && \
         echo "SLURM: Configure step" && \
-        ./configure --prefix /usr/local/slurm >& /var/log/slurm-configure.log && \
+        ./configure --prefix /opt/slurm >& /var/log/slurm-configure.log && \
 	echo "SLURM: Compile" && \
         make -j 4 >& /var/log/slurm-build.log && \
 	echo "SLURM: Install" && \
@@ -57,5 +57,8 @@ RUN tmpdir=`mktemp -d` && \
         rm -rf $tmpdir
 
 RUN echo "export SLURM_CONF=$SLURM_CONF" > /etc/profile.d/slurm-env.sh
-RUN echo "export PATH=$PATH:/usr/local/slurm/bin" >> /etc/profile.d/slurm-env.sh
+RUN echo "export PATH=$PATH:/opt/slurm/bin" >> /etc/profile.d/slurm-env.sh
 
+RUN chown 111 /etc/munge/munge.key
+
+RUN /opt/python/default/bin/python -c "import uuid;print(str(uuid.uuid4()))" > /etc/rstudio/secure-cookie-key
