@@ -26,7 +26,7 @@ RUN chmod +s /usr/sbin/munged && \
 	mkdir -p /var/run/munge && \
 	chown munge /var/run/munge/ && \
    	chown munge /etc/munge/munge.key && \
-	echo "[program:munge]\ncommand=/usr/sbin/munged -F\nautorestart=false\nnumprocs=1\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0" > /startup/custom/munge.conf && \ 
+	echo -e "[program:munge]\ncommand=/usr/sbin/munged -F\nautorestart=false\nnumprocs=1\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0" > /startup/custom/munge.conf && \ 
 	cat /startup/custom/munge.conf
 COPY munge/munge.key /etc/munge
 
