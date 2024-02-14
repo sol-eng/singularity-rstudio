@@ -10,7 +10,7 @@ RUN apt-get update -y && \
 
 RUN for R_VERSION in `ls /opt/R`; \
         do \ 
-    	/opt/R/${R_VERSION}/bin/R CMD javareconf && \ 
+    	/opt/R/${R_VERSION}/bin/R CMD javareconf ; \ 
         done	
 
 # Install and configure munge
