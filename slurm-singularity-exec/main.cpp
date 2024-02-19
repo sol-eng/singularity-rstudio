@@ -28,8 +28,7 @@
 
 extern "C"
 { // SPANK include
-#include "slurm/spank.h"
-#include "slurm/slurm.h"
+#include <slurm/spank.h>
 }
 
 /// string_view::starts_with replacement
@@ -209,14 +208,12 @@ public:
 struct singularity_exec
 {
   inline static std::string s_container_name = {};
-  inline static std::string s_container_path = {};
   inline static std::string s_singularity_script = "/usr/lib/slurm/slurm-singularity-wrapper.sh";
   inline static std::string s_singularity_args = {};
   inline static std::string s_bind_defaults = {};
   inline static std::string s_bind_mounts = {};
   inline static bool s_no_args_option = false;
   inline static bool s_default_container = true;
-  inline static bool s_default_container_path = true;
 
   template <typename F0, typename F1>
   static int
@@ -255,23 +252,6 @@ struct singularity_exec
           s_default_container = false;
         });
   }
-
-  static int
-  set_container_path(int, const char* optarg, int)
-  {
-    return only_once(
-        [&] {
-          slurm_error("--singularity-container-path may not be set twice. It was "
-                      "first set to '%s', then to '%s'.",
-                      s_container_path.c_str(), optarg);
-        },
-        [&] {
-          s_container_path = optarg;
-	  s_container_name = s_container_path+"/"+s_container_name;
-          s_default_container_path = false;
-        });
-  }
-
 
   /// Add bind mount arguments from --singularity-bind
   static int
@@ -343,8 +323,6 @@ struct singularity_exec
               s_singularity_script = arg.substr(7);
             else if (starts_with(arg, "bind="))
               s_bind_defaults = arg.substr(5);
-	    else if (starts_with(arg, "path="))
-	      s_container_path = arg.substr(5);
             else if (arg == "args=disabled")
               s_no_args_option = true;
             else if (starts_with(arg, "args=\""))
@@ -365,7 +343,6 @@ struct singularity_exec
                   "/usr/lib/slurm/slurm-singularity-wrapper.sh\n"
                   "bind=src[:dest[:opts]][,src[:dest[:opts]]]*\n"
                   "                              set default bind mounts\n"
-		  "path=/path/to/container       sets path where container is stored"
                   "args=disabled                 Disable custom arguments\n"
                   "args=\"<singulary args>\"       quotes are mandatory; "
                   "string may be empty\n",
@@ -378,13 +355,6 @@ struct singularity_exec
              + "'); the environment variable SLURM_SINGULARITY_CONTAINER overwrites the default")
                 .c_str(),
             0, set_container_name);
-
-	s.register_option(
-            "singularity-container-path", "<name>",
-            ("path where the container is stored (default: '" + s_container_path
-             + "'); the environment variable SLURM_SINGULARITY_CONTAINER_PATH overwrites the default")
-                .c_str(),
-            0, set_container_path);
 
         s.register_option(
             "singularity-bind", "spec",
@@ -440,22 +410,7 @@ struct singularity_exec
             return 0;
           }
 
-        if (s_default_container_path)
-          { // check SLURM_SINGULARITY_CONTAINER_PATH env var
-            auto env = s.getenv("SLURM_SINGULARITY_CONTAINER_PATH");
-            if (env)
-              s_container_path = std::move(env).value();
-	      s_container_name = s_container_path+"/"+s_container_name;
-          }
-        if (s_container_path.empty() || s_singularity_script.empty())
-          {
-            slurm_verbose("singularity-exec: no container selected. Skipping "
-                          "start_container.");
-            return 0;
-          }
-
-
-	if (s_bind_mounts.empty())
+        if (s_bind_mounts.empty())
           {
             auto env = s.getenv("SLURM_SINGULARITY_BIND");
             if (env)
@@ -511,8 +466,7 @@ extern "C"
 
   extern const char plugin_name[] = "singularity-exec";
   extern const char plugin_type[] = "spank";
-  extern const uint32_t plugin_version = SLURM_VERSION_NUMBER; 
-  extern const unsigned int spank_plugin_version = 1;
+  extern const unsigned int plugin_version = 0;
 }
 
 // vim: foldmethod=marker foldmarker={,} sw=2 et

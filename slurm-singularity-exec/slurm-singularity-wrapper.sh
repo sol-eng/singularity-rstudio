@@ -17,16 +17,8 @@ run_in() {
 
 	local container="$1"
 	shift
-        local path="$SLURM_SINGULARITY_CONTAINER_PATH"
-        _debug "SLURM_SINGULARITY_CONTAINER_PATH=$path"
-
-	if [ -z $path ]; then
-		test -f $container || _error "$container missing"
-		_debug "SLURM_SINGULARITY_CONTAINER=$container"
-	else
-	        test -f $path/$container || _error "$container missing in $path"
-		_debug "SLURM_SINGULARITY_CONTAINER=$path/$container"
-	fi	
+        test -f $container || _error "$container missing"
+        _debug "SLURM_SINGULARITY_CONTAINER=$container"
 
 	local args="$SLURM_SINGULARITY_ARGS"
         _debug "SLURM_SINGULARITY_ARGS=$args"
@@ -37,15 +29,17 @@ run_in() {
 	local global="$SLURM_SINGULARITY_GLOBAL"
         _debug "SLURM_SINGULARITY_GLOBAL=$global"
 
-        local instance_name="singularity-`cat /proc/sys/kernel/random/uuid | sed 's/[-]//g'`"
-        _debug "instance_name=$instance_name"
-
-        local command="/usr/bin/singularity instance start $global --bind=$bind $args $container $instance_name && /usr/bin/singularity run instance://$instance_name $@ && /usr/bin/singularity instance stop $instance_name"
+        local command="singularity $global exec --bind=$bind $args $container $@"
         _debug "$command"
 
-        _debug "Start Singularity container $container"
-        _debug "Command used: $command"
-        bash -c  "$command"
+        # export the PATH and LD_LIBRARY_PATH environment variable to the container
+        #export SINGULARITYENV_PATH=$PATH
+        #export SINGULARITYENV_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+        export APPTAINERENV_PATH=$PATH
+        export APPTAINERENV_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+
+        echo "Start container image $container"
+        exec $command
 }
 
 run_in "$@"
