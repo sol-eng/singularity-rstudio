@@ -10,18 +10,20 @@ endif()
 
 option(INSTALL_PLUGSTACK_CONF "Whether to install a plugstack config" OFF)
 
-set(SLURM_SYSCONFDIR /etc/slurm CACHE STRING "Slurm sysconfdir")
+set(SLURM_SYSCONFDIR /opt/slurm/etc CACHE STRING "Slurm sysconfdir")
 set(SLURM_PLUGSTACK_CONF_D ${SLURM_SYSCONFDIR}/plugstack.conf.d
   CACHE STRING "Slurm plugstack conf dir")
 set(PLUGIN_DEFAULT_ARG "" CACHE STRING "Plugin default= arg")
-set(PLUGIN_BIND_ARG ${SLURM_SYSCONFDIR},/var/spool/slurm,/var/run/munge
+set(PLUGIN_BIND_ARG ${SLURM_SYSCONFDIR},/var/spool/slurmd,/var/run/munge
   CACHE STRING "Plugin bind= arg")
 set(PLUGIN_EXTRA_ARGS "" CACHE STRING "Plugin args= arg")
 
-find_path(SLURM_INCLUDE_DIR
-  NAMES spank.h
-  PATH_SUFFIXES slurm
-  REQUIRED)
+#find_path(SLURM_INCLUDE_DIR
+#  NAMES spank.h
+#  PATH_SUFFIXES slurm
+#  REQUIRED)
+
+set (SLURM_INCLUDE_DIR /opt/slurm/include)
 
 set(target ${PROJECT_NAME})
 add_library(${target} SHARED main.cpp)
