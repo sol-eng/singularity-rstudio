@@ -83,28 +83,14 @@ We are therefore using an implementation from [GSI](https://git.gsi.de/SDE/slurm
 Further details with up-to-date information can be found in [slurm-singularity-exec](slurm-singularity-exec.md
 ).
 
-In order to install and configure the SPANK plugin for singularity specifically for our use case, please use the plugin in the subfolder [slurm-singularity-exec](slurm-singularity-exec). Before building and installing, please 
+In order to install and configure the SPANK plugin for singularity specifically for our use case, please use the plugin in the subfolder [slurm-singularity-exec](slurm-singularity-exec). 
 
-* replace in `singularity-exec-conf.tmpl`
-   * `/efs/singularity/containers` by `container-path`
-   * `/efs` by any storage path you want to have available within the container (if not necessary, please remove `/efs`)
-   * `/scratch` by `scratch-path`
-   * the remaining options should remain unchanged. The `path=` variables will create the bind mounts for the container: 
-      * `/sys` for cgroups support 
-      * `/var/run/munge`, `/etc/munge` and `/run/munge` for munge support 
-      * `/var/spool/slurmd` to allow submitting jobs from within the container 
-    
-
-* replace in `slurm-singularity-wrapper.sh`
-   * `/usr/bin/singularity` with the full path to the singularity binary or the appropriate `ml`/`module` commands to load the module
-
-Once done, simply run (with admin rights).
+For a typical AWS ParallelCluster installation you simply would run 
 
 ```
-make install
+cmake -S . -B build -D CMAKE_INSTALL_PREFIX=/opt/slurm -DINSTALL_PLUGSTACK_CONF=ON 
+cmake --build build --target install 
 ```
-
-Please note: Any of the above modifications can be done later on as well. 
 
 Once the plugin is installed, please restart `slurmctld` via 
 
@@ -131,7 +117,7 @@ which should show us that we are indeed running in CentOS 8.
 To test the SPANK Plugin for singularity now we can run 
 
 ```
-srun --pty --singularity-container-path=`pwd` --singularity-container centos8.img bash
+srun --pty --singularity-container /path/to/centos8.img bash
 Singularity> cat /etc/centos-release
 ```
 If the above steps work, then the plugin is good to go for the next step. 
