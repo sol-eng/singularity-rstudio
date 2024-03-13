@@ -59,7 +59,6 @@ Instead of using a submit script for each singularity run like
 ```
 #!/bin/bash
 
-ml load singularity/3.8.5
 singularity run R-container.sif Rscript myCode.R
 ```
 
@@ -88,7 +87,9 @@ In order to install and configure the SPANK plugin for singularity specifically 
 For a typical AWS ParallelCluster installation you simply would run 
 
 ```
-cmake -S . -B build -D CMAKE_INSTALL_PREFIX=/opt/slurm -DINSTALL_PLUGSTACK_CONF=ON 
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/slurm \
+    -DINSTALL_PLUGSTACK_CONF=ON \
+    -DCMAKE_INSTALL_LIBEXECDIR=/opt/slurm/libexec
 cmake --build build --target install 
 ```
 
