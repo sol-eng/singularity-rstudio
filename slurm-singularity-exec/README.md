@@ -1,52 +1,69 @@
-This is a fork from https://git.gsi.de/SDE/slurm-singularity-exec.git
+# Slurm Singularity SPANK Plugin
 
-# Slurm Singularity SPANK Plug-in
+[![Build](https://github.com/GSI-HPC/slurm-singularity-exec/actions/workflows/build.yml/badge.svg)](https://github.com/GSI-HPC/slurm-singularity-exec/actions/workflows/build.yml) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10719223.svg)](https://doi.org/10.5281/zenodo.10719223)
 
-The Slurm SPANK plug-in mechanisms [01] dynamically modifies the runtime behavior
+The Singularity SPANK plugin provides the users with an interface to launch an
+application within a Linux container. The plug-in adds multiple command-line
+options to the `salloc`, `srun` and `sbatch` commands. These options are then
+propagated to a shell script [slurm-singularity-wrapper.sh][98] customizable by
+the cluster administrator. This plugin is compatible to both Apptainer [^wtl3M]
+and SinguarityCE [^oJ91o] (Sylabs Inc.) as container engine.
+
+The Slurm SPANK plug-in mechanisms [^bk1WA] dynamically modifies the runtime behavior
 of Slurm jobs:
 
 > SPANK provides a very generic interface for stackable plug-ins which may be
 > used to dynamically modify the job launch code in Slurm. SPANK plugins may be
 > built without access to Slurm source code. They need only be compiled against
-> Slurm's `spank.h` [02] header file, added to the SPANK config file
+> Slurm's `spank.h` [^AV7Wy] header file, added to the SPANK config file
 > `plugstack.conf`, and they will be loaded at runtime during the next job
 > launch.
-
-The Singularity SPANK plug-in provides the users with an interface to launch an
-application within a Singularity container [03]. The plug-in adds multiple
-command-line options to the `salloc`, `srun` and `sbatch` commands. These
-options are then propagated to a shell script
-[slurm-singularity-wrapper.sh][98] customizable by the cluster administrator.
 
 ## Build
 
 File                 | Description
 ---------------------|---------------------------------------------
-[main.cpp](main.cpp) | Singularity SPANK plug-in
-[spank.h](spank.h)   | SPANK plug-ins are compiled against this header file [02]
+[main.cpp](main.cpp) | Singularity SPANK plug-in source code
 
 > All SPANK plug-ins should be recompiled when upgrading Slurm to a new major
-> release. [01]
+> release. [^bk1WA]
 
 Build this plug-in using `g++` from the GNU Compiler Collection (GCC) version 8
-or newer:
+or newer. The plug-ins are compiled against the header file `<slurm/spank.h>`.
+Fedora distributes this file in the `slurm-devel` RPM package [^DoUiD]. CMake is
+available via the `cmake` package.
 
+Choose a `<build-dir>` to configure and build the plugin:
 ```sh
-# build the Singularity SPANK plug-in
-make singularity-exec.so
-# build the plug-in, and install the binary and configuration files
-make install
+cmake -S <source-dir> -B <build-dir> # configure
+cmake --build <build-dir> # build the Singularity SPANK plug-in
 ```
 
-By default 
+You may customize the configure phase further via the following CMake options:
 
-* the plug-in `singularity-exec.so` is installed to `/etc/slurm/spank` (defined via `libdir`.
-* singularity will bind-mount the SLURM installation in /opt/slurm (defined via `slurmdir`) 
-* add /opt/slurm/bin to the PATH environment variable within the container 
+CMake option                     | Default                                               | Description
+---------------------------------|-------------------------------------------------------|-------------------------------------------------------------------------------------
+`--install-prefix <install-dir>` | `/usr`                                                | Equivalent to `-DCMAKE_INSTALL_PREFIX=<install-dir>`
+`-DINSTALL_PLUGSTACK_CONF=ON`    | `OFF`                                                 | Whether to install a plugin config file
+`-DSLURM_SYSCONFDIR=...`         | `/etc/slurm`                                          | Slurm sysconfdir
+`-DSLURM_PLUGSTACK_CONF_D=...`   | `${SLURM_SYSCONFDIR}/plugstack.conf.d`                | Slurm plugstack conf dir
+`-DPLUGIN_DEFAULT_ARG=...`       | `""`                                                  | Plugin default= arg
+`-DPLUGIN_BIND_ARG=...`          | `${SLURM_SYSCONFDIR},/var/spool/slurm,/var/run/munge` | Plugin bind= arg
+`-DPLUGIN_EXTRA_ARGS=...`        | `""`                                                  | Plugin args= arg
+`-DSLURM_INCLUDE_DIR=...`        | Detected by CMake, typically `/usr/include`           | Slurm include dir passed to compiler via `-I` so `#include <slurm/spank.h>` resolves
+`-DCMAKE_INSTALL_LIBEXECDIR=...` | `libexec` on RHEL-based systems                       | FHS "internal binaries" directory [^sSrfT]
 
-If you need to change anything, append `libdir=...` and `slurmdir=...` to the make install command.
+## Install
 
-Restart `slurmd` in order to load the plug-in after installation.
+```sh
+[sudo] cmake --install <build-dir>
+```
+
+`sudo` is needed to install to system directories like `/usr`.
+
+By default, installation directories are chosen to be FSH-compliant [^sSrfT] as
+implemented by the CMake "GNUInstallDirs" module [^dsfDS].
+
 
 ## Configuration
 
@@ -63,24 +80,27 @@ mkdir /etc/slurm/plugstack.conf.d
 cat > /etc/slurm/plugstack.conf <<EOF
 include /etc/slurm/plugstack.conf.d/*.conf'
 EOF
-# reference the path to the plug-in and the wrapper script 
+# reference the path to the plug-in and the wrapper script
 cat > /etc/slurm/plugstack.conf.d/singularity-exec.conf <<EOF
-required /etc/slurm/spank/singularity-exec.so default= script=/etc/slurm/spank/slurm-singularity-wrapper.sh bind= args=disabled
+required /usr/lib64/slurm/singularity-exec.so default= script=/usr/libexec/slurm-singularity-wrapper.sh bind= args=disabled
 EOF
 ```
 
 Note that the configuration illustrated above will be deployed by `make
-install`.
-
-Modification to the plug-in configuration described below does not required a
-restart of `slurmd`:
+install`. Modification to the plug-in configuration described below does not
+required a restart of `slurmd`:
 
 Option                 | Description
 -----------------------|------------------------------------------------
 `default=<path>`       | Path to the Singularity container launched by default. If this is set user require to explicitly use an empty `--singularity-container=` option to prevent the start of a container.
-`script=<path>`        | Path to the wrapper script which consumes the input arguments and environment variables set by the plugin to launch the Singularity container. 
-`bind=<spec>`          | List of paths to bind-mount into the container by default. Please reference the section about [User-defined bind paths][95] in the Singularity User Documentation [04].
+`script=<path>`        | Path to the wrapper script which consumes the input arguments and environment variables set by the plugin to launch the Singularity container.
+`bind=<spec>`          | List of paths to bind-mount into the container by default. Please reference the section about [User-defined bind paths][95] in the Singularity User Documentation [^E9F6O].
 `args=<string>`        | List of [command-line arguments][94] passed to `singularity exec`. Disable support for this feature by setting `args=disabled`. This will prompt an error for an unrecognized option if the user adds the `--singularity-args=` option. Use an empty string `args=""` to enable support for singularity arguments without a default configuration. Supply default for all users by adding a list of options i.e. `args="--home /network/$USER"`
+
+Passing `-DINSTALL_PLUGSTACK_CONF=ON` to the CMake configure command will automate the above configuration.
+
+Restart `slurmd` in order to load the plug-in after installation and configuration.
+
 
 ## Usage
 
@@ -132,8 +152,21 @@ cat > job.sh <<EOF
 #SBATCH --singularity-args="--no-home"
 /bin/grep -i pretty /etc/os-release
 EOF
-SLURM_SINGULARITY_DEBUG=true SLURM_SINGULARITY_GLOBAL=--silent sbatch job.sh 
+SLURM_SINGULARITY_DEBUG=true SLURM_SINGULARITY_GLOBAL=--silent sbatch job.sh
 ```
+
+## RPM Packaging
+
+While these packages are tailored to the GSI HPC Cluster environment, you may
+still find them interesting for reference or to fork from:
+
+* [el9](https://git.gsi.de/SDE/packages/slurm-singularity-exec/-/tree/virgo-3-el9):
+  Uses the new [`%autorelease` and `%autochangelog` macros](https://docs.pagure.org/fedora-infra.rpmautospec/index.html).
+  If you build via [`mock`](https://github.com/rpm-software-management/mock),
+  it requires `--enable-plugin=rpmautospec`.
+* [el8](https://git.gsi.de/SDE/packages/slurm-singularity-exec/-/tree/virgo-3-el8):
+  Traditional manually maintained Release and Changelog fields.
+
 
 ## Development
 
@@ -143,31 +176,72 @@ generated by the script are stored under `/tmp/*.sif`.
 
 Start a test environment using the included [`Vagrantfile`][96]:
 
-* Installs the `singularity` package from Fedora EPEL
-* Copies the Singularity containers to `/tmp`
+* Installs the `apptainer` package from Fedora EPEL
+* Copies the SIF container images to `/tmp`
 * Builds, installs and configures the Slurm Singularity plug-in
 
-```bash
-# CentOS 7 with GNU Compiler Collection version 8
-vagrant up el7gcc8
+Start a Vagrant box to build an RPM package:
+
+```sh
+./containers.sh && vagrant up el8 && vagrant ssh el8 # for example...
+
+# synced from the host
+cd /vagrant
+
+cmake -S . -B build # configure the project and choose a build dir
+cmake --build build # build the Singularity SPANK plug-in
+sudo cmake --install build # install the binary and configuration files
+
+sudo systemctl enable --now munge slurmctld slurmd
 ```
 
+## License
+
+```
+Copyright © 2020-2024 GSI Helmholtzzentrum fuer Schwerionenforschung GmbH
+                      Matthias Kretz <m.kretz@gsi.de>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```
 
 ## References
 
-[01] SPANK - Slurm Plug-in Architecture  
+[^bk1WA]: SPANK - Slurm Plug-in Architecture
 <https://slurm.schedmd.com/spank.html>
 
-[02] Slurm SPANK Header File  
+[^AV7Wy]: Slurm SPANK Header File
 <https://github.com/SchedMD/slurm/blob/master/slurm/spank.h>
 
-[03] Singularity Container Run-time  
-<https://singularity.hpcng.org>
+[^oJ91o]: SingularityCE, Sylabs Inc.
+<https://sylabs.io>
 
-[04] singularity Documentation  
-<https://singularity.hpcng.org/docs>
+[^wtl3M]: Apptainer, Linux Foundation
+<https://apptainer.org>
 
-[99]: singularity-exec.conf
+[^E9F6O]: Apptainer Documentation
+<https://apptainer.org/documentation>
+
+[^DoUiD]: Fedora Slurm RPM Package
+<https://src.fedoraproject.org/rpms/slurm>
+
+[^sSrfT]: Filesystem Hierarchy Standard
+<https://refspecs.linuxfoundation.org/fhs.shtml>
+
+[^dsfDS]: CMake "GNUInstallDirs" module
+<https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html>
+
+[99]: singularity-exec.conf.in
 [98]: slurm-singularity-wrapper.sh
 [97]: containers.sh
 [96]: Vagrantfile
