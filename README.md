@@ -77,9 +77,9 @@ i.e. add the SBATCH line above and other resource requirements to their R Code a
 
 RStudio is not the first company that uses SPANK plugin for singularity integration. Many other Supercomputing Centers around the world have implemented such a plugin. 
 
-We are therefore using an implementation from [GSI](https://git.gsi.de/SDE/slurm-singularity-exec/-/tree/master) that we extended further to make it even more flexible.  
+We are therefore using an implementation from [GSI](https://github.com/GSI-HPC/slurm-singularity-exec/) that we extended further to make it even more flexible.  
 
-Further details with up-to-date information can be found in [slurm-singularity-exec](slurm-singularity-exec.md
+Further details with up-to-date information can be found in [slurm-singularity-exec](slurm-singularity-exec
 ).
 
 In order to install and configure the SPANK plugin for singularity specifically for our use case, please use the plugin in the subfolder [slurm-singularity-exec](slurm-singularity-exec). 
