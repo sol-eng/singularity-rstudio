@@ -149,6 +149,8 @@ Appropriate singularity recipes can be found for
 * [CentOS 7](data/r-session-complete/centos7) 
 * [Rocky Linux 8](data/r-session-complete/rockylinux8)
 * [Rocky Linux 9](data/r-session-complete/rockylinux9)
+* [RHEL 8](data/r-session-complete/rhel8)
+* [RHEL 9](data/r-session-complete/rhel9)
 * [Ubuntu 20.04 LTS (Focal)](data/r-session-complete/focal)
 * [Ubuntu 22.04 LTS (Jammy)](data/r-session-complete/jammy). 
  
@@ -176,6 +178,8 @@ Please note that this can be a very time-consuming process. Ensure that your tem
 Also make sure you set the 'SLURM_VERSION' variable to the same version  than your HPC cluster is using. 
 
 If you intend to submit jobs from within the Singularity Container, please make sure to point the environment variable `SLURM_CONF` to the location of `slurm.conf` on the HPC cluster in `launcher-env`. For AWS ParallelCluster one would set `SLURM_CONF=/opt/slurm/etc/slurm.conf`. 
+
+For the RHEL 8 and 9 images - you will find a script `rhn.sh` in the `scripts` subfolder - please put your RHN credentials there so the docker build process can make use of the RHEL packages. While the containers are bootstrapped from the free UBI images, some packages are not available in the UBI repo and hence a registration against Red Hat Network is necessary. 
 
 ## Dockerfiles
 
