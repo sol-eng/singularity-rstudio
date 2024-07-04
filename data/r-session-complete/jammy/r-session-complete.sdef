@@ -30,7 +30,6 @@ From: ubuntu:jammy
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \

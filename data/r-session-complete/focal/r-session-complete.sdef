@@ -30,7 +30,6 @@ From: ubuntu:focal
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \

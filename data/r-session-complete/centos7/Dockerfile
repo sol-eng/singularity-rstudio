@@ -45,7 +45,6 @@ RUN curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \

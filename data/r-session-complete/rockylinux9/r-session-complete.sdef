@@ -37,7 +37,6 @@ From: rockylinux:9
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \

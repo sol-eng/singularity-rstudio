@@ -24,7 +24,6 @@ RUN apt-get install -y curl wget perl-modules && \
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \

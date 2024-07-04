@@ -51,7 +51,6 @@ From: centos:7
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \
