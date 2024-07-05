@@ -5,7 +5,10 @@ FROM centos:7
 COPY scripts/run.R /
 COPY scripts/bioc.txt / 
 
-
+# Switch to vault for continued repo availability
+RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 
 # Activate EPEL Release and powertools
 
@@ -14,6 +17,12 @@ RUN yum -y install yum-utils epel-release && yum-config-manager --enable powerto
 # Set up of developer toolset 11 to use a more recent version of the 
 # compiler toolchain
 RUN yum -y install centos-release-scl
+
+# Switch to vault for continued repo availability
+RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+
 RUN yum -y install devtoolset-11
 
 # Install Pro Drivers
@@ -36,7 +45,6 @@ RUN curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \
@@ -172,6 +180,17 @@ RUN if [ ! -z ${R_VERSION_DEFAULT} ]; then \
         ln -s /opt/R/${R_VERSION_DEFAULT}/bin/R /usr/local/bin; \
         ln -s /opt/R/${R_VERSION_DEFAULT}/bin/Rscript /usr/local/bin; \
     fi
+
+# Installing frequently needed system dependencies 
+# (Cf. https://docs.posit.co/connect/admin/r/dependencies/)
+RUN yum install -y epel-release
+RUN yum install -y cairo-devel openssl-devel make libcurl-devel mariadb-devel \
+    unixODBC-devel v8-devel java-1.8.0-openjdk-devel libxml2-devel git \
+    fontconfig-devel freetype-devel libgit2-devel libssh2-devel zlib-devel \
+    glpk-devel libjpeg-turbo-devel ImageMagick ImageMagick-c++-devel \
+    cmake cmake3 libpng-devel libtiff-devel mesa-libGLU-devel mesa-libGL-devel \
+    gdal-devel gdal geos-devel proj-devel proj-epsg sqlite-devel libsodium-devel \
+    libicu-devel tcl tk tk-devel fribidi-devel harfbuzz-devel udunits2-devel
 
 # SLURM integration (mandatory) 
 RUN groupadd -g 401 slurm && \

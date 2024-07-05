@@ -208,8 +208,14 @@ library(pak)
 
 packages_needed<-pnames[pnames %in% avpack]
 
+if (paste(R.Version()$major,R.Version()$minor,sep=".") > "4.3.2") {
+   #mongolite 2.8.0 does not compile on CentOS 7 despile devtoolset
+   packages_needed[packages_needed %in% "mongolite"]<-"mongolite@2.7.1"
+}
+
 paste("Installing packages for RSW integration")
 pak::pkg_install(packages_needed,lib=libdir)
+
 paste("Creating lock file for further reproducibility")
 pak::lockfile_create(packages_needed,lockfile=paste0(libdir,"/pkg.lock"))
 pak::pak_cleanup(force=TRUE)
