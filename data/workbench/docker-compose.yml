@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: workbench.docker
       args: 
-        - SLURM_VERSION=${SLURM_VERSION:-23.02.6}
-        - RSW_VERSION=${RSW_VERSION:-2023.09.1-494.pro2}
-    image: rstudio-workbench-hpc:bionic-rsw-${RSW_VERSION:-2023.09.1-494.pro2}-slurm-${SLURM_VERSION:-23.02.6}
+        - SLURM_VERSION=${SLURM_VERSION:-23.02.7}
+        - RSW_VERSION=${PWB_VERSION:-2024.04.2}
+        - OS_VERSION=${OS_VERSION:-ubuntu2204}
+    image: rstudio-workbench-hpc:bionic-rsw-${PWB_VERSION:-2024.04.2}-slurm-${SLURM_VERSION:-23.02.7}
     hostname: rstudio-workbench
     privileged: true 
     volumes:
@@ -27,6 +28,7 @@ services:
       - ./etc/launcher.slurm.profiles.conf:/etc/rstudio/launcher.slurm.profiles.conf  
       - ./etc/jupyter.conf:/etc/rstudio/jupyter.conf
       - /opt/slurm/etc:/opt/slurm/etc
+      - /etc/sssd/sssd.conf:/etc/sssd/sssd.conf
       - type: bind
         source: /home
         target: /home
