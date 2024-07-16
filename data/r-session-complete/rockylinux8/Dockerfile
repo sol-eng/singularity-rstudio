@@ -35,7 +35,6 @@ RUN curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
             hardwrap \
             koma-script \
             morefloats \
-            ms \
             oberdiek \
             pgf \
             setspace \
@@ -168,6 +167,16 @@ RUN if [ ! -z ${R_VERSION_DEFAULT} ]; then \
         ln -s /opt/R/${R_VERSION_DEFAULT}/bin/R /usr/local/bin && \
         ln -s /opt/R/${R_VERSION_DEFAULT}/bin/Rscript /usr/local/bin; \
     fi
+
+# Installing frequently needed system dependencies 
+# (Cf. https://docs.posit.co/connect/admin/r/dependencies/)
+RUN dnf install -y epel-release
+RUN dnf install -y cairo-devel openssl-devel make libcurl-devel mariadb-devel \
+            unixODBC-devel java-1.8.0-openjdk-devel libxml2-devel git fontconfig-devel \
+            freetype-devel libgit2-devel libssh2 zlib-devel glpk-devel libjpeg-turbo-devel \
+            ImageMagick ImageMagick-c++ cmake libpng-devel libtiff-devel \
+            mesa-libGLU-devel mesa-libGL-devel gdal-devel gdal sqlite-devel geos-devel proj-devel \
+            libsodium-devel libicu-devel tcl tk tk-devel fribidi-devel harfbuzz-devel udunits2-devel
 
 # SLURM integration (mandatory) 
 RUN groupadd -g 401 slurm && \
