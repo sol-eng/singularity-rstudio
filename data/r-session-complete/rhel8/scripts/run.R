@@ -182,6 +182,8 @@ for (line in names(r)) {
 }
 cat('options(repos=r)\n') 
 
+cat('if (nchar(Sys.getenv("TZ"))==0) Sys.setenv(TZ="Etc/UTC")\n')
+
 options(BioC_mirror = paste0(pmurl,"/bioconductor"))
 options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
 
@@ -220,9 +222,11 @@ sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat(paste0("RENV_PATHS_CACHE=", renvdir, "\n"))
   cat(paste0("RENV_PATHS_SANDBOX=", renvdir, "/sandbox\n"))
   cat(paste0('R_LIBS_USER=~/R/',R.Version()$platform,'/', 
-    system('. /etc/os-release  && echo ${ID}${VERSION_ID}',intern=TRUE), 
-    '/', R.Version()$major,'.',strsplit(R.Version()$minor,'[.]')[[1]][1])
+    system('. /etc/os-release  && echo ${ID}',intern=TRUE),
+    strsplit(system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),"[.]")[[1]][1],
+    '/', R.Version()$major,'.',strsplit(R.Version()$minor,'[.]')[[1]][1],"\n")
     )
+
 sink()
 
 unlink(pkgtempdir)
