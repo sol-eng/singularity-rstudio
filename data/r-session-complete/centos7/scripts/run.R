@@ -60,7 +60,22 @@ dir.create(libdir,recursive=TRUE)
 pkgtempdir<-tempdir()
 .libPaths(pkgtempdir)
 
-install.packages(c("rjson","RCurl","pak","BiocManager"),pkgtempdir, repos=paste0(pmurl,"/cran/",binaryflag,"latest"))
+if (paste0(R.version$major,".",R.version$minor) < "4.4.0") {
+#rjson released on Aug 20, 2024 needs R>=4.4.0, hence we need to make sure we install the older version
+install_repo<-paste0(pmurl,"/cran/",binaryflag,"2024-08-15")
+} else {
+install_repo<-paste0(pmurl,"/cran/",binaryflag,"latest")
+}
+install.packages(c("rjson","RCurl","BiocManager"),pkgtempdir, repos=install_repo)
+
+install.packages("pak", pkgtempdir, repos = sprintf(
+  "https://r-lib.github.io/p/pak/%s/%s/%s/%s",
+  "stable",
+  .Platform$pkgType,
+  R.Version()$os,
+  R.Version()$arch
+))
+
 library(RCurl)
 library(rjson)
 
@@ -210,14 +225,8 @@ library(pak)
 
 packages_needed<-pnames[pnames %in% avpack]
 
-if (paste(R.Version()$major,R.Version()$minor,sep=".") > "4.3.2") {
-   #mongolite 2.8.0 does not compile on CentOS 7 despile devtoolset
-   packages_needed[packages_needed %in% "mongolite"]<-"mongolite@2.7.1"
-}
-
 paste("Installing packages for RSW integration")
 pak::pkg_install(packages_needed,lib=libdir)
-
 paste("Creating lock file for further reproducibility")
 pak::lockfile_create(packages_needed,lockfile=paste0(libdir,"/pkg.lock"))
 pak::pak_cleanup(force=TRUE)
