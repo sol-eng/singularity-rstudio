@@ -10,9 +10,11 @@
 # * update Rprofile.site with the same repository informations 
 # * add renv config into Renviron.site to use 
 #       a global cache in $renvdir  
-# * install all needed R packages for Workbench to work and add them 
-#       in a separate .libPath() ($basepackagedir/x.y.z)
-# * create a pak pkg.lock file in $basepackagedir/x.y.z
+# * install 
+#       * all needed R packages for Workbench to work 
+#       * any additional packages listed in scripts/r-packages.txt 
+#       and add them into the "site-library" of the respective R version  
+# * create a pak pkg.lock file in "site-library"
 #       for increased reproducibility
 # * auto-detect which OS it is running on and add binary package support
 # * uses a packagemanager running at $pmurl 
@@ -23,9 +25,6 @@
 
 # root folder for global renv cache 
 renvdir<-"/scratch/renv"
-
-# base folder site libraries for additional packages 
-basepackagedir<-"/opt/rstudio/rver"
 
 # packagemanager URL to be used
 pmurl <- "https://packagemanager.posit.co"
@@ -50,7 +49,7 @@ if(file.exists("/etc/redhat-release")) {
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
 
-libdir <- paste0(basepackagedir,"/",currver)
+libdir <- paste0(R.home(),"/site-library")
 
 if(dir.exists(libdir)) {unlink(libdir,recursive=TRUE)}
 dir.create(libdir,recursive=TRUE)
@@ -202,7 +201,7 @@ cat('if (nchar(Sys.getenv("TZ"))==0) Sys.setenv(TZ="Etc/UTC")\n')
 options(BioC_mirror = paste0(pmurl,"/bioconductor"))
 options(BIOCONDUCTOR_CONFIG_FILE = paste0(pmurl,"/bioconductor/config.yaml"))
 
-libdir <- paste0(basepackagedir,"/",currver)
+libdir <- paste0(R.home(),"/latest")
 cat(paste0('.libPaths(c(.libPaths(),"',libdir,'"))\n'))
 if ( currver < "4.1.0" ) {
 cat('}, envir = .env)\n')
