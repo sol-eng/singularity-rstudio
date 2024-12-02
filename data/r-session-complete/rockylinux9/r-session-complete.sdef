@@ -27,7 +27,7 @@ From: rockylinux:9
 
     # Install TinyTex
 
-    yum install -y wget which perl-Digest-MD5 perl-File-Find
+    yum install -y curl wget which perl-Digest-MD5 perl-File-Find
     curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
         && /root/.TinyTeX/bin/*/tlmgr install \
             bookmark \
