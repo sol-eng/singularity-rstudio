@@ -4,15 +4,15 @@ From: ubuntu:jammy
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
 %files
-    scripts/run.R /
-#    scripts/zz_workbench_singularity_env_vars.sh /etc/profile.d/     
-    scripts/bioc.txt /
+    ../scripts/run.R /
+    ../scripts/bioc.txt /
+    ../scripts/r-packages.txt /
 
 %post -c /bin/bash
 
     # Install Pro Drivers
 
-    apt-get update && apt-get install -y gdebi-core curl
+    apt-get update && apt-get install -y gdebi-core curl wget
     curl -O https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers_{{ PRO_DRIVERS_VERSION }}_amd64.deb && \
         gdebi -n rstudio-drivers_{{ PRO_DRIVERS_VERSION }}_amd64.deb && \
         rm -f rstudio-drivers_{{ PRO_DRIVERS_VERSION }}_amd64.deb
@@ -82,11 +82,11 @@ EOF
         /opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
-            jupyterlab \
             rsconnect_jupyter \
             rsconnect_python \
             rsp_jupyter \
-            workbench_jupyterlab && \
+            jupyterlab~=4.2.4 \
+            pwb_jupyterlab~=1.0 && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \

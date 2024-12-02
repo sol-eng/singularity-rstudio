@@ -1,0 +1,5 @@
+batchtools
+clustermq
+tidyverse
+hdf5r
+Seurat

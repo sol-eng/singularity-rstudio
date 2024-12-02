@@ -2,8 +2,9 @@ FROM centos:7
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
-COPY scripts/run.R /
-COPY scripts/bioc.txt / 
+COPY ../ scripts/run.R /
+COPY ../scripts/bioc.txt / 
+COPY ../scripts/packages/r-packages.txt /
 
 # Switch to vault for continued repo availability
 RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
@@ -92,11 +93,11 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
         scl enable devtoolset-11 "/opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
-            jupyterlab \
             rsconnect_jupyter \
             rsconnect_python \
             rsp_jupyter \
-            workbench_jupyterlab" && \
+            jupyterlab~=4.2.4 \
+            pwb_jupyterlab~=1.0" && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \

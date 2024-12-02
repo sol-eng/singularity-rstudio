@@ -2,10 +2,9 @@ FROM rockylinux:9
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
-COPY scripts/run.R /
-COPY scripts/bioc.txt / 
-
-
+COPY ../scripts/run.R /
+COPY ../scripts/bioc.txt / 
+COPY ../scripts/r-packages.txt /
 
 # Activate EPEL Release and powertools
 
@@ -14,8 +13,6 @@ RUN yum -y install yum-utils epel-release && yum-config-manager --enable crb
 # Set up of gcc toolset 13 to use a more recent version of the 
 # compiler toolchain
 RUN yum -y install gcc-toolset-13
-
-
 
 # Install Pro Drivers
 
@@ -84,11 +81,11 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
         scl enable gcc-toolset-13 "/opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
-            jupyterlab \
             rsconnect_jupyter \
             rsconnect_python \
             rsp_jupyter \
-            workbench_jupyterlab" && \
+            jupyterlab~=4.2.4 \
+            pwb_jupyterlab~=1.0" && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \

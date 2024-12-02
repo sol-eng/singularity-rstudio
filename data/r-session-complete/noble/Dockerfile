@@ -2,17 +2,18 @@ FROM ubuntu:noble
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
-COPY scripts/run.R /
-COPY scripts/bioc.txt / 
+COPY ../scripts/run.R /
+COPY ../scripts/bioc.txt / 
+COPY ../scripts/r-packages.txt / 
 
 RUN apt-get update && apt-get install -y gdebi-core curl
 
 # Install Pro Drivers
-#ARG PRO_DRIVERS_VERSION
-#RUN apt-get update && apt-get install -y gdebi-core curl && \
-#    curl -O https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
-#    DEBIAN_FRONTEND=noninteractive gdebi -n rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
-#    rm -f rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb
+ARG PRO_DRIVERS_VERSION
+RUN apt-get update && apt-get install -y gdebi-core curl && \
+    curl -O https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
+    DEBIAN_FRONTEND=noninteractive gdebi -n rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
+    rm -f rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb
 
     
 # Install TinyTeX 
@@ -73,11 +74,11 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
         /opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
-            jupyterlab \
             rsconnect_jupyter \
             rsconnect_python \
             rsp_jupyter \
-            workbench_jupyterlab && \
+            jupyterlab~=4.2.4 \
+            pwb_jupyterlab~=1.0 && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \

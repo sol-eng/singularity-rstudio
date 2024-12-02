@@ -2,9 +2,10 @@ FROM redhat/ubi9:latest
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
-COPY scripts/run.R /
-COPY scripts/bioc.txt / 
-COPY scripts/rhn.sh /
+COPY ../scripts/run.R /
+COPY ../scripts/bioc.txt / 
+COPY ../scripts/rhn.sh /
+COPY ../scripts/r-packages.txt /
     
 RUN bash /rhn.sh && rm /rhn.sh
 
@@ -86,11 +87,11 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
         scl enable gcc-toolset-13 "/opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
-            jupyterlab \
             rsconnect_jupyter \
             rsconnect_python \
             rsp_jupyter \
-            workbench_jupyterlab" && \
+            jupyterlab~=4.2.4 \
+            pwb_jupyterlab~=1.0 && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
