@@ -1,0 +1,66 @@
+ARG PWB_VERSION="2024.04.2"
+ARG OS_VERSION="ubuntu2204"
+FROM rstudio/rstudio-workbench:${OS_VERSION}-${PWB_VERSION}
+
+ARG SLURM_VERSION="23.02.7" 
+ARG SLURM_CONF="/opt/slurm/etc/slurm.conf"
+
+RUN apt-get update -y && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y \
+	    default-jdk && \
+	rm -rf /var/lib/apt/lists/*
+
+RUN for R_VERSION in `ls /opt/R`; \
+        do \ 
+    	/opt/R/${R_VERSION}/bin/R CMD javareconf ; \ 
+        done	
+
+# Install and configure munge
+
+RUN groupadd -g 111 munge && \
+        useradd -u 111 -s /usr/sbin/nologin -M -d /nonexistent -g 111 munge
+
+RUN apt-get update && apt-get install -y munge libmunge-dev && rm -rf /var/cache/apt/*
+
+RUN chmod +s /usr/sbin/munged && \
+	chown munge /usr/sbin/munged && \
+	chmod u+s /usr/sbin/munged && \
+	mkdir -p /var/run/munge && \
+	chown munge /var/run/munge/ && \
+   	chown munge /etc/munge/munge.key && \
+	echo -e "[program:munge]\ncommand=/usr/sbin/munged -F\nautorestart=false\nnumprocs=1\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0" > /startup/custom/munge.conf && \ 
+	cat /startup/custom/munge.conf
+COPY munge/munge.key /etc/munge
+
+
+# Removing empty sssd conf as this seems to crash docker-compose
+RUN rm -f /startup/user-provisioning/sssd.conf 
+
+# Install SLURM
+RUN groupadd -g 401 slurm && \
+       useradd -u 401 -g 401 slurm
+
+RUN tmpdir=`mktemp -d` && \
+        cd $tmpdir && \
+        # Note that the git branches on github do have a slightly different
+        # naming scheme - firstly the dots are replaced by dashes and
+        # secondly each SLURM version can have more than one release tag
+        # Here, we simply append "-1" to use the first git tag of a given
+        # SLURM version
+        git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git && \
+        cd slurm && \
+        echo "SLURM: Configure step" && \
+        ./configure --prefix /opt/slurm >& /var/log/slurm-configure.log && \
+	echo "SLURM: Compile" && \
+        make -j 4 >& /var/log/slurm-build.log && \
+	echo "SLURM: Install" && \
+	make install >& /var/log/slurm-install.log && \
+        cd / && \
+        rm -rf $tmpdir
+
+RUN echo "export SLURM_CONF=$SLURM_CONF" > /etc/profile.d/slurm-env.sh
+RUN echo "export PATH=$PATH:/opt/slurm/bin" >> /etc/profile.d/slurm-env.sh
+
+RUN chown 111 /etc/munge/munge.key
+
+#RUN /opt/python/default/bin/python -c "import uuid;print(str(uuid.uuid4()))" > /etc/rstudio/secure-cookie-key

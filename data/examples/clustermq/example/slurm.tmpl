@@ -1,0 +1,12 @@
+#!/bin/sh
+#SBATCH --job-name={{ job_name }}
+#SBATCH --output={{ log_file | /dev/null }} # you can add .%a for array index
+#SBATCH --error={{ log_file | /dev/null }}
+#SBATCH --mem-per-cpu={{ memory | 1024 }}
+#SBATCH --array=1-{{ n_jobs }}
+#SBATCH --cpus-per-task={{ cores | 1 }}
+#SBATCH --singularity-container={{ container | r-session-complete.bionic.sif }}
+###SBATCH --singularity-bind=/var/spool/slurmd
+
+ulimit -v $(( 1024 * {{ memory | 1024 }} ))
+CMQ_AUTH={{ auth }} ${R_HOME}/bin/R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'

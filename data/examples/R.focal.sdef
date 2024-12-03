@@ -1,0 +1,39 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%files
+    scripts/create.R /
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get -y update
+    apt-get -y install curl gdebi-core pandoc libzmq5 default-jdk
+
+    export R_VERSION=4.0.5
+    curl -O https://cdn.rstudio.com/r/ubuntu-2004/pkgs/r-${R_VERSION}_1_amd64.deb
+    gdebi -n r-${R_VERSION}_1_amd64.deb
+
+    ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin
+    ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin
+
+    /opt/R/${R_VERSION}/bin/Rscript /create.R  > /opt/R/${R_VERSION}/lib/R/etc/Rprofile.site
+
+    echo "#renv settings\nRENV_PATHS_PREFIX_AUTO = TRUE\nRENV_PATHS_CACHE=/efs/renv" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+    
+    echo  "#Disable local package installs into R_LIBS_USER\nR_LIBS_USER=/dev/null\n" >> /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+    /opt/R/${R_VERSION}/bin/R -q -e "install.packages('renv',lib='/opt/R/${R_VERSION}/lib/R/library/')"
+
+    /opt/R/${R_VERSION}/bin/R CMD javareconf
+
+    # SLURM stuff
+    groupadd -g 401 slurm 
+    useradd -u 401 -g 401 slurm  
+    apt-get install libmunge2
+
+    rm -rf /var/cache/apt/*
+
+%environment
+    export LC_ALL=C
+
+%runscript
+    /usr/local/bin/R
