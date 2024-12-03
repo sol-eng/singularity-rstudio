@@ -1,5 +1,8 @@
 on:
   workflow_dispatch:
+    inputs:
+      focal:
+        description: 'Ubuntu 20.04 LTS (Focal)'
   push:
     branches: main
 
@@ -18,7 +21,7 @@ jobs:
           sudo apt-get update && \
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
           sudo apt install ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
-      - name: Test r-session-complete 
+      - name: Test r-session-complete on ${{ github.event.inputs.focal }}
         run: |
           cd data/r-session-complete/focal && \
           singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef
