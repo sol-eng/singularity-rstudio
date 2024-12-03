@@ -21,7 +21,8 @@ jobs:
       - name: Build r-session-complete 
         run: |
           cd data/r-session-complete/focal && \
-          singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef
+          singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef >& build.log; \
+          if [ $? -ne 0 ]; then cat build.log; fi 
       - name: Test R versions for installed R packages
         run: |
           pwd && \
