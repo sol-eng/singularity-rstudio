@@ -18,5 +18,9 @@ jobs:
           sudo apt-get update && \
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
           sudo apt install ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
+      - name: Test r-session-complete 
+        run: |
+          cd singularity-rstudio/data/r-session-complete/focal && \
+          singularity build --build-arg-file ../build.env container.sif session-complete-test.def
       
 
