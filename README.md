@@ -1,6 +1,5 @@
 # Please note that Posit has released [Enterprise grade support for Singularity in Workbench](https://docs.posit.co/ide/server-pro/job_launcher/slurm_plugin.html#slurm-rsp-singularity). For more comprehensive documentation please refer to the [contributed docs](https://pub.current.posit.team/public/singularity/)
 
-
 <img src="images/logo.png">
 
 # Introduction
