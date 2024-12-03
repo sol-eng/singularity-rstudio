@@ -20,8 +20,8 @@ jobs:
           sudo apt install ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
       - name: Test r-session-complete 
         run: |
-          pwd && \
           cd data/r-session-complete/focal && \
-          singularity build --build-arg-file ../build.env container.sif r-session-complete-test.sdef
+          ls && \
+          echo singularity build --build-arg-file ../build.env container.sif r-session-complete-test.sdef
       
 
