@@ -32,7 +32,7 @@ jobs:
             do \
             singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'sessionInfo()' && \
             singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat)' && \
-            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'install.packages(\"SuppDists\")' ; \
+            singularity run container.sif bash -c "mkdir /tmp/R && /opt/R/${R_VERSION}/bin/R -q -e 'install.packages(\"SuppDists\",\"/tmp/R\")'" ; \
             done
 
       - name: Test Python versions 
