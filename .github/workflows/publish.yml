@@ -26,7 +26,11 @@ jobs:
         run: |
           pwd && \
           cd data/r-session-complete/focal && \
-          R_VERSIONS=`singularity run containers.sif ls /opt/R` && \
-          for R_VERSION in $R_VERSIONS; do singularity run containers.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat);sessionInfo()'; done
+          R_VERSIONS=`singularity run container.sif ls /opt/R` && \
+          for R_VERSION in $R_VERSIONS; \
+            do \
+            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat);sessionInfo()' && \
+            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'install.packages("SuppDists")' ; \
+            done
       
 
