@@ -21,6 +21,6 @@ jobs:
       - name: Test r-session-complete 
         run: |
           cd data/r-session-complete/focal && \
-          singularity build --build-arg-file ../build.env container.sif r-session-complete-test.sdef
+          singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef
       
 
