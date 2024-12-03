@@ -1,4 +1,4 @@
-# Please note that Posit is working on releasing [Enterprise grade support for Singularity in Workbench](https://colorado.posit.co/rsc/singularity/). All features are currently in preview mode. A first step was made with the 2023.12 release and with 2024.04 additional features will be released that will make Singularity support complete. Please use this [link](https://colorado.posit.co/rsc/singularity/) to find out more. Anything in this repository is still valid but will eventually be superseded by a fully fledged product feature. 
+# Please note that Posit has released [Enterprise grade support for Singularity in Workbench](https://docs.posit.co/ide/server-pro/job_launcher/slurm_plugin.html#slurm-rsp-singularity). For more comprehensive documentation please refer to the [contributed docs](https://pub.current.posit.team/public/singularity/)
 
 
 <img src="images/logo.png">
