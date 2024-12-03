@@ -1,0 +1,15 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: main
+
+name: Regression Testing 
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
