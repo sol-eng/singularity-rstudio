@@ -16,6 +16,7 @@ runs:
     - name: Build r-session-complete 
       env:
         linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
         echo "Building container" ; \
@@ -25,6 +26,7 @@ runs:
     - name: Test R versions for installed R packages
       env:
         linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
         R_VERSIONS=`singularity run container.sif ls /opt/R` && \
@@ -41,6 +43,7 @@ runs:
     - name: Test Python versions 
       env:
         linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
         PYTHON_VERSIONS=`singularity run container.sif ls /opt/python` && \
@@ -56,6 +59,7 @@ runs:
     - name: Test quarto versions 
       env:
         linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif quarto -V
@@ -63,6 +67,7 @@ runs:
     - name: Test SLURM 
       env:
         linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif which sinfo
