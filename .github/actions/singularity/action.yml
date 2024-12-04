@@ -16,8 +16,7 @@ runs:
       run: |
         cd data/r-session-complete/$linux_distro && \
         echo "Building container" ; \
-        singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef >& build.log; \
-        if [ $? -ne 0 ]; then cat build.log; fi 
+        singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef 
 
     - name: Print OS Release file
       env:
