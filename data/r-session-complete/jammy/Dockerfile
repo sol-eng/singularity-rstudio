@@ -14,33 +14,18 @@ RUN apt-get update && apt-get install -y gdebi-core curl wget && \
     rm -f rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb
 
     
-# Install TinyTeX 
-RUN apt-get install -y curl wget perl-modules && \
-    curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
-        && /root/.TinyTeX/bin/*/tlmgr install \
-            bookmark \
-            caption \
-            environ \
-            fancyhdr \
-            hardwrap \
-            koma-script \
-            morefloats \
-            oberdiek \
-            pgf \
-            setspace \
-            tcolorbox \
-            textcase \
-            titlesec \
-            tufte-latex \
-            units \
-            ulem \
-            xcolor \
-        && /root/.TinyTeX/bin/*/tlmgr path remove \
-        && mv /root/.TinyTeX/ /opt/TinyTeX \
-        && /opt/TinyTeX/bin/*/tlmgr option sys_bin /usr/local/bin \
-        && /opt/TinyTeX/bin/*/tlmgr path add
+# Install TeXlive 
 
-    
+RUN apt-get install -y libpod-simple-perl
+RUN curl -LO https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz && \
+        tar xvfz install-tl-unx.tar.gz && \
+        rm install-tl-unx.tar.gz && \
+        cd install-tl-* && \
+        ./install-tl --scheme small --no-interaction  -repo https://mirror.ox.ac.uk/sites/ctan.org/systems/texlive/tlnet
+    # -repo https://mirror.init7.net/ctan/systems/texlive/tlnet
+
+RUN echo "export PATH=/usr/local/texlive/2024/bin/x86_64-linux:\$PATH" > /etc/profile.d/texlive.sh
+
 # Install Quarto
 ARG QUARTO_VERSION
 RUN curl -o quarto.tar.gz -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.tar.gz \

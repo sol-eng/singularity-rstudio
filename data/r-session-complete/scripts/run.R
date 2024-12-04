@@ -89,7 +89,7 @@ paste("version",currver)
 # If yes, use the release date of bioconduct version + 1 as a start date for looking 
 # into CRAN snapshots - if no, use the current date
 getbiocreleasedate <- function(biocvers){
-  biocdata<-read.csv("bioc.txt")
+  biocdata<-read.csv("/bioc.txt")
   
   splitbioc<-strsplit(as.character(biocvers),"[.]")[[1]]
   biocversnext<-paste0(splitbioc[1],".",as.integer(splitbioc[2])+1)

@@ -22,32 +22,19 @@ RUN yum install -y \
         https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-${PRO_DRIVERS_VERSION}-1.el7.x86_64.rpm \
         && cp -f /opt/rstudio-drivers/odbcinst.ini.sample /etc/odbcinst.ini
 
-# Install TinyTex
 
-RUN yum install -y wget which perl-Digest-MD5
-RUN curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh \
-        && /root/.TinyTeX/bin/*/tlmgr install \
-            bookmark \
-            caption \
-            environ \
-            fancyhdr \
-            hardwrap \
-            koma-script \
-            morefloats \
-            oberdiek \
-            pgf \
-            setspace \
-            tcolorbox \
-            textcase \
-            titlesec \
-            tufte-latex \
-            units \
-            ulem \
-            xcolor \
-        && /root/.TinyTeX/bin/*/tlmgr path remove \
-        && mv /root/.TinyTeX/ /opt/TinyTeX \
-        && /opt/TinyTeX/bin/*/tlmgr option sys_bin /usr/local/bin \
-        && /opt/TinyTeX/bin/*/tlmgr path add
+# Install TeXlive 
+
+RUN yum install -y perl
+RUN curl -LO https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz && \
+        tar xvfz install-tl-unx.tar.gz && \
+        rm install-tl-unx.tar.gz && \
+        cd install-tl-* && \
+        ./install-tl --scheme small --no-interaction  -repo https://mirror.ox.ac.uk/sites/ctan.org/systems/texlive/tlnet
+    # -repo https://mirror.init7.net/ctan/systems/texlive/tlnet
+
+RUN echo "export PATH=/usr/local/texlive/2024/bin/x86_64-linux:\$PATH" > /etc/profile.d/texlive.sh
+
 
 # Install Quarto
 ARG QUARTO_VERSION
