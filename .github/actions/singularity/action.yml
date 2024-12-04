@@ -74,3 +74,12 @@ runs:
       run: |
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif which sinfo
+
+    - name: List Container size 
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        ls -lh container.sif && rm -f container.sif
+
