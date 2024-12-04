@@ -18,7 +18,7 @@ jobs:
           sudo apt-get update && \
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
           sudo apt install ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
-      - id: TestSingularitynoble
+      - name: Check Ubuntu Noble
         uses: ./.github/actions/singularity
         with:
           linux_distro: "noble"
