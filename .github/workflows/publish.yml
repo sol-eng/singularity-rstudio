@@ -24,7 +24,7 @@ jobs:
         with:
           linux_distro: "noble"
 
-       - name: Build & Check Ubuntu Jammy
+      - name: Build & Check Ubuntu Jammy
         uses: ./.github/actions/singularity
         with:
           linux_distro: "jammy"
@@ -42,4 +42,4 @@ jobs:
       - name: Build & Check Rocky Linux 9
         uses: ./.github/actions/singularity
         with:
-          linux_distro: "rockylinux9" 
+          linux_distro: "rockylinux9"
