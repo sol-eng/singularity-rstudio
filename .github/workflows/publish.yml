@@ -18,48 +18,7 @@ jobs:
           sudo apt-get update && \
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
           sudo apt install ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
-
-      - name: Build r-session-complete 
-        run: |
-          cd data/r-session-complete/focal && \
-          echo "Building container" ; \
-          singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef >& build.log; \
-          if [ $? -ne 0 ]; then cat build.log; fi 
-
-      - name: Test R versions for installed R packages
-        run: |
-          cd data/r-session-complete/focal && \
-          R_VERSIONS=`singularity run container.sif ls /opt/R` && \
-          for R_VERSION in $R_VERSIONS; \
-            do \
-            echo "R Version $R_VERSION" && \
-            echo "---------------------" && \
-            echo " " && \
-            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'sessionInfo()' && \
-            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat)' && \
-            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)' ; \
-            done
-
-      - name: Test Python versions 
-        run: |
-          cd data/r-session-complete/focal && \
-          PYTHON_VERSIONS=`singularity run container.sif ls /opt/python` && \
-          for PYTHON_VERSION in $PYTHON_VERSIONS; \
-            do \
-            echo "Python Version $PYTHON_VERSION" && \
-            echo "---------------------" && \
-            echo " " && \
-            singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/python -c "import pwb_jupyterlab" && \
-            singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/pip install numpy; \
-            done    
-      
-      - name: Test quarto versions 
-        run: |
-          cd data/r-session-complete/focal && \
-          singularity run container.sif quarto -V
-
-      - name: Test SLURM 
-        run: |
-          cd data/r-session-complete/focal && \
-          singularity run container.sif which sinfo
-
+      - id: TestSingularitynoble
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "noble"

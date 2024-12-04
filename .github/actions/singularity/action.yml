@@ -1,0 +1,64 @@
+name: Singularity build and test
+description: Receives paramter for linux distribution
+
+inputs:
+  linux_distro:
+    description: Linux distro (e.g. focal)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Build r-session-complete 
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        echo "Building container" ; \
+        singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef >& build.log; \
+        if [ $? -ne 0 ]; then cat build.log; fi 
+
+    - name: Test R versions for installed R packages
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        R_VERSIONS=`singularity run container.sif ls /opt/R` && \
+        for R_VERSION in $R_VERSIONS; \
+          do \
+          echo "R Version $R_VERSION" && \
+          echo "---------------------" && \
+          echo " " && \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'sessionInfo()' && \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat)' && \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)' ; \
+          done
+
+    - name: Test Python versions 
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        PYTHON_VERSIONS=`singularity run container.sif ls /opt/python` && \
+        for PYTHON_VERSION in $PYTHON_VERSIONS; \
+          do \
+          echo "Python Version $PYTHON_VERSION" && \
+          echo "---------------------" && \
+          echo " " && \
+          singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/python -c "import pwb_jupyterlab" && \
+          singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/pip install numpy; \
+          done    
+    
+    - name: Test quarto versions 
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        singularity run container.sif quarto -V
+
+    - name: Test SLURM 
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        singularity run container.sif which sinfo
