@@ -220,7 +220,7 @@ avpack<-available.packages(paste0(repo,"/src/contrib"))
 Sys.setenv("CLUSTERMQ_USE_SYSTEM_LIBZMQ" = 0)
 
 paste("Reading r-packages.txt")
-packages_read=readLines("r-packages.txt")
+packages_read=readLines("/r-packages.txt")
 pnames=c(pnames,packages_read)
 
 library(pak)
