@@ -6,6 +6,10 @@ inputs:
     description: Linux distro (e.g. focal)
     required: true
 
+defaults:
+  run:
+    shell: bash
+
 runs:
   using: composite
   steps:
