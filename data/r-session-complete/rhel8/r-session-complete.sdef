@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rockylinux:8 
+From: redhat/ubi9:latest
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
