@@ -46,6 +46,9 @@ if(file.exists("/etc/redhat-release")) {
     if (version == 9) { os <- "rhel" } else { os <- "centos" }
     binaryflag <- paste0("__linux__/",os,version,"/")
     Sys.setenv(PKG_SYSREQS_PLATFORM=paste0("redhat-",version))
+    if (file.exists("/etc/rocky-release")) {
+	Sys.setenv(PKG_SYSREQS_PLATFORM=paste0("rockylinux-",version))
+    }
 }
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
