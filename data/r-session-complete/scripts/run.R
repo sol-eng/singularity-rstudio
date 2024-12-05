@@ -48,6 +48,9 @@ if(file.exists("/etc/redhat-release")) {
     Sys.setenv(PKG_SYSREQS_PLATFORM=paste0("redhat-",version))
     if (file.exists("/etc/rocky-release")) {
 	Sys.setenv(PKG_SYSREQS_PLATFORM=paste0("rockylinux-",version))
+	if (version == 8) {
+	    Sys.setenv(PKG_SYSREQS_PLATFORM=paste0("centos-",version))
+	}
     }
 }
 
@@ -74,7 +77,7 @@ install.packages(c("rjson","RCurl","BiocManager"),pkgtempdir, repos=install_repo
 install.packages("pak", pkgtempdir, repos = sprintf(
   "https://r-lib.github.io/p/pak/%s/%s/%s/%s",
   "stable",
-  .Platform$pkgType,
+  .Platform $pkgType,
   R.Version()$os,
   R.Version()$arch
 ))
