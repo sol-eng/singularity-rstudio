@@ -34,8 +34,7 @@ From: redhat/ubi9:latest
         tar xvfz install-tl-unx.tar.gz && \
         rm install-tl-unx.tar.gz && \
         cd install-tl-* && \
-        ./install-tl --scheme small --no-interaction  -repo https://mirror.ox.ac.uk/sites/ctan.org/systems/texlive/tlnet
-    # -repo https://mirror.init7.net/ctan/systems/texlive/tlnet
+        ./install-tl --scheme small --no-interaction
 
     echo "export PATH=/usr/local/texlive/2024/bin/x86_64-linux:\$PATH" > /etc/profile.d/texlive.sh
 
