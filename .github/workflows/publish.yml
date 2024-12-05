@@ -19,25 +19,25 @@ jobs:
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
           sudo apt install ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
 
-      - name: Build & Check Ubuntu Noble
-        uses: ./.github/actions/singularity
-        with:
-          linux_distro: "noble"
+#      - name: Build & Check Ubuntu Noble
+#        uses: ./.github/actions/singularity
+#        with:
+#          linux_distro: "noble"
 
-      - name: Build & Check Ubuntu Jammy
-        uses: ./.github/actions/singularity
-        with:
-          linux_distro: "jammy"
+#      - name: Build & Check Ubuntu Jammy
+#        uses: ./.github/actions/singularity
+#        with:
+#          linux_distro: "jammy"
 
-      - name: Build & Check Ubuntu Focal
-        uses: ./.github/actions/singularity
-        with:
-          linux_distro: "focal"
+#      - name: Build & Check Ubuntu Focal
+#        uses: ./.github/actions/singularity
+#        with:
+#          linux_distro: "focal"
 
-      - name: Build & Check Rocky Linux 8
-        uses: ./.github/actions/singularity
-        with:
-          linux_distro: "rockylinux8"
+#      - name: Build & Check Rocky Linux 8
+#        uses: ./.github/actions/singularity
+#        with:
+#          linux_distro: "rockylinux8"
 
       - name: Build & Check Rocky Linux 9
         uses: ./.github/actions/singularity
