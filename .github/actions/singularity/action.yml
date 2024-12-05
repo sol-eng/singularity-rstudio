@@ -17,7 +17,7 @@ runs:
         cd data/r-session-complete/$linux_distro && \
         echo "Building container" ; \
         if [ ! -z "$RH_USER_PASS" ]; then \
-	        echo "x"
+          echo "x"
         fi && \
         singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef
 
