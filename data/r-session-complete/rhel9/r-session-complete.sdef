@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rockylinux:9 
+From: redhat/ubi9:latest
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -7,13 +7,15 @@ From: rockylinux:9
     ../scripts/run.R /
     ../scripts/bioc.txt / 
     ../scripts/r-packages.txt /
+    ../scripts/rhn.sh /
 
 %post -c /bin/bash
 
-    # Activate EPEL Release and powertools
 
-    yum -y install yum-utils epel-release
-    yum-config-manager --enable crb 
+    # Register and activate CRB + EPEL
+    bash /rhn.sh 
+    subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms
+    dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 
     # Set up of gcc toolset 13 to use a more recent version of the 
     # compiler toolchain 
