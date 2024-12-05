@@ -53,12 +53,12 @@ jobs:
 #          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
 
 
-#      - name: Build & Check Red Hat Enterprise 8
-#        uses: ./.github/actions/singularity
-#        with:
-#          linux_distro: "rhel8"
-#        env: # Or as an environment variable
-#          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
-#          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
+      - name: Build & Check Red Hat Enterprise 8
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "rhel8"
+        env: # Or as an environment variable
+          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
+          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
 
 
