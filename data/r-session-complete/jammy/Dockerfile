@@ -103,6 +103,10 @@ RUN for R_VERSION in ${R_VERSION_LIST}; \
         export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 && \
         /opt/R/${R_VERSION}/bin/R CMD javareconf && \
 	    echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
+        # Enable Java support for the RStudio IDE
+        echo "Path: /opt/R/$rversion" >> /etc/rstudio/r-versions && \
+        echo "Script: /opt/R/$rversion/lib/R/etc/ldpaths" >> /etc/rstudio/r-versions && \
+        echo "" >> /etc/rstudio/r-versions && \
         # Need to make sure R is in PATH so that pak can run R as a subprocess
         PATH=/opt/R/${R_VERSION}/bin:$PATH /opt/R/${R_VERSION}/bin/Rscript /run.R; \
     done && \

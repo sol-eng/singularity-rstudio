@@ -178,6 +178,11 @@ EOF
         /opt/R/${R_VERSION}/bin/R CMD javareconf
 	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf
 
+        # Enable Java support for the RStudio IDE
+        echo "Path: /opt/R/$rversion" >> /etc/rstudio/r-versions
+        echo "Script: /opt/R/$rversion/lib/R/etc/ldpaths" >> /etc/rstudio/r-versions
+        echo "" >> /etc/rstudio/r-versions
+
         # Set up R to use latest CRAN and bioconductor repositories 
         # from public RSPM (optional)
         
