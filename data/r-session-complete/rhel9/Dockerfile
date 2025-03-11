@@ -145,8 +145,7 @@ INFOPATH=/opt/rh/gcc-toolset-14/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
     # Enable Java support for the RStudio IDE
     mkdir -p /etc/rstudio && \
     echo "Path: /opt/R/$rversion" >> /etc/rstudio/r-versions && \
-    echo "Script: /opt/R/$rversion/lib/R/etc/ldpaths" >> /etc/rstudio/r-versions
- && \
+    echo "Script: /opt/R/$rversion/lib/R/etc/ldpaths" >> /etc/rstudio/r-versions && \
     echo "" >> /etc/rstudio/r-versions && \
     # Need to make sure R is in PATH so that pak can run R as a subprocess
     rm -f /usr/local/bin/{R,Rscript} && \
