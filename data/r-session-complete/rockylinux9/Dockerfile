@@ -10,9 +10,9 @@ COPY scripts/r-packages.txt /
 
 RUN yum -y install yum-utils epel-release && yum-config-manager --enable crb 
 
-# Set up of gcc toolset 13 to use a more recent version of the 
+# Set up of gcc toolset 14 to use a more recent version of the 
 # compiler toolchain
-RUN yum -y install gcc-toolset-13
+RUN yum -y install gcc-toolset-14
 
 # Install Pro Drivers
 
@@ -63,7 +63,7 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
     do \
         /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
             pip setuptools wheel && \
-        scl enable gcc-toolset-13 "/opt/python/${PYTHON_VERSION}/bin/pip install \
+        scl enable gcc-toolset-14 "/opt/python/${PYTHON_VERSION}/bin/pip install \
             ipykernel \
             jupyter \
             rsconnect_jupyter \
@@ -105,23 +105,23 @@ ARG R_VERSION_LIST
 RUN for R_VERSION in ${R_VERSION_LIST}; \
 do \
     yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
-    # Set up gcc toolset 13 for R only (optional)
+    # Set up gcc toolset 14 for R only (optional)
     echo -e "# GCC Toolset Root directory \n\
-DEVTOOLSROOT=/opt/rh/gcc-toolset-13/root \n\
+DEVTOOLSROOT=/opt/rh/gcc-toolset-14/root \n\
 \n\
 # Environment variables needed\n\
 PCP_DIR=\${DEVTOOLSROOT} \n\
-X_SCLS=gcc-toolset-13 \n\
+X_SCLS=gcc-toolset-14 \n\
 SHLVL=4 \n\
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ \n\
 \n\
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
-PATH=/opt/rh/gcc-toolset-13/root/usr/bin:\${PATH} \n\
-LD_LIBRARY_PATH=/opt/rh/gcc-toolset-13/root/usr/lib64:/opt/rh/gcc-toolset-13/root/usr/lib:\${LD_LIBRARY_PATH} \n\
-PKG_CONFIG_PATH=/opt/rh/gcc-toolset-13/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
-INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
+PATH=/opt/rh/gcc-toolset-14/root/usr/bin:\${PATH} \n\
+LD_LIBRARY_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64:/opt/rh/gcc-toolset-14/root/usr/lib:\${LD_LIBRARY_PATH} \n\
+PKG_CONFIG_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
+INFOPATH=/opt/rh/gcc-toolset-14/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
-    # gcc toolset 13 (optional)
+    # gcc toolset 14 (optional)
     R_HOME=/opt/R/${R_VERSION}/lib/R && \
     if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi && \
     for std in 20 23 ;\
