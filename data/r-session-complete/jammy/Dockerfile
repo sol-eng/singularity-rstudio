@@ -2,9 +2,9 @@ FROM ubuntu:jammy
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
-COPY ../scripts/run.R /
-COPY ../scripts/bioc.txt / 
-COPY ../scripts/r-packages.txt /
+COPY scripts/run.R /
+COPY scripts/bioc.txt / 
+COPY scripts/r-packages.txt /
 
 # Install Pro Drivers
 ARG PRO_DRIVERS_VERSION
@@ -104,6 +104,7 @@ RUN for R_VERSION in ${R_VERSION_LIST}; \
         /opt/R/${R_VERSION}/bin/R CMD javareconf && \
 	    echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
         # Enable Java support for the RStudio IDE
+        mkdir -p /etc/rstudio && \
         echo "Path: /opt/R/$rversion" >> /etc/rstudio/r-versions && \
         echo "Script: /opt/R/$rversion/lib/R/etc/ldpaths" >> /etc/rstudio/r-versions && \
         echo "" >> /etc/rstudio/r-versions && \

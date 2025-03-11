@@ -2,9 +2,9 @@ FROM centos:7
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
-COPY ../ scripts/run.R /
-COPY ../scripts/bioc.txt / 
-COPY ../scripts/packages/r-packages.txt /
+COPY scripts/run.R /
+COPY scripts/bioc.txt / 
+COPY scripts/r-packages.txt /
 
 # Switch to vault for continued repo availability
 RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
@@ -153,6 +153,7 @@ PCP_DIR=\${DEVTOOLSROOT}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     /opt/R/${R_VERSION}/bin/R CMD javareconf && \
 	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
     # Enable Java support for the RStudio IDE
+    mkdir -p /etc/rstudio && \
     echo "Path: /opt/R/$rversion" >> /etc/rstudio/r-versions && \
     echo "Script: /opt/R/$rversion/lib/R/etc/ldpaths" >> /etc/rstudio/r-versions && \
     echo "" >> /etc/rstudio/r-versions && \
