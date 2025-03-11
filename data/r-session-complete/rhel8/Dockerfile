@@ -75,7 +75,7 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
             rsconnect_python \
             rsp_jupyter \
             jupyterlab~=4.2.4 \
-            pwb_jupyterlab~=1.0 && \
+            pwb_jupyterlab~=1.0" && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
@@ -101,7 +101,7 @@ RUN mkdir -p /usr/lib/rstudio-server && \
     tar xfz rsp-session-rhel8-${PWB_VERSION}-x86_64.tar.gz -C /usr/lib/rstudio-server --strip=1 ;\
     rm -f rsp-session-rhel8-${PWB_VERSION}-x86_64.tar.gz
 
-# Install Java JDK (optional) 
+# Install Java JDK (optional)
 RUN yum -y install java-1.8.0-openjdk-devel 
 
 ARG R_VERSION_LIST

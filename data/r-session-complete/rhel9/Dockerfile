@@ -11,7 +11,8 @@ RUN bash /rhn.sh && rm /rhn.sh
 
 # Activate EPEL Release and powertools
 
-RUN yum -y install yum-utils https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && yum-config-manager --enable codeready-builder-for-rhel-9-x86_64-rpms 
+RUN yum -y install yum-utils https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms 
+
 
 # Set up of gcc toolset 14 to use a more recent version of the 
 # compiler toolchain
@@ -76,7 +77,7 @@ RUN for PYTHON_VERSION in ${PYTHON_VERSION_LIST}; \
             rsconnect_python \
             rsp_jupyter \
             jupyterlab~=4.2.4 \
-            pwb_jupyterlab~=1.0 && \
+            pwb_jupyterlab~=1.0" && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
         /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
