@@ -23,7 +23,7 @@ RUN yum -y install gcc-toolset-13
 ARG PRO_DRIVERS_VERSION
 
 RUN yum install -y \
-        https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-${PRO_DRIVERS_VERSION}-1.el7.x86_64.rpm \
+        https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers-${PRO_DRIVERS_VERSION}-1.el.x86_64.rpm \
         && cp -f /opt/rstudio-drivers/odbcinst.ini.sample /etc/odbcinst.ini
 
 # Install TeXlive 
