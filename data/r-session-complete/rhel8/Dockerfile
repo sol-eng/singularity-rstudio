@@ -145,6 +145,8 @@ INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
     # Need to make sure R is in PATH so that pak can run R as a subprocess
     rm -f /usr/local/bin/{R,Rscript} && \
     ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin && \
+    # pak still does not know how to detect redhat based OS
+    export PKG_SYSREQS_PLATFORM = "redhat-8" && \
     /opt/R/${R_VERSION}/bin/Rscript /run.R && \
     rm -f /usr/local/bin/{R,Rscript}; \
 done && \
