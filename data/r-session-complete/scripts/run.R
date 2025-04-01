@@ -253,4 +253,14 @@ sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
 
 sink()
 
+paste("R_LIBS_USER_BASE_PATH magic")
+sink(paste0("/opt/R/", currver, "/lib/R/etc/Rprofile.site"), append=TRUE)
+# Add the lines to check and set the R_LIBS_USER environment variable
+# to prepend R_LIBS_USER_BASE_PATH if the same is set
+cat('# Redirect R_LIBS_USER if R_LIBS_USER_BASE_PATH is set\n')
+cat('if (Sys.getenv("R_LIBS_USER_BASE_PATH") != "") {\n')
+cat('  Sys.setenv(R_LIBS_USER = paste0(Sys.getenv("R_LIBS_USER_BASE_PATH"), substring(Sys.getenv("R_LIBS_USER"), 2)))\n')
+cat('}\n')
+sink()
+
 unlink(pkgtempdir)
