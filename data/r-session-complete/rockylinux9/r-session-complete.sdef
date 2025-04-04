@@ -13,8 +13,8 @@ From: rockylinux:9
     ../scripts/install-apptainer.sh / 
 
 %post -c /bin/bash
-   # Basic tools
-    apt-get update && apt-get install -y gdebi-core curl wget
+    # Basic tools
+    yum -y install yum-utils epel-release && yum-config-manager --enable crb
 
     # Install Pro Drivers
     /install-pro-driver.sh rpm {{ PRO_DRIVERS_VERSION }} && rm -f /install-pro-driver.sh
