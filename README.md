@@ -151,7 +151,8 @@ Appropriate singularity recipes can be found for
 * [RHEL 8](data/r-session-complete/rhel8)
 * [RHEL 9](data/r-session-complete/rhel9)
 * [Ubuntu 20.04 LTS (Focal)](data/r-session-complete/focal)
-* [Ubuntu 22.04 LTS (Jammy)](data/r-session-complete/jammy). 
+* [Ubuntu 22.04 LTS (Jammy)](data/r-session-complete/jammy)
+* [Ubuntu 24.04 LTS (Noble)](data/r-session-complete/noble).
  
 They have ample comments to help you decide which bits to keep and which to discard. 
 
