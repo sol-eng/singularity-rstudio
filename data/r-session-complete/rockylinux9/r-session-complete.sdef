@@ -32,7 +32,7 @@ From: rockylinux:9
 
     # Install PWB session components 
     yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
-    /install-session-components.sh jammy {{ PWB_VERSION }}
+    /install-session-components.sh rhel9 {{ PWB_VERSION }}
 
     # Install Java JDK (optional) 
     yum -y install java-1.8.0-openjdk-devel
