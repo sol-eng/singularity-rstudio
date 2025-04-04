@@ -30,7 +30,7 @@ renvdir<-"/scratch/renv"
 pmurl <- "https://packagemanager.posit.co"
 
 # place to create rstudio integration for package repos
-rsconfigdir <- "/opt/rstudio/etc/rstudio" 
+rsconfigdir <- "/etc/rstudio" 
 
 # increase timeout for packagemanager 
 options(timeout = max(300, getOption("timeout")))
