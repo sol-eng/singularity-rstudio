@@ -8,7 +8,7 @@ From: ubuntu:focal
     ../scripts/bioc.txt /
     ../scripts/r-packages.txt /
     ../scripts/install-pro-driver.sh /
-    ../scriots/install-texlive.sh /
+    ../scripts/install-texlive.sh /
     ../scripts/install-quarto.sh /
     ../scripts/install-python.sh /
     ../scripts/install-slurm.sh /
