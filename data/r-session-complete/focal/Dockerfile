@@ -62,16 +62,9 @@ RUN if [ ! -z ${R_VERSION_DEFAULT} ]; then \
     fi
 
 # Install SLURM
-RUN apt-get install -y libmunge-dev git
-
-# Note that the git branches on github do have a slightly different
-# naming scheme - firstly the dots are replaced by dashes and
-# secondly each SLURM version can have more than one release tag
-# Here, we simply append "-1" to use the first git tag of a given
-# SLURM version
-
 ARG SLURM_VERSION 
 COPY scripts/install-slurm.sh /
+RUN apt-get install -y libmunge-dev git
 RUN /install-slurm.sh ${SLURM_VERSION} && rm -f /install-slurm.sh
 
 #Install Apptainer
