@@ -45,8 +45,8 @@ jobs:
           linux_distro: "rockylinux9"
 
       - name: Build & Check Red Hat Enterprise 9
-        with:
         uses: ./.github/actions/singularity
+        with:
           linux_distro: "rhel9"
         env: # Or as an environment variable
           RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
