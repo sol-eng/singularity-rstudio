@@ -24,7 +24,7 @@ RUN /install-quarto.sh ${QUARTO_VERSION} && rm -f /install-quarto.sh
 ARG PYTHON_VERSION_LIST
 ARG PYTHON_VERSION_DEFAULT
 COPY scripts/install-python.sh /
-RUN /install-python.sh rpm rhel-8 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSION_LIST} && rm -f /install-python.sh deb
+RUN /install-python.sh rpm centos-8 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSION_LIST} && rm -f /install-python.sh deb
 
 # Install PWB session components 
 ARG PWB_VERSION
