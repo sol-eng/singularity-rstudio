@@ -28,7 +28,7 @@ From: rockylinux:8
 
     # Install Python 
 
-    /install-python.sh rpm rhel-8 {{ PYTHON_VERSION_DEFAULT }} {{ PYTHON_VERSION_LIST }} && rm -rf /install-python.sh 
+    /install-python.sh rpm centos-8 {{ PYTHON_VERSION_DEFAULT }} {{ PYTHON_VERSION_LIST }} && rm -rf /install-python.sh 
 
     # Install PWB session components 
     yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
