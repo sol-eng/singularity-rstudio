@@ -43,7 +43,7 @@ COPY scripts/bioc.txt /
 COPY scripts/r-packages.txt /
 RUN for R_VERSION in ${R_VERSION_LIST}; \
 do \
-    yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
+    yum install -y https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
     # Set up gcc toolset 14 for R only (optional)
     echo -e "# GCC Toolset Root directory \n\
 DEVTOOLSROOT=/opt/rh/gcc-toolset-14/root \n\
