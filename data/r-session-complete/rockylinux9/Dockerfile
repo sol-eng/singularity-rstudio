@@ -93,7 +93,7 @@ RUN if [ ! -z ${R_VERSION_DEFAULT} ]; then \
 # Install SLURM
 ARG SLURM_VERSION 
 COPY scripts/install-slurm.sh /
-RUN apt-get install -y libmunge-dev git
+RUN yum install -y munge-devel
 RUN /install-slurm.sh ${SLURM_VERSION} && rm -f /install-slurm.sh
 
 #Install Apptainer
