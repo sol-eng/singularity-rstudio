@@ -98,7 +98,7 @@ EOF
     fi
 
     # Install SLURM
-    apt-get install -y libmunge-dev
+    yum install -y munge-devel
     /install-slurm.sh {{ SLURM_VERSION }} && rm -f /install-slurm.sh
     
     #Install Apptainer
