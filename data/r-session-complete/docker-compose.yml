@@ -3,8 +3,8 @@ version: "3.2"
 services:
   r-session-complete-hpc: 
     build:
-      context: ${LINUX_DISTRO:-rockylinux9}
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ${LINUX_DISTRO:-rockylinux9}/Dockerfile
       args: 
         - PRO_DRIVERS_VERSION=${PRO_DRIVERS_VERSION:-2025.03.0}
         - QUARTO_VERSION=${QUARTO_VERSION:-1.6.42}
