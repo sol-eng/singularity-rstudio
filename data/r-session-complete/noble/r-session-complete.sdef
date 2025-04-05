@@ -32,7 +32,7 @@ From: ubuntu:noble
 
     # Install PWB session components 
     DEBIAN_FRONTEND=noninteractive apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser libuser1-dev rrdtool libpq5
-    /install-session-components.sh noble {{ PWB_VERSION }}
+    /install-session-components.sh noble {{ PWB_VERSION }} amd64 && rm -f /install-session-components.sh
 
     #!/bin/bash
     # Install Java JDK (optional) 
