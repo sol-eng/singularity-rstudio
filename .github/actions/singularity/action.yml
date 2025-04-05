@@ -44,6 +44,7 @@ runs:
           singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'sessionInfo()' && \
           singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat)' && \
           singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)' ; \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"rJava\"); unlink(d,recursive=TRUE)' ; \
           done
 
     - name: Test Python versions 
@@ -69,6 +70,30 @@ runs:
       run: |
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif quarto -V
+
+    - name: Test LaTeX presence 
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        singularity run container.sif bash -c "source /etc/profile.d/texlive.sh && which latex"
+
+    - name: Test Session Components presence
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        singularity run container.sif ls -l /usr/lib/rstudio-server
+
+    - name: Test Pro Driver presence
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        singularity run container.sif ls -l /opt/rstudio-drivers   
 
     - name: Test SLURM 
       env:
