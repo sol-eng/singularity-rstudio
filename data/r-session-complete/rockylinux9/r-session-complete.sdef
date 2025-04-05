@@ -9,6 +9,7 @@ From: rockylinux:9
     ../scripts/install-texlive.sh /
     ../scripts/install-quarto.sh /
     ../scripts/install-python.sh /
+    ../scripts/install-session-components.sh /
     ../scripts/install-slurm.sh /
     ../scripts/install-apptainer.sh / 
 
