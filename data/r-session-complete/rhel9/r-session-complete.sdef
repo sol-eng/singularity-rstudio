@@ -9,6 +9,7 @@ From: redhat/ubi9:latest
     ../scripts/install-texlive.sh /
     ../scripts/install-quarto.sh /
     ../scripts/install-python.sh /
+    ../scripts/install-session-components.sh /
     ../scripts/install-slurm.sh /
     ../scripts/install-apptainer.sh / 
     ../scripts/rhn.sh /
@@ -22,7 +23,7 @@ From: redhat/ubi9:latest
     /install-pro-driver.sh rpm {{ PRO_DRIVERS_VERSION }} && rm -f /install-pro-driver.sh
 
     # Install TeXlive
-    apt-get install perl -y
+    yum install perl -y
     /install-texlive.sh && rm -f /install-texlive.sh
     
     # Install Quarto
@@ -34,7 +35,7 @@ From: redhat/ubi9:latest
 
     # Install PWB session components 
     yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
-    /install-session-components.sh rhel9 {{ PWB_VERSION }}
+    /install-session-components.sh rhel9 {{ PWB_VERSION }} x86_64 && rm -f /install-session-components.sh
 
     # Install Java JDK (optional) 
     yum -y install java-1.8.0-openjdk-devel

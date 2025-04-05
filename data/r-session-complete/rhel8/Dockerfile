@@ -30,7 +30,7 @@ RUN /install-python.sh rpm centos-8 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSION_L
 ARG PWB_VERSION
 COPY scripts/install-session-components.sh /
 RUN yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs 
-RUN /install-session-components.sh rhel8 ${PWB_VERSION} && rm -f /install-session-components.sh
+RUN /install-session-components.sh rhel8 ${PWB_VERSION} x86_64 && rm -f /install-session-components.sh
     
 # Install Java JDK (optional) 
 RUN yum -y install java-1.8.0-openjdk-devel
