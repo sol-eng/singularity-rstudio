@@ -19,7 +19,7 @@ runs:
         if [ ! -z "$RH_USER_PASS" ]; then \
           echo -e "#/bin/bash\nsubscription-manager register --username $RH_USER_NAME --password \"$RH_USER_PASS\"" > ../scripts/rhn.sh; \
         fi && \
-        singularity build --build-arg-file ../build.env container.sif r-session-complete.sdef
+        singularity build --force --build-arg-file ../build.env container.sif r-session-complete.sdef
 
     - name: Print OS Release file
       env:
@@ -29,7 +29,7 @@ runs:
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif cat /etc/os-release
   
-    - name: Test R versions for installed R packages
+    - name: Test R versions sessionInfo() output
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -41,9 +41,62 @@ runs:
           echo "R Version $R_VERSION" && \
           echo "---------------------" && \
           echo " " && \
-          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'sessionInfo()' && \
-          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat)' && \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'sessionInfo()'
+
+    - name: Test R versions for CRAN package availability (Seurat)
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        R_VERSIONS=`singularity run container.sif ls /opt/R` && \
+        for R_VERSION in $R_VERSIONS; \
+          do \
+          echo "R Version $R_VERSION" && \
+          echo "---------------------" && \
+          echo " " && \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Seurat)'
+
+    - name: Test R versions for Bioconductor repo package availability (Voyager)
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        R_VERSIONS=`singularity run container.sif ls /opt/R` && \
+        for R_VERSION in $R_VERSIONS; \
+          do \
+          echo "R Version $R_VERSION" && \
+          echo "---------------------" && \
+          echo " " && \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'library(Voyager)' 
+
+    - name: Test R versions if package can be installed (SuppDists)
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        R_VERSIONS=`singularity run container.sif ls /opt/R` && \
+        for R_VERSION in $R_VERSIONS; \
+          do \
+          echo "R Version $R_VERSION" && \
+          echo "---------------------" && \
+          echo " " && \
           singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)' ; \
+          
+          
+    - name: Test R versions if Java integration works (rJava)
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        R_VERSIONS=`singularity run container.sif ls /opt/R` && \
+        for R_VERSION in $R_VERSIONS; \
+          do \
+          echo "R Version $R_VERSION" && \
+          echo "---------------------" && \
           singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"rJava\"); unlink(d,recursive=TRUE)' ; \
           done
 
