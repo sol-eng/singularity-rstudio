@@ -165,5 +165,5 @@ runs:
       shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
-        ls -lh container.sif && rm -f container.sif
+        ls -lh container.sif && rm -f container.sif && rm -rf .cache/R/
 
