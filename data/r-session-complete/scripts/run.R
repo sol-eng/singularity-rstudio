@@ -219,7 +219,7 @@ sink()
 
 
 
-avpack<-available.packages(paste0(repo,"/src/contrib"))
+avpack<-available.packages(paste0(r,"/src/contrib"))
 
 #let's also add additional packages from a file called r-packages.txt  
 Sys.setenv("CLUSTERMQ_USE_SYSTEM_LIBZMQ" = 0)

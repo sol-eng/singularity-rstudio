@@ -3,3 +3,4 @@ clustermq
 tidyverse
 hdf5r
 Seurat
+Voyager

@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo apt-get update && \
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
-          sudo apt install ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
+          sudo apt install -y ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
 
       - name: Build & Check Ubuntu Noble
         uses: ./.github/actions/singularity
