@@ -166,6 +166,6 @@ runs:
       run: |
         cd data/r-session-complete/$linux_distro && \
         ls -lh container.sif && rm -f container.sif && rm -rf .cache/R/ && \
-        find /tmp -type d -depth 2 | xargs du -sh && \
-        find ~ -type d -depth 2 | xargs du -sh
+        find /tmp -type d -maxdepth 3 | xargs du -sh && \
+        find ~ -type d -maxdepth 3 | xargs du -sh
 
