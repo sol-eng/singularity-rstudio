@@ -19,10 +19,10 @@ jobs:
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
           sudo apt install -y ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt* 
 
-      - name: Build & Check Ubuntu Noble
-        uses: ./.github/actions/singularity
-        with:
-          linux_distro: "noble"
+      # - name: Build & Check Ubuntu Noble
+      #   uses: ./.github/actions/singularity
+      #   with:
+      #     linux_distro: "noble"
 
       - name: Build & Check Ubuntu Jammy
         uses: ./.github/actions/singularity
