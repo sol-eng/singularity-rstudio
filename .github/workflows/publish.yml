@@ -24,41 +24,40 @@ jobs:
         with:
           linux_distro: "noble"
 
-#      - name: Build & Check Ubuntu Jammy
-#        uses: ./.github/actions/singularity
-#        with:
-#          linux_distro: "jammy"
+      - name: Build & Check Ubuntu Jammy
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "jammy"
 
-#      - name: Build & Check Ubuntu Focal
-#        uses: ./.github/actions/singularity
-#        with:
-#          linux_distro: "focal"
+      - name: Build & Check Ubuntu Focal
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "focal"
 
-#      - name: Build & Check Rocky Linux 8
-#        uses: ./.github/actions/singularity
-#        with:
-#          linux_distro: "rockylinux8"
+      - name: Build & Check Rocky Linux 8
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "rockylinux8"
 
-#      - name: Build & Check Rocky Linux 9
-#        uses: ./.github/actions/singularity
-#        with:
-#          linux_distro: "rockylinux9"
+      - name: Build & Check Rocky Linux 9
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "rockylinux9"
 
-#      - name: Build & Check Red Hat Enterprise 9
-#        uses: ./.github/actions/singularity
-#        with:
-#          linux_distro: "rhel9"
-#        env: # Or as an environment variable
-#          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
-#          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
+      - name: Build & Check Red Hat Enterprise 9
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "rhel9"
+        env: # Or as an environment variable
+          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
+          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
 
+      - name: Build & Check Red Hat Enterprise 8
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "rhel8"
+        env: # Or as an environment variable
+          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
+          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
 
-#      - name: Build & Check Red Hat Enterprise 8
-#        uses: ./.github/actions/singularity
-#        with:
-#          linux_distro: "rhel8"
-#        env: # Or as an environment variable
-#          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
-#          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
-#
 
