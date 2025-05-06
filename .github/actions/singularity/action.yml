@@ -165,7 +165,6 @@ runs:
       shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
-        ls -lh container.sif && rm -f container.sif && rm -rf .cache/R/ && \
-        find /tmp -type d -maxdepth 3 | xargs du -sh && \
-        find ~ -type d -maxdepth 3 | xargs du -sh
+        ls -lh container.sif && rm -f container.sif && rm -rf .cache && \
+        find /tmp -type d -maxdepth 1 | grep -v snap | grep -v systemd | xargs rm -rf 
 
