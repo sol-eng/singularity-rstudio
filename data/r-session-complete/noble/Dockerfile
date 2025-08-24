@@ -28,7 +28,7 @@ RUN /install-python.sh deb  ubuntu-2404 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSI
 ARG PWB_VERSION
 COPY scripts/install-session-components.sh /
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y curl libcurl4-gnutls-dev libssl-dev libuser libuser1-dev rrdtool libpq5
-RUN /install-session-components.sh noble ${PWB_VERSION} amd64 && rm -f /install-session-components.sh
+RUN /install-session-components.sh jammy ${PWB_VERSION} amd64 && rm -f /install-session-components.sh
     
 # Install Java JDK (optional) 
 RUN apt-get update -y && \
