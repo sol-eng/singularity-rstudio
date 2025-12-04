@@ -165,6 +165,14 @@ runs:
       shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
-        ls -lh container.sif && rm -f container.sif && \
+        ls -lh container.sif 
+
+    - name: Clean up everything
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        rm -rf ~/.apptainer && rm -f container.sif && \
         find /tmp/ -maxdepth 1 -not -user root | xargs rm -rf 
 
