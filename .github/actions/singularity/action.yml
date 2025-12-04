@@ -5,6 +5,13 @@ inputs:
   linux_distro:
     description: Linux distro (e.g. focal)
     required: true
+  rh_user_name:
+    description: Red Hat username for RHEL subscriptions
+    required: false
+  rh_user_pass:
+    description: Red Hat password for RHEL subscriptions
+    required: false
+  
 
 runs:
   using: composite
@@ -12,6 +19,8 @@ runs:
     - name: Build r-session-complete 
       env:
         linux_distro: ${{ inputs.linux_distro }}
+        RH_USER_NAME: ${{ inputs.rh_user_name }}
+        RH_USER_PASS: ${{ inputs.rh_user_pass }}
       shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
@@ -86,7 +95,7 @@ runs:
             echo "R Version $R_VERSION" && \
             echo "---------------------" && \
             echo " " && \
-          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)'; \
+          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages("SuppDists"); unlink(d,recursive=TRUE)'; \
           done
           
     - name: Test R versions if Java integration works (rJava)
@@ -100,7 +109,7 @@ runs:
           do \
             echo "R Version $R_VERSION" && \
             echo "---------------------" && \
-            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"rJava\"); unlink(d,recursive=TRUE)'; \
+            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages("rJava"); unlink(d,recursive=TRUE)'; \
           done
 
     - name: Test Python versions 

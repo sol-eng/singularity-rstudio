@@ -10,17 +10,6 @@ on:
 name: Regression Testing 
 
 jobs:
-  setup:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install Apptainer 
-        run: |
-          sudo apt-get update && \
-          sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
-          sudo apt install -y ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt*
-
   build-jammy:
     runs-on: ubuntu-24.04
     permissions:
@@ -105,9 +94,8 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "rhel9"
-        env:
-          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
-          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
+          rh_user_name: ${{ secrets.RH_USER_NAME }}
+          rh_user_pass: ${{ secrets.RH_USER_PASS }}
 
   build-rhel8:
     runs-on: ubuntu-24.04
@@ -125,8 +113,5 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "rhel8"
-        env:
-          RH_USER_NAME: ${{ secrets.RH_USER_NAME }}
-          RH_USER_PASS: ${{ secrets.RH_USER_PASS }}
-
-
+          rh_user_name: ${{ secrets.RH_USER_NAME }}
+          rh_user_pass: ${{ secrets.RH_USER_PASS }}
