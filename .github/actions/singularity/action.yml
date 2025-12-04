@@ -95,7 +95,7 @@ runs:
             echo "R Version $R_VERSION" && \
             echo "---------------------" && \
             echo " " && \
-          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages("SuppDists"); unlink(d,recursive=TRUE)'; \
+            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)'; \
           done
           
     - name: Test R versions if Java integration works (rJava)
@@ -109,7 +109,7 @@ runs:
           do \
             echo "R Version $R_VERSION" && \
             echo "---------------------" && \
-            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages("rJava"); unlink(d,recursive=TRUE)'; \
+            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"rJava\"); unlink(d,recursive=TRUE)'; \
           done
 
     - name: Test Python versions 
