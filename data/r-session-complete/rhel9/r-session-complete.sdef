@@ -38,36 +38,36 @@ From: redhat/ubi9:latest
     /install-session-components.sh rhel9 {{ PWB_VERSION }} x86_64 && rm -f /install-session-components.sh
 
     # Install Java JDK (optional) 
-    yum -y install java-1.8.0-openjdk-devel
+    yum -y install java-21-openjdk-devel
 
     # Install GCC developer toolset
-    yum -y install gcc-toolset-14
+    yum -y install gcc-toolset-15
 
     # Install and configure new set of defined R versions
     for R_VERSION in {{ R_VERSION_LIST }}
     do
     	yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
 
-        # Set up gcc toolset 14 for R only (optional)
+        # Set up gcc toolset 15 for R only (optional)
         cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 # GCC Toolset Root directory
-DEVTOOLSROOT=/opt/rh/gcc-toolset-14/root
+DEVTOOLSROOT=/opt/rh/gcc-toolset-15/root
 
 # Environment variables needed
 PCP_DIR=\${DEVTOOLSROOT}
-X_SCLS=gcc-toolset-14 
+X_SCLS=gcc-toolset-15 
 SHLVL=4
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ 
 
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}
-PATH=/opt/rh/gcc-toolset-14/root/usr/bin:\${PATH}
-LD_LIBRARY_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64:/opt/rh/gcc-toolset-14/root/usr/lib:\${LD_LIBRARY_PATH}
-PKG_CONFIG_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
-INFOPATH=/opt/rh/gcc-toolset-14/root/usr/share/info:\${INFOPATH}
+PATH=/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH}
+LD_LIBRARY_PATH=/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH}
+PKG_CONFIG_PATH=/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
+INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}
 EOF
 
         # Update R Makevars to use the new compiler features from  
-        # gcc toolset 14 (optional)
+        # gcc toolset 15 (optional)
         R_HOME=/opt/R/${R_VERSION}/lib/R
         if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi
         for std in 20 23
@@ -80,7 +80,7 @@ EOF
         done
 
         # Reconfigure R for Java (optional) 
-        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
+        export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
         /opt/R/${R_VERSION}/bin/R CMD javareconf
 	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf
 

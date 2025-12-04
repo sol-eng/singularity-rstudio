@@ -32,10 +32,10 @@ COPY scripts/install-session-components.sh /
 RUN yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs 
 RUN /install-session-components.sh rhel-9 ${PWB_VERSION} x86_64 && rm -f /install-session-components.sh
 # Install Java JDK (optional) 
-RUN yum -y install java-1.8.0-openjdk-devel
+RUN yum -y install java-21-openjdk-devel
 
 # Install GCC developer toolset
-RUN yum -y install gcc-toolset-14
+RUN yum -y install gcc-toolset-15
 
 # Install and configure new set of defined R versions
 ARG R_VERSION_LIST
@@ -45,21 +45,21 @@ COPY scripts/r-packages.txt /
 RUN for R_VERSION in ${R_VERSION_LIST}; \
 do \
     yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
-    # Set up gcc toolset 14 for R only (optional)
+    # Set up gcc toolset 15 for R only (optional)
     echo -e "# GCC Toolset Root directory \n\
-DEVTOOLSROOT=/opt/rh/gcc-toolset-14/root \n\
+DEVTOOLSROOT=/opt/rh/gcc-toolset-15/root \n\
 \n\
 # Environment variables needed\n\
 PCP_DIR=\${DEVTOOLSROOT} \n\
-X_SCLS=gcc-toolset-14 \n\
+X_SCLS=gcc-toolset-15 \n\
 SHLVL=4 \n\
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ \n\
 \n\
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
-PATH=/opt/rh/gcc-toolset-14/root/usr/bin:\${PATH} \n\
-LD_LIBRARY_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64:/opt/rh/gcc-toolset-14/root/usr/lib:\${LD_LIBRARY_PATH} \n\
-PKG_CONFIG_PATH=/opt/rh/gcc-toolset-14/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
-INFOPATH=/opt/rh/gcc-toolset-14/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
+PATH=/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
+LD_LIBRARY_PATH=/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
+PKG_CONFIG_PATH=/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
+INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # gcc toolset 13 (optional)
     R_HOME=/opt/R/${R_VERSION}/lib/R && \
@@ -73,7 +73,7 @@ INFOPATH=/opt/rh/gcc-toolset-14/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
             $R_HOME/etc/Makeconf; \
     done &&\
     # Reconfigure R for Java (optional) 
-    export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk && \
+    export JAVA_HOME=/usr/lib/jvm/java-21-openjdk && \
     /opt/R/${R_VERSION}/bin/R CMD javareconf && \
 	echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
     # Need to make sure R is in PATH so that pak can run R as a subprocess

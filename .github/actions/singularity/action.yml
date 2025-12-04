@@ -1,17 +1,42 @@
 name: Singularity build and test
-description: Receives paramter for linux distribution
+description: Receives parameter for linux distribution
 
 inputs:
   linux_distro:
     description: Linux distro (e.g. focal)
     required: true
+  rh_user_name:
+    description: Red Hat username for RHEL subscriptions
+    required: false
+  rh_user_pass:
+    description: Red Hat password for RHEL subscriptions
+    required: false
+  
 
 runs:
   using: composite
   steps:
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: false
+        
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
     - name: Build r-session-complete 
       env:
         linux_distro: ${{ inputs.linux_distro }}
+        RH_USER_NAME: ${{ inputs.rh_user_name }}
+        RH_USER_PASS: ${{ inputs.rh_user_pass }}
       shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
@@ -86,7 +111,7 @@ runs:
             echo "R Version $R_VERSION" && \
             echo "---------------------" && \
             echo " " && \
-          singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)'; \
+            singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"SuppDists\"); unlink(d,recursive=TRUE)'; \
           done
           
     - name: Test R versions if Java integration works (rJava)
@@ -165,6 +190,14 @@ runs:
       shell: bash
       run: |
         cd data/r-session-complete/$linux_distro && \
-        ls -lh container.sif && rm -f container.sif && \
+        ls -lh container.sif 
+
+    - name: Clean up everything
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        rm -rf ~/.apptainer && rm -f container.sif && \
         find /tmp/ -maxdepth 1 -not -user root | xargs rm -rf 
 
