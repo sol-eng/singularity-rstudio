@@ -44,7 +44,7 @@ jobs:
         with:
           linux_distro: "focal"
 
-  build-focal:
+  build-noble:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
