@@ -1,5 +1,5 @@
 name: Singularity build and test
-description: Receives paramter for linux distribution
+description: Receives parameter for linux distribution
 
 inputs:
   linux_distro:
