@@ -97,7 +97,3 @@ COPY scripts/install-slurm.sh /
 RUN yum install -y munge-devel
 RUN /install-slurm.sh ${SLURM_VERSION} && rm -f /install-slurm.sh
 
-#Install Apptainer
-ARG APPTAINER_VERSION
-COPY scripts/install-apptainer.sh /
-RUN /install-apptainer.sh rpm ${APPTAINER_VERSION} && rm -f /install-apptainer.sh

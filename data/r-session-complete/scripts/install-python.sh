@@ -8,23 +8,14 @@ DISTRO=${@: 2:1}
 echo $DISTRO
 echo $PKG_TYPE
 
+curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+
 set -x
 for PYTHON_VERSION in ${PYTHON_VERSION_LIST}
     do
-        case $PKG_TYPE in
-            "deb")
-                curl -O https://cdn.rstudio.com/python/${DISTRO}/pkgs/python-${PYTHON_VERSION}_1_amd64.deb
-                gdebi -n python-${PYTHON_VERSION}_1_amd64.deb
-                rm -f python-${PYTHON_VERSION}_1_amd64.deb
-                ;;
-            "rpm")
-                yum install -y https://cdn.rstudio.com/python/${DISTRO}/pkgs/python-${PYTHON_VERSION}-1-1.x86_64.rpm
-                ;;
-            *)
-                echo "Unsupported package type: $PKG_TYPE"
-                exit 1
-                ;;
-        esac
+        /usr/local/bin/uv python install "${PYTHON_VERSION}" --install-dir=/opt/python
+        ln -s /opt/python/cpython-$PYTHON_VERSION-* /opt/python/$PYTHON_VERSION
+
     done
 
 # Configure Python versions to have 
@@ -42,8 +33,12 @@ EOF
 for PYTHON_VERSION in ${PYTHON_VERSION_LIST}
 do
     /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
+        --break-system-packages \
+        --root-user-action=ignore \
         pip setuptools wheel && \
     /opt/python/${PYTHON_VERSION}/bin/pip install \
+        --break-system-packages \
+        --root-user-action=ignore \
         ipykernel \
         jupyter \
         rsconnect_jupyter \

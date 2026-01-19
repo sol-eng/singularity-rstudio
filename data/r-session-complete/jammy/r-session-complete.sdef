@@ -11,7 +11,6 @@ From: ubuntu:jammy
     ../scripts/install-python.sh /
     ../scripts/install-session-components.sh /
     ../scripts/install-slurm.sh /
-    ../scripts/install-apptainer.sh / 
 
 %post -c /bin/bash
    # Basic tools
@@ -69,8 +68,6 @@ From: ubuntu:jammy
     apt-get install -y libmunge-dev
     /install-slurm.sh {{ SLURM_VERSION }} && rm -f /install-slurm.sh
     
-    #Install Apptainer
-    /install-apptainer.sh deb {{ APPTAINER_VERSION }} && rm -f /install-apptainer.sh
 
 %environment  
     TINI_SUBREAPER=true
