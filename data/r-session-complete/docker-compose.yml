@@ -14,5 +14,4 @@ services:
         - PYTHON_VERSION_DEFAULT=${PYTHON_VERSION_DEFAULT:-3.13.11}
         - PWB_VERSION=${RSW_VERSION:-2026.01.0-392.pro5}
         - SLURM_VERSION=${SLURM_VERSION:-24.11.6}
-        - APPTAINER_VERSION=${APPTAINER_VERSION:-1.4.5}
     image: r-session-complete-hpc:${LINUX_DISTRO:-rockylinux9}-pwb-${RSW_VERSION:-2026.01.0-392.pro5}-slurm-${SLURM_VERSION:-24.11.6}

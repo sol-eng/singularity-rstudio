@@ -67,7 +67,3 @@ COPY scripts/install-slurm.sh /
 RUN apt-get install -y libmunge-dev git
 RUN /install-slurm.sh ${SLURM_VERSION} && rm -f /install-slurm.sh
 
-#Install Apptainer
-ARG APPTAINER_VERSION
-COPY scripts/install-apptainer.sh /
-RUN /install-apptainer.sh deb ${APPTAINER_VERSION} && rm -f /install-apptainer.sh
