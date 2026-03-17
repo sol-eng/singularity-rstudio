@@ -83,12 +83,7 @@ if (paste0(R.version$major, ".", R.version$minor) < "4.4.0") {
   #rjson released on Aug 20, 2024 needs R>=4.4.0, hence we need to make sure we install the older version
   install_repo <- paste0(pmurl, "/cran/", binaryflag, "2024-08-15")
 } else {
-  #due to ggrepel needing 4.5.0
-  if (paste0(R.version$major, ".", R.version$minor) < "4.5.0") {
-    install_repo <- paste0(pmurl, "/cran/", binaryflag, "2026-02-24")
-  } else {
-    install_repo <- paste0(pmurl, "/cran/", binaryflag, "latest")
-  }
+  install_repo <- paste0(pmurl, "/cran/", binaryflag, "latest")
 }
 install.packages(
   c("rjson", "RCurl", "BiocManager"),
@@ -273,10 +268,17 @@ packages_read = readLines("/r-packages.txt")
 pnames = c(pnames, packages_read)
 
 library(pak)
-pnames = c(pnames, packages_read)
+
+# Split into pinned and unpinned
+pinned <- pnames[grepl("@", pnames)]
+unpinned <- pnames[!grepl("@", pnames)]
+
+# Keep only unpinned packages that don't already have a pinned version
+pinned_names <- sub("@.*$", "", pinned)
+pnames_deduped <- c(pinned, unpinned[!unpinned %in% pinned_names])
 
 # sub() is needed to account for version fixatures
-packages_needed <- pnames[sub("@.*$", "", pnames) %in% avpack]
+packages_needed <- pnames_deduped[sub("@.*$", "", pnames) %in% avpack]
 
 paste("Installing packages for RSW integration")
 pak::pkg_install(packages_needed, lib = libdir)
