@@ -268,7 +268,9 @@ packages_read = readLines("/r-packages.txt")
 pnames = c(pnames, packages_read)
 
 if (currver >= "4.5.0") {
+  paste("xxx R version > 4.5.0")
   if ("sf" %in% pnames) {
+    paste("xxx - sf found")
     pnames = c(pnames, "sf@1.0-19")
   }
 }
@@ -284,7 +286,7 @@ pinned_names <- sub("@.*$", "", pinned)
 pnames_deduped <- c(pinned, unpinned[!unpinned %in% pinned_names])
 
 # sub() is needed to account for version fixatures
-packages_needed <- pnames_deduped[sub("@.*$", "", pnames) %in% avpack]
+packages_needed <- pnames_deduped #[sub("@.*$", "", pnames) %in% avpack]
 
 paste("Installing packages for RSW integration")
 pak::pkg_install(packages_needed, lib = libdir)
