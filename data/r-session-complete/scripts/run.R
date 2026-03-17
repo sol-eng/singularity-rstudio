@@ -83,7 +83,12 @@ if (paste0(R.version$major, ".", R.version$minor) < "4.4.0") {
   #rjson released on Aug 20, 2024 needs R>=4.4.0, hence we need to make sure we install the older version
   install_repo <- paste0(pmurl, "/cran/", binaryflag, "2024-08-15")
 } else {
-  install_repo <- paste0(pmurl, "/cran/", binaryflag, "latest")
+  #due to ggrepel needing 4.5.0
+  if (paste0(R.version$major, ".", R.version$minor) < "4.5.0") {
+    install_repo <- paste0(pmurl, "/cran/", binaryflag, "2026-02-24")
+  } else {
+    install_repo <- paste0(pmurl, "/cran/", binaryflag, "latest")
+  }
 }
 install.packages(
   c("rjson", "RCurl", "BiocManager"),
