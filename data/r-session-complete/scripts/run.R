@@ -267,6 +267,12 @@ paste("Reading r-packages.txt")
 packages_read = readLines("/r-packages.txt")
 pnames = c(pnames, packages_read)
 
+if (currver >= "4.5.0") {
+  if ("sf" %in% pnames) {
+    pnames = c(pnames, "sf@1.0-19")
+  }
+}
+
 library(pak)
 
 # Split into pinned and unpinned
