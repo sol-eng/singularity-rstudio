@@ -1,5 +1,6 @@
 batchtools
 clustermq
 tidyverse
+ggrepel@0.9.6
 Seurat
 Voyager
