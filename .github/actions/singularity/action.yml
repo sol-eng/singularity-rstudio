@@ -141,7 +141,8 @@ runs:
             echo "---------------------" && \
             echo " " && \
             singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/python -c "import pwb_jupyterlab" && \
-            singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/pip install --break-system-packages numpy; \
+            singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/pip install --break-system-packages numpy && \
+            singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension list | grep rsp_jupyter; \
           done    
     
     - name: Test quarto versions 

@@ -3,3 +3,4 @@ clustermq
 tidyverse
 Seurat
 Voyager
+sf

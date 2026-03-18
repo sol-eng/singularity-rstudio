@@ -30,27 +30,30 @@ timeout = 60
 index-url = https://packagemanager.posit.co/pypi/latest/simple
 EOF
 
+mkdir -p /etc/uv
+cat << EOF > /etc/uv/uv.toml
+[[index]]
+url = "https://packagemanager.posit.co/pypi/latest/simple"
+default = true
+EOF
+
 for PYTHON_VERSION in ${PYTHON_VERSION_LIST}
 do
-    /opt/python/${PYTHON_VERSION}/bin/pip install --upgrade \
-        --break-system-packages \
-        --root-user-action=ignore \
+    /usr/local/bin/uv pip install --break-system-packages --upgrade \
+        --python /opt/python/${PYTHON_VERSION}/bin/python \
         pip setuptools wheel && \
-    /opt/python/${PYTHON_VERSION}/bin/pip install \
-        --break-system-packages \
-        --root-user-action=ignore \
+    /usr/local/bin/uv pip install --break-system-packages \
+        --python /opt/python/${PYTHON_VERSION}/bin/python \
         ipykernel \
         jupyter \
-        rsconnect_jupyter \
         rsconnect_python \
         rsp_jupyter \
-        jupyterlab~=4.2.4 \
-        pwb_jupyterlab~=1.0 && \
+        notebook=="6.1.5" \
+        beautifulsoup4=="4.14.3" \
+        "jupyterlab~=4.2.4" \
+        "pwb_jupyterlab~=1.0" && \
     /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
     /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter && \
     /opt/python/${PYTHON_VERSION}/bin/python -m ipykernel install --name py${PYTHON_VERSION} --display-name "Python ${PYTHON_VERSION}" & 
 done
 wait
