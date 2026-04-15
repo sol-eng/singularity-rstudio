@@ -31,7 +31,32 @@ cat > /usr/local/bin/tlmgr << 'WRAPPER'
 #!/bin/bash
 REAL_TLMGR=$(ls -d /usr/local/texlive/20*/bin/x86_64-linux/tlmgr 2>/dev/null | head -1)
 if [ "$(id -u)" != "0" ]; then
+    # Read-only operations must NOT use --usermode: they need access to the full
+    # package catalog. Without this, Quarto's "search --file foo.sty" returns
+    # "no matching packages" and auto-install silently fails.
+    case "$1" in
+        search|info|list|check|version|print-platform*)
+            exec "$REAL_TLMGR" "$@"
+            ;;
+    esac
     [ -d "${TEXMFHOME:-$HOME/texmf}" ] || "$REAL_TLMGR" init-usertree
+    # Skip self-update and full package updates in user mode:
+    # - update --self is a no-op (users can't update the tlmgr binary)
+    # - update --all is very slow and is an admin concern, not a user one
+    # Quarto triggers both before installing missing packages; suppressing them
+    # here keeps auto-install fast.
+    if [ "$1" = "update" ]; then
+        shift
+        args=()
+        for arg in "$@"; do
+            case "$arg" in
+                --self|--all) ;;
+                *) args+=("$arg") ;;
+            esac
+        done
+        [ ${#args[@]} -eq 0 ] && exit 0
+        exec "$REAL_TLMGR" --usermode update "${args[@]}"
+    fi
     exec "$REAL_TLMGR" --usermode "$@"
 else
     exec "$REAL_TLMGR" "$@"
@@ -44,5 +69,11 @@ if [ -n "${TEXLIVE_MIRROR}" ]; then
     /usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr option repository ${TEXLIVE_MIRROR}
 fi
 
-# Install texliveonfly so it can help with auto-install missing packages
+# Install texliveonfly so it can help with auto-install missing packages.
+# Also pre-install framed (needed by Quarto's default PDF callout boxes and
+# commonly required by knitr/rmarkdown documents).
 /usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr install texliveonfly
+
+# Pre-generate the lualatex font database so the first user render is not slow.
+# luaotfload otherwise generates this on-demand, which can take several minutes.
+/usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/luaotfload-tool --update
