@@ -31,6 +31,15 @@ cat > /usr/local/bin/tlmgr << 'WRAPPER'
 #!/bin/bash
 REAL_TLMGR=$(ls -d /usr/local/texlive/20*/bin/x86_64-linux/tlmgr 2>/dev/null | head -1)
 if [ "$(id -u)" != "0" ]; then
+    # Explicitly set TEXMF paths so they are consistent regardless of whether
+    # /etc/profile.d/texlive.sh was sourced (e.g. when called from a Quarto
+    # subprocess). Without this, tlmgr --usermode falls back to version-stamped
+    # paths (~/.texlive2026/) while kpathsea looks in ~/texmf — files are
+    # installed to the wrong location and TeX still reports them as missing.
+    export TEXMFHOME="${TEXMFHOME:-$HOME/texmf}"
+    export TEXMFCONFIG="${TEXMFCONFIG:-$HOME/.texlive/texmf-config}"
+    export TEXMFVAR="${TEXMFVAR:-$HOME/.texlive/texmf-var}"
+
     # Read-only operations must NOT use --usermode: they need access to the full
     # package catalog. Without this, Quarto's "search --file foo.sty" returns
     # "no matching packages" and auto-install silently fails.
@@ -39,7 +48,7 @@ if [ "$(id -u)" != "0" ]; then
             exec "$REAL_TLMGR" "$@"
             ;;
     esac
-    [ -d "${TEXMFHOME:-$HOME/texmf}" ] || "$REAL_TLMGR" init-usertree
+    [ -d "$TEXMFHOME" ] || "$REAL_TLMGR" init-usertree
     # Skip self-update and full package updates in user mode:
     # - update --self is a no-op (users can't update the tlmgr binary)
     # - update --all is very slow and is an admin concern, not a user one
@@ -59,12 +68,10 @@ if [ "$(id -u)" != "0" ]; then
     fi
     # After installing packages, rebuild the kpathsea filename database in the
     # user tree so lualatex/pdflatex can find the newly installed .sty files.
-    # Without this, kpathsea's ls-R cache is stale and the install appears to
-    # succeed but TeX still reports "file not found" on the next run.
     if [ "$1" = "install" ]; then
         "$REAL_TLMGR" --usermode "$@"
         STATUS=$?
-        [ $STATUS -eq 0 ] && mktexlsr "${TEXMFHOME:-$HOME/texmf}" 2>/dev/null
+        [ $STATUS -eq 0 ] && mktexlsr "$TEXMFHOME" 2>/dev/null
         exit $STATUS
     fi
     exec "$REAL_TLMGR" --usermode "$@"
