@@ -11,7 +11,17 @@ inputs:
   rh_user_pass:
     description: Red Hat password for RHEL subscriptions
     required: false
-  
+  s3_bucket:
+    description: S3 bucket for caching built container images
+    required: false
+  aws_role_arn:
+    description: IAM role ARN to assume via OIDC for S3 access
+    required: false
+  aws_region:
+    description: AWS region for S3 bucket
+    required: false
+    default: eu-west-1 
+
 
 runs:
   using: composite
@@ -32,7 +42,36 @@ runs:
         docker-images: true
         swap-storage: true
 
-    - name: Build r-session-complete 
+    - name: Configure AWS credentials
+      if: ${{ inputs.s3_bucket != '' }}
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.aws_role_arn }}
+        aws-region: ${{ inputs.aws_region }}
+
+    - name: Derive container image name from build.env
+      shell: bash
+      run: |
+        source data/r-session-complete/build.env
+        echo "IMAGE_NAME=session-pwb_${PWB_VERSION}-slurm_${SLURM_VERSION}-${{ inputs.linux_distro }}.sif" >> $GITHUB_ENV
+
+    - name: Check S3 for cached image
+      if: ${{ inputs.s3_bucket != '' }}
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        if aws s3 ls "s3://${{ inputs.s3_bucket }}/${IMAGE_NAME}" 2>/dev/null; then
+          echo "Cache hit — downloading ${IMAGE_NAME} from S3"
+          aws s3 cp "s3://${{ inputs.s3_bucket }}/${IMAGE_NAME}" data/r-session-complete/$linux_distro/container.sif
+          echo "CACHE_HIT=true" >> $GITHUB_ENV
+        else
+          echo "No cached image found — will build"
+          echo "CACHE_HIT=false" >> $GITHUB_ENV
+        fi
+
+    - name: Build r-session-complete
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
         RH_USER_NAME: ${{ inputs.rh_user_name }}
@@ -45,6 +84,15 @@ runs:
           echo -e "#/bin/bash\nsubscription-manager register --username $RH_USER_NAME --password \"$RH_USER_PASS\"" > ../scripts/rhn.sh; \
         fi && \
         singularity build --force --build-arg-file ../build.env container.sif r-session-complete.sdef
+
+    - name: Upload image to S3
+      if: ${{ inputs.s3_bucket != '' && env.CACHE_HIT != 'true' }}
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        echo "Uploading ${IMAGE_NAME} to S3"
+        aws s3 cp data/r-session-complete/$linux_distro/container.sif "s3://${{ inputs.s3_bucket }}/${IMAGE_NAME}"
 
     - name: Print OS Release file
       env:
@@ -160,6 +208,18 @@ runs:
       run: |
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif bash -c "source /etc/profile.d/texlive.sh && which latex"
+
+    - name: Test LaTeX user-mode package install (framed)
+      env:
+        linux_distro: ${{ inputs.linux_distro }}
+      shell: bash
+      run: |
+        cd data/r-session-complete/$linux_distro && \
+        singularity run container.sif bash -c \
+          "source /etc/profile.d/texlive.sh && \
+           tlmgr install framed && \
+           pdflatex -interaction=nonstopmode ../scripts/test-framed.tex && \
+           ls test-framed.pdf"
 
     - name: Test Session Components presence
       env:

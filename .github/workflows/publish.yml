@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -26,11 +27,14 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "jammy"
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
   build-focal:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -43,11 +47,14 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "focal"
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
   build-noble:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -60,11 +67,14 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "noble"
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
   build-rockylinux8:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -77,11 +87,14 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "rockylinux8"
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
   build-rockylinux9:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -94,11 +107,14 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "rockylinux9"
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
   build-rhel9:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -113,11 +129,14 @@ jobs:
           linux_distro: "rhel9"
           rh_user_name: ${{ secrets.RH_USER_NAME }}
           rh_user_pass: ${{ secrets.RH_USER_PASS }}
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
   build-rhel8:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -132,3 +151,5 @@ jobs:
           linux_distro: "rhel8"
           rh_user_name: ${{ secrets.RH_USER_NAME }}
           rh_user_pass: ${{ secrets.RH_USER_PASS }}
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
