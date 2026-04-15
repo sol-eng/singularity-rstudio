@@ -25,11 +25,15 @@ export TEXMFCONFIG=\$HOME/.texlive/texmf-config
 export TEXMFVAR=\$HOME/.texlive/texmf-var
 EOF
 
-# Install a real tlmgr wrapper script in /usr/local/bin so that non-root users
-# get --usermode automatically, including from tools like texliveonfly (Perl).
-cat > /usr/local/bin/tlmgr << 'WRAPPER'
+# Wrap tlmgr in the TeX Live bin directory itself (not just /usr/local/bin) so
+# that Quarto — which resolves tlmgr by full path relative to the TeX binary —
+# also gets the wrapper. The real binary is renamed to tlmgr-real.
+TEXLIVE_BIN=/usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux
+mv ${TEXLIVE_BIN}/tlmgr ${TEXLIVE_BIN}/tlmgr-real
+
+cat > ${TEXLIVE_BIN}/tlmgr << 'WRAPPER'
 #!/bin/bash
-REAL_TLMGR=$(ls -d /usr/local/texlive/20*/bin/x86_64-linux/tlmgr 2>/dev/null | head -1)
+REAL_TLMGR="$(dirname "$0")/tlmgr-real"
 if [ "$(id -u)" != "0" ]; then
     # Explicitly set TEXMF paths so they are consistent regardless of whether
     # /etc/profile.d/texlive.sh was sourced (e.g. when called from a Quarto
@@ -79,21 +83,24 @@ else
     exec "$REAL_TLMGR" "$@"
 fi
 WRAPPER
-chmod +x /usr/local/bin/tlmgr
+chmod +x ${TEXLIVE_BIN}/tlmgr
+# Also expose via /usr/local/bin for PATH-based callers (shells, texliveonfly)
+ln -sf ${TEXLIVE_BIN}/tlmgr /usr/local/bin/tlmgr
 
-# Wrapper for fmtutil-sys: non-root users cannot write to the system format tree.
-# Redirect to fmtutil-user, which rebuilds formats into $TEXMFVAR instead.
+# Wrap fmtutil-sys in the TeX Live bin directory for the same reason.
+# Non-root users cannot write to the system format tree; redirect to fmtutil-user.
 # Quarto calls fmtutil-sys --all after installing packages via tlmgr.
-cat > /usr/local/bin/fmtutil-sys << 'WRAPPER'
+mv ${TEXLIVE_BIN}/fmtutil-sys ${TEXLIVE_BIN}/fmtutil-sys-real
+cat > ${TEXLIVE_BIN}/fmtutil-sys << 'WRAPPER'
 #!/bin/bash
-REAL_FMTUTIL=$(ls -d /usr/local/texlive/20*/bin/x86_64-linux/fmtutil-sys 2>/dev/null | head -1)
 if [ "$(id -u)" != "0" ]; then
-    exec "$(dirname $REAL_FMTUTIL)/fmtutil-user" "$@"
+    exec "$(dirname "$0")/fmtutil-user" "$@"
 else
-    exec "$REAL_FMTUTIL" "$@"
+    exec "$(dirname "$0")/fmtutil-sys-real" "$@"
 fi
 WRAPPER
-chmod +x /usr/local/bin/fmtutil-sys
+chmod +x ${TEXLIVE_BIN}/fmtutil-sys
+ln -sf ${TEXLIVE_BIN}/fmtutil-sys /usr/local/bin/fmtutil-sys
 
 # Pin tlmgr to the same mirror if one was specified
 if [ -n "${TEXLIVE_MIRROR}" ]; then
