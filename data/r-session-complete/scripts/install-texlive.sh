@@ -57,6 +57,16 @@ if [ "$(id -u)" != "0" ]; then
         [ ${#args[@]} -eq 0 ] && exit 0
         exec "$REAL_TLMGR" --usermode update "${args[@]}"
     fi
+    # After installing packages, rebuild the kpathsea filename database in the
+    # user tree so lualatex/pdflatex can find the newly installed .sty files.
+    # Without this, kpathsea's ls-R cache is stale and the install appears to
+    # succeed but TeX still reports "file not found" on the next run.
+    if [ "$1" = "install" ]; then
+        "$REAL_TLMGR" --usermode "$@"
+        STATUS=$?
+        [ $STATUS -eq 0 ] && mktexlsr "${TEXMFHOME:-$HOME/texmf}" 2>/dev/null
+        exit $STATUS
+    fi
     exec "$REAL_TLMGR" --usermode "$@"
 else
     exec "$REAL_TLMGR" "$@"
