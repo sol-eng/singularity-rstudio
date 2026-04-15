@@ -64,6 +64,20 @@ fi
 WRAPPER
 chmod +x /usr/local/bin/tlmgr
 
+# Wrapper for fmtutil-sys: non-root users cannot write to the system format tree.
+# Redirect to fmtutil-user, which rebuilds formats into $TEXMFVAR instead.
+# Quarto calls fmtutil-sys --all after installing packages via tlmgr.
+cat > /usr/local/bin/fmtutil-sys << 'WRAPPER'
+#!/bin/bash
+REAL_FMTUTIL=$(ls -d /usr/local/texlive/20*/bin/x86_64-linux/fmtutil-sys 2>/dev/null | head -1)
+if [ "$(id -u)" != "0" ]; then
+    exec "$(dirname $REAL_FMTUTIL)/fmtutil-user" "$@"
+else
+    exec "$REAL_FMTUTIL" "$@"
+fi
+WRAPPER
+chmod +x /usr/local/bin/fmtutil-sys
+
 # Pin tlmgr to the same mirror if one was specified
 if [ -n "${TEXLIVE_MIRROR}" ]; then
     /usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr option repository ${TEXLIVE_MIRROR}
