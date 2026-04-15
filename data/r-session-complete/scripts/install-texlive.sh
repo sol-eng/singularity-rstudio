@@ -1,12 +1,17 @@
 #!/bin/bash
 
-# Install TeXlive 
+# Install TeXlive
+# Optionally set TEXLIVE_MIRROR to a CTAN mirror URL
+# (e.g. https://mirror.example.org/CTAN/systems/texlive/tlnet)
+# If unset, the default CTAN mirror redirector is used.
+
+MIRROR_OPT=${TEXLIVE_MIRROR:+--repository ${TEXLIVE_MIRROR}}
 
 curl -LO https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz && \
     tar xvfz install-tl-unx.tar.gz && \
     rm install-tl-unx.tar.gz && \
     cd install-tl-* && \
-    ./install-tl --scheme small --no-interaction #--repository ftp://tug.org/historic/systems/texlive/${TEXLIVE_VERSION}/tlnet-final
+    ./install-tl --scheme small --no-interaction ${MIRROR_OPT}
 
 TEXLIVE_VERSION=`ls /usr/local/texlive/ | grep [0-9]`
 
@@ -33,6 +38,11 @@ else
 fi
 WRAPPER
 chmod +x /usr/local/bin/tlmgr
+
+# Pin tlmgr to the same mirror if one was specified
+if [ -n "${TEXLIVE_MIRROR}" ]; then
+    /usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr option repository ${TEXLIVE_MIRROR}
+fi
 
 # Install texliveonfly so it can help with auto-install missing packages
 /usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr install texliveonfly
