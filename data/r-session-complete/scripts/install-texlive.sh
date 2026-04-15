@@ -11,22 +11,28 @@ curl -LO https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz && 
 TEXLIVE_VERSION=`ls /usr/local/texlive/ | grep [0-9]`
 
 
-# Add environment variables so that user space installa of additional texlive packages work. 
-# Also ensure that tlmgr calls for non-root users use --usermode 
+# Add environment variables so that user space installs of additional texlive packages work.
 cat > /etc/profile.d/texlive.sh << EOF
-export PATH=/usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux:\$PATH
+export PATH=/usr/local/bin:/usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux:\$PATH
 # User-writable TEXMF trees so tlmgr install works without root
 export TEXMFHOME=\$HOME/texmf
 export TEXMFCONFIG=\$HOME/.texlive/texmf-config
 export TEXMFVAR=\$HOME/.texlive/texmf-var
-# For non-root users, default tlmgr to user mode and init the user tree on first use
-tlmgr() {
-    if [ "\$(id -u)" != "0" ]; then
-        [ -d "\$TEXMFHOME" ] || command tlmgr init-usertree
-        command tlmgr --usermode "\$@"
-    else
-        command tlmgr "\$@"
-    fi
-}
-export -f tlmgr
 EOF
+
+# Install a real tlmgr wrapper script in /usr/local/bin so that non-root users
+# get --usermode automatically, including from tools like texliveonfly (Perl).
+cat > /usr/local/bin/tlmgr << 'WRAPPER'
+#!/bin/bash
+REAL_TLMGR=$(ls -d /usr/local/texlive/20*/bin/x86_64-linux/tlmgr 2>/dev/null | head -1)
+if [ "$(id -u)" != "0" ]; then
+    [ -d "${TEXMFHOME:-$HOME/texmf}" ] || "$REAL_TLMGR" init-usertree
+    exec "$REAL_TLMGR" --usermode "$@"
+else
+    exec "$REAL_TLMGR" "$@"
+fi
+WRAPPER
+chmod +x /usr/local/bin/tlmgr
+
+# Install texliveonfly so it can help with auto-install missing packages
+/usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr install texliveonfly
