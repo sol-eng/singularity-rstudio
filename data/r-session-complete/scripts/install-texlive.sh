@@ -33,7 +33,7 @@ mv ${TEXLIVE_BIN}/tlmgr ${TEXLIVE_BIN}/tlmgr-real
 
 cat > ${TEXLIVE_BIN}/tlmgr << 'WRAPPER'
 #!/bin/bash
-REAL_TLMGR="$(dirname "$0")/tlmgr-real"
+REAL_TLMGR="$(dirname "$(readlink -f "$0")")/tlmgr-real"
 if [ "$(id -u)" != "0" ]; then
     # Explicitly set TEXMF paths so they are consistent regardless of whether
     # /etc/profile.d/texlive.sh was sourced (e.g. when called from a Quarto
@@ -93,10 +93,11 @@ ln -sf ${TEXLIVE_BIN}/tlmgr /usr/local/bin/tlmgr
 mv ${TEXLIVE_BIN}/fmtutil-sys ${TEXLIVE_BIN}/fmtutil-sys-real
 cat > ${TEXLIVE_BIN}/fmtutil-sys << 'WRAPPER'
 #!/bin/bash
+TEXLIVE_BIN="$(dirname "$(readlink -f "$0")")"
 if [ "$(id -u)" != "0" ]; then
-    exec "$(dirname "$0")/fmtutil-user" "$@"
+    exec "$TEXLIVE_BIN/fmtutil-user" "$@"
 else
-    exec "$(dirname "$0")/fmtutil-sys-real" "$@"
+    exec "$TEXLIVE_BIN/fmtutil-sys-real" "$@"
 fi
 WRAPPER
 chmod +x ${TEXLIVE_BIN}/fmtutil-sys
