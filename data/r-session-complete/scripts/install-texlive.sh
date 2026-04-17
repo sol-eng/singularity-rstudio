@@ -44,14 +44,17 @@ if [ "$(id -u)" != "0" ]; then
     export TEXMFCONFIG="${TEXMFCONFIG:-$HOME/.texlive/texmf-config}"
     export TEXMFVAR="${TEXMFVAR:-$HOME/.texlive/texmf-var}"
 
-    # Read-only operations must NOT use --usermode: they need access to the full
-    # package catalog. Without this, Quarto's "search --file foo.sty" returns
-    # "no matching packages" and auto-install silently fails.
+    # Read-only and detection operations must NOT use --usermode: they need
+    # access to the full package catalog and must not trigger init-usertree.
+    # --version / version: Quarto calls this to detect the TeX installation.
+    # search/info/list: Quarto calls "search --file foo.sty" to map missing
+    #   .sty files to package names; fails with "no matching packages" in usermode.
     case "$1" in
-        search|info|list|check|version|print-platform*)
+        --version|-version|version|search|info|list|check|print-platform*)
             exec "$REAL_TLMGR" "$@"
             ;;
     esac
+    # Only initialise the user tree for write operations (install/update/remove)
     [ -d "$TEXMFHOME" ] || "$REAL_TLMGR" init-usertree
     # Skip self-update and full package updates in user mode:
     # - update --self is a no-op (users can't update the tlmgr binary)
