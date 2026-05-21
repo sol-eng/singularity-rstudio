@@ -16,6 +16,7 @@ From: ubuntu:jammy
    # Basic tools
     apt-get update && apt-get install -y gdebi-core curl wget
 
+    set -x 
     # Install Pro Drivers
     /install-pro-driver.sh deb {{ PRO_DRIVERS_VERSION }} && rm -f /install-pro-driver.sh
 
