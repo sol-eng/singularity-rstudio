@@ -86,6 +86,13 @@ runs:
         fi && \
         singularity build --force --build-arg-file ../build.env container.sif r-session-complete.sdef
 
+    - name: Refresh AWS credentials for upload
+      if: ${{ inputs.s3_bucket != '' && env.CACHE_HIT != 'true' }}
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.aws_role_arn }}
+        aws-region: ${{ inputs.aws_region }}
+
     - name: Upload image to S3
       if: ${{ inputs.s3_bucket != '' && env.CACHE_HIT != 'true' }}
       env:
