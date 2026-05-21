@@ -1,5 +1,5 @@
 #!/bin/bash
-subscription-manager register --username XXX --password XXX
+subscription-manager register --username "$RH_USER_NAME" --password "$RH_USER_PASS"
 
 
 dnf config-manager --set-disabled "*ubi*"

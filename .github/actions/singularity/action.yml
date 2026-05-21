@@ -81,7 +81,7 @@ runs:
         cd data/r-session-complete/$linux_distro && \
         echo "Building container" ; \
         if [ ! -z "$RH_USER_PASS" ]; then \
-          echo -e "#/bin/bash\nsubscription-manager register --username $RH_USER_NAME --password \"$RH_USER_PASS\"" > ../scripts/rhn.sh; \
+          sed -i "s|\$RH_USER_NAME|$RH_USER_NAME|g; s|\$RH_USER_PASS|$RH_USER_PASS|g" ../scripts/rhn.sh; \
         fi && \
         singularity build --force --build-arg-file ../build.env container.sif r-session-complete.sdef
 
