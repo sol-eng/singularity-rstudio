@@ -15,7 +15,7 @@ From: redhat/ubi9:latest
 
 %post -c /bin/bash
     # basic tools 
-    bash /rhn.sh && rm /rhn.sh
+    bash /rhn.sh 9 && rm /rhn.sh
     yum -y install yum-utils https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && yum-config-manager --enable codeready-builder-for-rhel-9-x86_64-rpms
 
     # Install Pro Drivers
