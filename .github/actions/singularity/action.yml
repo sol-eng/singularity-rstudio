@@ -53,8 +53,8 @@ runs:
       shell: bash
       run: |
         PWB_VERSION=$( grep PWB_VERSION build.env| cut -d "=" -f 2 )
-	SLURM_VERSION=$( grep SLURM_VERSION build.env| cut -d "=" -f 2)
-	echo "IMAGE_NAME=session-pwb_${PWB_VERSION}-slurm_${SLURM_VERSION}-${{ inputs.linux_distro }}.sif" >> $GITHUB_ENV
+        SLURM_VERSION=$( grep SLURM_VERSION build.env| cut -d "=" -f 2)
+        echo "IMAGE_NAME=session-pwb_${PWB_VERSION}-slurm_${SLURM_VERSION}-${{ inputs.linux_distro }}.sif" >> $GITHUB_ENV
 
     - name: Check S3 for cached image
       if: ${{ inputs.s3_bucket != '' }}
