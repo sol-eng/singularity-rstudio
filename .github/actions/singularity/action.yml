@@ -63,8 +63,7 @@ runs:
       shell: bash
       run: |
         if aws s3 ls "s3://${{ inputs.s3_bucket }}/${IMAGE_NAME}" 2>/dev/null; then
-          echo "Cache hit — downloading ${IMAGE_NAME} from S3"
-          aws s3 cp "s3://${{ inputs.s3_bucket }}/${IMAGE_NAME}" data/r-session-complete/$linux_distro/container.sif
+          echo "Cache hit — image already exists in S3, skipping build and tests"
           echo "CACHE_HIT=true" >> $GITHUB_ENV
         else
           echo "No cached image found — will build"
@@ -103,6 +102,7 @@ runs:
         aws s3 cp data/r-session-complete/$linux_distro/container.sif "s3://${{ inputs.s3_bucket }}/${IMAGE_NAME}"
 
     - name: Print OS Release file
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -111,6 +111,7 @@ runs:
         singularity run container.sif cat /etc/os-release
   
     - name: Test R versions sessionInfo() output
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -126,6 +127,7 @@ runs:
           done
 
     - name: Test R versions for CRAN package availability (Seurat)
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -141,6 +143,7 @@ runs:
           done
 
     - name: Test R versions for Bioconductor repo package availability (Voyager)
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -156,6 +159,7 @@ runs:
           done
 
     - name: Test R versions if package can be installed (SuppDists)
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -171,6 +175,7 @@ runs:
           done
           
     - name: Test R versions if Java integration works (rJava)
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -184,7 +189,8 @@ runs:
             singularity run container.sif /opt/R/${R_VERSION}/bin/R -q -e 'd<-tempdir(); .libPaths(d); install.packages(\"rJava\"); unlink(d,recursive=TRUE)'; \
           done
 
-    - name: Test Python versions 
+    - name: Test Python versions
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -201,7 +207,8 @@ runs:
             singularity run container.sif /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension list | grep rsp_jupyter; \
           done    
     
-    - name: Test quarto versions 
+    - name: Test quarto versions
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -209,7 +216,8 @@ runs:
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif quarto -V
 
-    - name: Test LaTeX presence 
+    - name: Test LaTeX presence
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -218,6 +226,7 @@ runs:
         singularity run container.sif bash -c "source /etc/profile.d/texlive.sh && which latex"
 
     - name: Test LaTeX user-mode package install (framed)
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -230,6 +239,7 @@ runs:
            ls test-framed.pdf"
 
     - name: Test Session Components presence
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -238,6 +248,7 @@ runs:
         singularity run container.sif ls -l /usr/lib/rstudio-server
 
     - name: Test Pro Driver presence
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -245,7 +256,8 @@ runs:
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif ls -l /opt/rstudio-drivers   
 
-    - name: Test SLURM 
+    - name: Test SLURM
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -253,7 +265,8 @@ runs:
         cd data/r-session-complete/$linux_distro && \
         singularity run container.sif which sinfo
 
-    - name: List Container size 
+    - name: List Container size
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
@@ -262,6 +275,7 @@ runs:
         ls -lh container.sif 
 
     - name: Clean up everything
+      if: env.CACHE_HIT != 'true'
       env:
         linux_distro: ${{ inputs.linux_distro }}
       shell: bash
