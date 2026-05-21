@@ -52,8 +52,9 @@ runs:
     - name: Derive container image name from build.env
       shell: bash
       run: |
-        source data/r-session-complete/build.env
-        echo "IMAGE_NAME=session-pwb_${PWB_VERSION}-slurm_${SLURM_VERSION}-${{ inputs.linux_distro }}.sif" >> $GITHUB_ENV
+        PWB_VERSION=$( grep PWB_VERSION build.env| cut -d "=" -f 2 )
+	SLURM_VERSION=$( grep SLURM_VERSION build.env| cut -d "=" -f 2)
+	echo "IMAGE_NAME=session-pwb_${PWB_VERSION}-slurm_${SLURM_VERSION}-${{ inputs.linux_distro }}.sif" >> $GITHUB_ENV
 
     - name: Check S3 for cached image
       if: ${{ inputs.s3_bucket != '' }}
