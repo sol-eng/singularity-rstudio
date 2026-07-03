@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Install TeXlive
-# Optionally set TEXLIVE_MIRROR to a CTAN mirror URL
-# (e.g. https://mirror.example.org/CTAN/systems/texlive/tlnet)
-# If unset, the default CTAN mirror redirector is used.
+# TEXLIVE_MIRROR pins both the installer download and tlmgr's package repo to a
+# single known-good CTAN mirror. The default mirror.ctan.org redirector routes
+# to arbitrary mirrors, some of which are stale or unreachable and break CI.
+TEXLIVE_MIRROR=${TEXLIVE_MIRROR:-https://mirrors.rit.edu/CTAN/systems/texlive/tlnet}
+MIRROR_OPT="--repository ${TEXLIVE_MIRROR}"
 
-MIRROR_OPT=${TEXLIVE_MIRROR:+--repository ${TEXLIVE_MIRROR}}
-
-curl -LO https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz && \
+curl --retry 5 --retry-delay 10 --retry-connrefused -LO ${TEXLIVE_MIRROR}/install-tl-unx.tar.gz && \
     tar xvfz install-tl-unx.tar.gz && \
     rm install-tl-unx.tar.gz && \
     cd install-tl-* && \
@@ -106,10 +106,8 @@ WRAPPER
 chmod +x ${TEXLIVE_BIN}/fmtutil-sys
 ln -sf ${TEXLIVE_BIN}/fmtutil-sys /usr/local/bin/fmtutil-sys
 
-# Pin tlmgr to the same mirror if one was specified
-if [ -n "${TEXLIVE_MIRROR}" ]; then
-    /usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr option repository ${TEXLIVE_MIRROR}
-fi
+# Pin tlmgr to the same mirror
+/usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/tlmgr option repository ${TEXLIVE_MIRROR}
 
 # Install texliveonfly so it can help with auto-install missing packages.
 # Also pre-install framed (needed by Quarto's default PDF callout boxes and
