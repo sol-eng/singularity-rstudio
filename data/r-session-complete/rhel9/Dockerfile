@@ -12,8 +12,10 @@ RUN yum -y install yum-utils https://dl.fedoraproject.org/pub/epel/epel-release-
 # Renviron.site below rather than into /etc/ld.so.conf.d, to keep the
 # modification scoped to R.
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
-    yum -y --disablerepo="pgdg*" --enablerepo=pgdg-common install \
-        gdal313-devel proj98-devel geos313-devel
+    yum -y --enablerepo=pgdg-common install \
+        gdal313-devel proj98-devel geos313-devel && \
+    ln -sf /usr/gdal313/bin/gdal-config /usr/local/bin/gdal-config && \
+    ln -sf /usr/geos313/bin/geos-config /usr/local/bin/geos-config
 
 # Install Pro Drivers
 ARG PRO_DRIVERS_VERSION

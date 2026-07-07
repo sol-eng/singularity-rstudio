@@ -78,7 +78,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install Apptainer 
+      - name: Install Apptainer
         run: |
           sudo apt-get update && \
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
@@ -87,6 +87,26 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "rockylinux9"
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+
+  build-rockylinux10:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install Apptainer
+        run: |
+          sudo apt-get update && \
+          sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
+          sudo apt install -y ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt*
+      - name: Build & Check Rocky Linux 10
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "rockylinux10"
           s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
           aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
@@ -120,7 +140,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install Apptainer 
+      - name: Install Apptainer
         run: |
           sudo apt-get update && \
           sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
@@ -129,6 +149,28 @@ jobs:
         uses: ./.github/actions/singularity
         with:
           linux_distro: "rhel8"
+          rh_user_name: ${{ secrets.RH_USER_NAME }}
+          rh_user_pass: ${{ secrets.RH_USER_PASS }}
+          s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+          aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+
+  build-rhel10:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install Apptainer
+        run: |
+          sudo apt-get update && \
+          sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
+          sudo apt install -y ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt*
+      - name: Build & Check Red Hat Enterprise 10
+        uses: ./.github/actions/singularity
+        with:
+          linux_distro: "rhel10"
           rh_user_name: ${{ secrets.RH_USER_NAME }}
           rh_user_pass: ${{ secrets.RH_USER_PASS }}
           s3_bucket: ${{ secrets.AWS_S3_BUCKET }}

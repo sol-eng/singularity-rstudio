@@ -267,6 +267,15 @@ paste("Reading r-packages.txt")
 packages_read = readLines("/r-packages.txt")
 pnames = c(pnames, packages_read)
 
+# Force sf/terra/lwgeom/gdalcubes from source so they link against the
+# gdal/proj/geos we installed from ubuntugis-unstable (Debian) or
+# pgdg-common (Red Hat), rather than a Posit packagemanager binary that
+# was linked against the base OS soname.
+for (p in c("sf", "terra", "lwgeom", "gdalcubes")) {
+  pnames <- setdiff(pnames, p)
+  pnames <- c(pnames, paste0(p, "?source"))
+}
+
 library(pak)
 
 # Split into pinned and unpinned
