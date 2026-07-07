@@ -274,6 +274,20 @@ runs:
         cd data/r-session-complete/$linux_distro && \
         ls -lh container.sif 
 
+    - name: Refresh AWS credentials for cache invalidation
+      if: ${{ failure() && inputs.s3_bucket != '' && env.CACHE_HIT != 'true' }}
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.aws_role_arn }}
+        aws-region: ${{ inputs.aws_region }}
+
+    - name: Invalidate cached image on failure
+      if: ${{ failure() && inputs.s3_bucket != '' && env.CACHE_HIT != 'true' }}
+      shell: bash
+      run: |
+        echo "Build or tests failed — removing ${IMAGE_NAME} from S3 so the next run rebuilds"
+        aws s3 rm "s3://${{ inputs.s3_bucket }}/${IMAGE_NAME}" || true
+
     - name: Clean up everything
       if: env.CACHE_HIT != 'true'
       env:
@@ -282,5 +296,5 @@ runs:
       run: |
         cd data/r-session-complete/$linux_distro && \
         rm -rf ~/.apptainer && rm -f container.sif && \
-        find /tmp/ -maxdepth 1 -not -user root | xargs rm -rf 
+        find /tmp/ -maxdepth 1 -not -user root | xargs rm -rf
 

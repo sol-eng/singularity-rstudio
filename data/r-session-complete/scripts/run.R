@@ -273,6 +273,10 @@ if (currver >= "4.5.0") {
     paste("xxx - sf found")
     pnames = c(pnames, "sf@1.0-19")
   }
+  # terra 1.9-34 needs the 3-arg GDALMDArray::AsClassicDataset added in GDAL 3.5,
+  # absent on Ubuntu 20.04/22.04, RHEL 8, and Rocky 8. Pin to 1.9-11, the last
+  # version that compiles cleanly against GDAL 3.0+.
+  pnames = c(pnames, "terra@1.9-11")
 }
 
 library(pak)
