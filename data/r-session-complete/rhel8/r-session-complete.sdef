@@ -109,7 +109,7 @@ EOF
     fi
 
     # Install SLURM
-    yum install -y munge-devel
+    yum install -y munge-devel git
     /install-slurm.sh {{ SLURM_VERSION }} && rm -f /install-slurm.sh
     
 

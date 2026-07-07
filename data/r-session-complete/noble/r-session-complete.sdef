@@ -75,7 +75,7 @@ From: ubuntu:noble
     fi
 
     # Install SLURM
-    apt-get install -y libmunge-dev
+    apt-get install -y libmunge-dev git
     /install-slurm.sh {{ SLURM_VERSION }} && rm -f /install-slurm.sh
     
 

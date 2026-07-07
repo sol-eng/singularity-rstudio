@@ -105,6 +105,6 @@ RUN if [ ! -z ${R_VERSION_DEFAULT} ]; then \
 # Install SLURM
 ARG SLURM_VERSION 
 COPY scripts/install-slurm.sh /
-RUN yum install -y munge-devel
+RUN yum install -y munge-devel git
 RUN /install-slurm.sh ${SLURM_VERSION} && rm -f /install-slurm.sh
 
