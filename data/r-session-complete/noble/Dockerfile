@@ -3,6 +3,15 @@ FROM ubuntu:noble
 # Basic tools
 RUN apt-get update && apt-get install -y gdebi-core curl wget
 
+# Install modern gdal/proj/geos from ubuntugis-unstable.
+# The base Ubuntu gdal is too old for current terra (needs GDAL >= 3.5).
+# ubuntugis packages replace the base libgdal-dev/libgeos-dev/libproj-dev
+# in place, so no PATH/LD_LIBRARY_PATH/PKG_CONFIG_PATH wiring is needed.
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable && \
+    apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        libgdal-dev libproj-dev libgeos-dev gdal-bin proj-bin
+
 # Install Pro Drivers
 ARG PRO_DRIVERS_VERSION
 COPY scripts/install-pro-driver.sh /

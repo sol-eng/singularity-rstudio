@@ -267,18 +267,6 @@ paste("Reading r-packages.txt")
 packages_read = readLines("/r-packages.txt")
 pnames = c(pnames, packages_read)
 
-if (currver >= "4.5.0" && !file.exists("/etc/redhat-release")) {
-  # Debian/Ubuntu still ship gdal 3.0-3.4 on 20.04/22.04, so terra 1.9-34
-  # (which needs the 3-arg GDALMDArray::AsClassicDataset added in GDAL 3.5)
-  # cannot compile there. Pin sf and terra to the last versions that build
-  # cleanly against GDAL 3.0+. RHEL/Rocky images install modern
-  # gdal/proj/geos from pgdg-common and do not need this workaround.
-  if ("sf" %in% pnames) {
-    pnames = c(pnames, "sf@1.0-19")
-  }
-  pnames = c(pnames, "terra@1.9-11")
-}
-
 library(pak)
 
 # Split into pinned and unpinned

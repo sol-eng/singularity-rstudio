@@ -147,9 +147,10 @@ Appropriate singularity recipes can be found for
 
 * [Rocky Linux 8](data/r-session-complete/rockylinux8)
 * [Rocky Linux 9](data/r-session-complete/rockylinux9)
+* [Rocky Linux 10](data/r-session-complete/rockylinux10)
 * [RHEL 8](data/r-session-complete/rhel8)
 * [RHEL 9](data/r-session-complete/rhel9)
-* [Ubuntu 20.04 LTS (Focal)](data/r-session-complete/focal)
+* [RHEL 10](data/r-session-complete/rhel10)
 * [Ubuntu 22.04 LTS (Jammy)](data/r-session-complete/jammy)
 * [Ubuntu 24.04 LTS (Noble)](data/r-session-complete/noble).
  
