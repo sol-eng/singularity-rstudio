@@ -71,6 +71,8 @@ MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
 PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
 LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/proj98/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
 PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
+CPPFLAGS=-I/usr/gdal313/include -I/usr/proj98/include -I/usr/geos314/include \n\
+LDFLAGS=-L/usr/gdal313/lib -L/usr/proj98/lib -L/usr/geos314/lib64 \n\
 INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # gcc toolset 13 (optional)

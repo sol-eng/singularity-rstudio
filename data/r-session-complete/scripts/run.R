@@ -283,6 +283,40 @@ unpinned <- pnames[!grepl("@", pnames)]
 pinned_names <- sub("@.*$", "", pinned)
 pnames_deduped <- c(pinned, unpinned[!unpinned %in% pinned_names])
 
+# For R 4.3.x, force minimum versions of a small set of packages whose
+# CRAN-snapshot-pinned releases (e.g. systemfonts 1.0.6, textshaping 0.3.7,
+# ragg 1.3.0) fail to compile under gcc-toolset-15 because they use
+# uint32_t without #include <cstdint>. Newer releases add the include.
+#
+# We resolve the FULL dependency plan first (top-level + transitive) via
+# pak::pkg_deps(), then walk it and append explicit `pkg@min` refs for
+# anything below the floor. This catches packages pulled in only as
+# transitive deps (systemfonts is a dep of ragg/svglite/pkgdown, etc.).
+if (currver >= "4.3.0" && currver < "4.4.0") {
+  min_versions <- c(
+    systemfonts  = "1.1.0",
+    textshaping  = "0.4.0",
+    ragg         = "1.3.2"
+  )
+  paste("Resolving full dependency plan to apply R 4.3.x version floors")
+  full_plan <- pak::pkg_deps(pnames_deduped)
+  for (pkg in names(min_versions)) {
+    min_ver <- min_versions[[pkg]]
+    row <- full_plan[full_plan$package == pkg, , drop = FALSE]
+    if (nrow(row) == 0) next  # not in the plan at all, nothing to floor
+    resolved_ver <- row$version[[1]]
+    if (utils::compareVersion(resolved_ver, min_ver) >= 0) next  # already fine
+    # Replace an existing top-level entry if present, else append.
+    idx <- which(sub("@.*$", "", pnames_deduped) == pkg)
+    if (length(idx) > 0) {
+      pnames_deduped[idx] <- paste0(pkg, "@", min_ver)
+    } else {
+      pnames_deduped <- c(pnames_deduped, paste0(pkg, "@", min_ver))
+    }
+    paste0("Flooring ", pkg, " ", resolved_ver, " -> ", min_ver)
+  }
+}
+
 # sub() is needed to account for version fixatures
 packages_needed <- pnames_deduped #[sub("@.*$", "", pnames) %in% avpack]
 
