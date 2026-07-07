@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: redhat/ubi8:latest 
+From: rockylinux:10
 
 %files
     ../scripts/run.R /
@@ -11,12 +11,10 @@ From: redhat/ubi8:latest
     ../scripts/install-python.sh /
     ../scripts/install-session-components.sh /
     ../scripts/install-slurm.sh /
-    ../scripts/rhn.sh /
 
 %post -c /bin/bash
-    # basic tools 
-    bash /rhn.sh 8 && rm /rhn.sh
-    yum -y install yum-utils https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && yum-config-manager --enable codeready-builder-for-rhel-8-x86_64-rpms
+    # Basic tools
+    yum -y install yum-utils epel-release && yum-config-manager --enable crb
 
     # Install modern gdal/proj/geos from PostgreSQL community repo (pgdg-common).
     # The RHEL/Rocky base gdal is too old for current terra/sf; pgdg-common ships
@@ -24,8 +22,8 @@ From: redhat/ubi8:latest
     # The corresponding bin/lib/pkgconfig dirs are wired into each R installation's
     # Renviron.site below rather than into /etc/ld.so.conf.d, to keep the
     # modification scoped to R.
-    yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-    yum -y --disablerepo="pgdg*" --enablerepo=pgdg-common install gdal38-devel proj96-devel geos313-devel
+    yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    yum -y --disablerepo="pgdg*" --enablerepo=pgdg-common install gdal313-devel proj98-devel geos314-devel
 
     # Install Pro Drivers
     /install-pro-driver.sh rpm {{ PRO_DRIVERS_VERSION }} && rm -f /install-pro-driver.sh
@@ -39,11 +37,11 @@ From: redhat/ubi8:latest
 
     # Install Python 
 
-    /install-python.sh rpm centos-8 {{ PYTHON_VERSION_DEFAULT }} {{ PYTHON_VERSION_LIST }} && rm -rf /install-python.sh 
+    /install-python.sh rpm rhel-10 {{ PYTHON_VERSION_DEFAULT }} {{ PYTHON_VERSION_LIST }} && rm -rf /install-python.sh 
 
     # Install PWB session components 
     yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs
-    /install-session-components.sh rhel8 {{ PWB_VERSION }} x86_64 && rm -f /install-session-components.sh
+    /install-session-components.sh rhel9 {{ PWB_VERSION }} x86_64 && rm -f /install-session-components.sh
 
     # Install Java JDK (optional) 
     yum -y install java-21-openjdk-devel
@@ -54,7 +52,7 @@ From: redhat/ubi8:latest
     # Install and configure new set of defined R versions
     for R_VERSION in {{ R_VERSION_LIST }}
     do
-    	yum install -y https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
+    	yum install -y https://cdn.rstudio.com/r/rhel-10/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
 
         # Set up gcc toolset 15 for R only (optional)
         cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
@@ -68,9 +66,9 @@ SHLVL=4
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ 
 
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}
-PATH=/usr/gdal38/bin:/usr/proj96/bin:/usr/geos313/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH}
-LD_LIBRARY_PATH=/usr/gdal38/lib:/usr/proj96/lib:/usr/geos313/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH}
-PKG_CONFIG_PATH=/usr/gdal38/lib/pkgconfig:/usr/proj96/lib/pkgconfig:/usr/geos313/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
+PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH}
+LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/proj98/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH}
+PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
 INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}
 EOF
 

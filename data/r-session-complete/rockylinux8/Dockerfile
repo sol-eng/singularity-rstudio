@@ -3,6 +3,16 @@ FROM rockylinux:8
 # Basic tools
 RUN yum -y install yum-utils epel-release && yum-config-manager --enable crb
 
+# Install modern gdal/proj/geos from PostgreSQL community repo (pgdg-common).
+# The RHEL/Rocky base gdal is too old for current terra/sf; pgdg-common ships
+# versioned side-by-side installs under /usr/gdalNN /usr/projNN /usr/geosNN.
+# The corresponding bin/lib/pkgconfig dirs are wired into each R installation's
+# Renviron.site below rather than into /etc/ld.so.conf.d, to keep the
+# modification scoped to R.
+RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+    yum -y --disablerepo="pgdg*" --enablerepo=pgdg-common install \
+        gdal38-devel proj96-devel geos313-devel
+
 # Install Pro Drivers
 ARG PRO_DRIVERS_VERSION
 COPY scripts/install-pro-driver.sh /
@@ -55,9 +65,9 @@ SHLVL=4 \n\
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ \n\
 \n\
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
-PATH=/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
-LD_LIBRARY_PATH=/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
-PKG_CONFIG_PATH=/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
+PATH=/usr/gdal38/bin:/usr/proj96/bin:/usr/geos313/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
+LD_LIBRARY_PATH=/usr/gdal38/lib:/usr/proj96/lib:/usr/geos313/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
+PKG_CONFIG_PATH=/usr/gdal38/lib/pkgconfig:/usr/proj96/lib/pkgconfig:/usr/geos313/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
 INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # gcc toolset 13 (optional)

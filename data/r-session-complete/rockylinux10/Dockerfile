@@ -1,9 +1,7 @@
-FROM redhat/ubi9:latest
+FROM rockylinux:10
 
 # Basic tools
-COPY scripts/rhn.sh /
-RUN bash /rhn.sh && rm /rhn.sh
-RUN yum -y install yum-utils https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && yum-config-manager --enable codeready-builder-for-rhel-9-x86_64-rpms
+RUN yum -y install yum-utils epel-release && yum-config-manager --enable crb
 
 # Install modern gdal/proj/geos from PostgreSQL community repo (pgdg-common).
 # The RHEL/Rocky base gdal is too old for current terra/sf; pgdg-common ships
@@ -11,9 +9,9 @@ RUN yum -y install yum-utils https://dl.fedoraproject.org/pub/epel/epel-release-
 # The corresponding bin/lib/pkgconfig dirs are wired into each R installation's
 # Renviron.site below rather than into /etc/ld.so.conf.d, to keep the
 # modification scoped to R.
-RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
     yum -y --disablerepo="pgdg*" --enablerepo=pgdg-common install \
-        gdal313-devel proj98-devel geos313-devel
+        gdal313-devel proj98-devel geos314-devel
 
 # Install Pro Drivers
 ARG PRO_DRIVERS_VERSION
@@ -34,13 +32,14 @@ RUN /install-quarto.sh ${QUARTO_VERSION} && rm -f /install-quarto.sh
 ARG PYTHON_VERSION_LIST
 ARG PYTHON_VERSION_DEFAULT
 COPY scripts/install-python.sh /
-RUN /install-python.sh rpm rhel-9 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSION_LIST} && rm -f /install-python.sh deb
+RUN /install-python.sh rpm rhel-10 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSION_LIST} && rm -f /install-python.sh deb
 
 # Install PWB session components 
 ARG PWB_VERSION
 COPY scripts/install-session-components.sh /
 RUN yum install -y libcurl-devel openssl-devel rrdtool postgresql-libs 
 RUN /install-session-components.sh rhel9 ${PWB_VERSION} x86_64 && rm -f /install-session-components.sh
+    
 # Install Java JDK (optional) 
 RUN yum -y install java-21-openjdk-devel
 
@@ -54,7 +53,7 @@ COPY scripts/bioc.txt /
 COPY scripts/r-packages.txt /
 RUN for R_VERSION in ${R_VERSION_LIST}; \
 do \
-    yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
+    yum install -y https://cdn.rstudio.com/r/rhel-10/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
     # Set up gcc toolset 15 for R only (optional)
     echo -e "# GCC Toolset Root directory \n\
 DEVTOOLSROOT=/opt/rh/gcc-toolset-15/root \n\
@@ -66,9 +65,9 @@ SHLVL=4 \n\
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ \n\
 \n\
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
-PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos313/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
-LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/proj98/lib:/usr/geos313/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
-PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/geos313/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
+PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
+LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/proj98/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
+PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
 INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # gcc toolset 13 (optional)

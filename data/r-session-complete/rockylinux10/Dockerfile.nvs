@@ -1,0 +1,13 @@
+FROM rockylinux:9
+
+COPY install-slurm.sh /
+
+RUN yum install -y git  
+
+RUN yum install -y epel-release 
+
+RUN dnf config-manager --enable crb
+RUN yum builddep -y slurm
+ARG SLURM_VERSION=23.02.8 
+
+RUN /install-slurm.sh $SLURM_VERSION 
