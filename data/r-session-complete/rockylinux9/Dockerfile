@@ -11,9 +11,9 @@ RUN yum -y install yum-utils epel-release && yum-config-manager --enable crb
 # modification scoped to R.
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
     yum -y --enablerepo=pgdg-common install \
-        gdal313-devel proj98-devel geos313-devel && \
+        gdal313-devel proj98-devel geos314-devel && \
     ln -sf /usr/gdal313/bin/gdal-config /usr/local/bin/gdal-config && \
-    ln -sf /usr/geos313/bin/geos-config /usr/local/bin/geos-config
+    ln -sf /usr/geos314/bin/geos-config /usr/local/bin/geos-config
 
 # Install Pro Drivers
 ARG PRO_DRIVERS_VERSION
@@ -67,9 +67,9 @@ SHLVL=4 \n\
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ \n\
 \n\
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
-PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos313/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
-LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/proj98/lib:/usr/geos313/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
-PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/geos313/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
+PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
+LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/proj98/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
+PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
 INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # gcc toolset 13 (optional)
