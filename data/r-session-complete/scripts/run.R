@@ -35,6 +35,12 @@ rsconfigdir <- "/etc/rstudio"
 # increase timeout for packagemanager
 options(timeout = max(300, getOption("timeout")))
 
+# Strip distro info from the HTTP User-Agent so packagemanager.posit.co
+# does not silently redirect us onto its per-distro binary path
+# (__linux__/<codename>/...). We want source tarballs so pak/install.packages
+# link against the modern gdal/proj/geos we installed on this image.
+options(HTTPUserAgent = sprintf("R (%s)", getRversion()))
+
 binaryflag <- ""
 
 # if (file.exists("/etc/debian_version")) {
@@ -268,13 +274,6 @@ packages_read <- readLines("/r-packages.txt")
 pnames <- c(pnames, packages_read)
 
 library(pak)
-
-# Force pak to build every package from source. Binary packages from the
-# Posit packagemanager are linked against the base OS gdal/proj/geos
-# soname, but we installed a newer stack (ubuntugis-unstable on Debian,
-# pgdg-common on Red Hat) that has a different soname. Building from
-# source relinks against the modern libraries we actually have.
-options(pkg.platforms = "source")
 
 # Split into pinned and unpinned
 pinned <- pnames[grepl("@", pnames)]

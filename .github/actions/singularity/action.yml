@@ -27,6 +27,9 @@ runs:
   using: composite
   steps:
     - name: Free Disk Space (Ubuntu)
+      # Temporarily disabled while iterating on the pgdg/ubuntugis rollout.
+      # Re-enable before merging.
+      if: false
       uses: jlumbroso/free-disk-space@main
       with:
         # this might remove tools that are actually needed,
