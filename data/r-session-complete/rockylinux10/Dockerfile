@@ -1,4 +1,4 @@
-FROM rockylinux:10
+FROM rockylinux/rockylinux:10
 
 # Basic tools
 RUN yum -y install yum-utils epel-release && yum-config-manager --enable crb

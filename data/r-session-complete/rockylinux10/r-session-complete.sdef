@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rockylinux:10
+From: rockylinux/rockylinux:10
 
 %files
     ../scripts/run.R /
