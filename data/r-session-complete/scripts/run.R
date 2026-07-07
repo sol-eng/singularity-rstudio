@@ -50,7 +50,7 @@ if (file.exists("/etc/redhat-release")) {
     system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),
     "[.]"
   )[[1]][1]
-  if (version == 9) {
+  if ( (version == 9) || (version == 10) ) {
     os <- "rhel"
   } else {
     os <- "centos"
