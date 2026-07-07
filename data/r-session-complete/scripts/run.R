@@ -37,33 +37,33 @@ options(timeout = max(300, getOption("timeout")))
 
 binaryflag <- ""
 
-if (file.exists("/etc/debian_version")) {
-  binaryflag <- paste0(
-    "__linux__/",
-    system(". /etc/os-release && echo $VERSION_CODENAME", intern = TRUE),
-    "/"
-  )
-}
+# if (file.exists("/etc/debian_version")) {
+#   binaryflag <- paste0(
+#     "__linux__/",
+#     system(". /etc/os-release && echo $VERSION_CODENAME", intern = TRUE),
+#     "/"
+#   )
+# }
 
-if (file.exists("/etc/redhat-release")) {
-  version <- strsplit(
-    system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),
-    "[.]"
-  )[[1]][1]
-  if ( (version == 9) || (version == 10) ) {
-    os <- "rhel"
-  } else {
-    os <- "centos"
-  }
-  binaryflag <- paste0("__linux__/", os, version, "/")
-  Sys.setenv(PKG_SYSREQS_PLATFORM = paste0("redhat-", version))
-  if (file.exists("/etc/rocky-release")) {
-    Sys.setenv(PKG_SYSREQS_PLATFORM = paste0("rockylinux-", version))
-    if (version == 8) {
-      Sys.setenv(PKG_SYSREQS_PLATFORM = paste0("centos-", version))
-    }
-  }
-}
+# if (file.exists("/etc/redhat-release")) {
+#   version <- strsplit(
+#     system(". /etc/os-release && echo $VERSION_ID", intern = TRUE),
+#     "[.]"
+#   )[[1]][1]
+#   if ( (version == 9) || (version == 10) ) {
+#     os <- "rhel"
+#   } else {
+#     os <- "centos"
+#   }
+#   binaryflag <- paste0("__linux__/", os, version, "/")
+#   Sys.setenv(PKG_SYSREQS_PLATFORM = paste0("redhat-", version))
+#   if (file.exists("/etc/rocky-release")) {
+#     Sys.setenv(PKG_SYSREQS_PLATFORM = paste0("rockylinux-", version))
+#     if (version == 8) {
+#       Sys.setenv(PKG_SYSREQS_PLATFORM = paste0("centos-", version))
+#     }
+#   }
+# }
 
 currver <- paste0(R.Version()$major, ".", R.Version()$minor)
 
@@ -146,9 +146,9 @@ paste("release", releasedate)
 
 #Attempt to install packages from snapshot - if snapshot does not exist, decrease day by 1 and try again
 getreleasedate <- function(repodate) {
-  repo = paste0(pmurl, "/cran/", binaryflag, repodate)
+  repo <- paste0(pmurl, "/cran/", binaryflag, repodate)
   paste(repo)
-  URLfound = FALSE
+  URLfound <- FALSE
   while (!URLfound) {
     if (
       !RCurl::url.exists(
@@ -157,9 +157,9 @@ getreleasedate <- function(repodate) {
       )
     ) {
       repodate <- as.Date(repodate) - 1
-      repo = paste0(pmurl, "/cran/", binaryflag, repodate)
+      repo <- paste0(pmurl, "/cran/", binaryflag, repodate)
     } else {
-      URLfound = TRUE
+      URLfound <- TRUE
     }
   }
   return(repodate)
@@ -179,7 +179,7 @@ if (identical(biocreleasedate, "latest")) {
 paste("snapshot selected", releasedate)
 
 #Final CRAN snapsot URL
-repo = paste0(pmurl, "/cran/", binaryflag, releasedate)
+repo <- paste0(pmurl, "/cran/", binaryflag, releasedate)
 options(repos = c(CRAN = repo))
 
 paste("CRAN Snapshot", repo)
@@ -210,11 +210,11 @@ r["CRAN"] <- repo
 # until it finds the package
 # With CRAN being the most frequenly use repo, having CRAN listed first saves
 # a lot of time
-nr = length(r)
+nr <- length(r)
 r <- c(r[nr], r[1:nr - 1])
 
 system(paste0("mkdir -p ", rsconfigdir, "/repos"))
-filename = paste0(rsconfigdir, "/repos/repos-", currver, ".conf")
+filename <- paste0(rsconfigdir, "/repos/repos-", currver, ".conf")
 sink(filename)
 for (i in names(r)) {
   cat(noquote(paste0(i, "=", r[i], "\n")))
@@ -264,8 +264,8 @@ avpack <- available.packages(paste0(r, "/src/contrib"))
 Sys.setenv("CLUSTERMQ_USE_SYSTEM_LIBZMQ" = 0)
 
 paste("Reading r-packages.txt")
-packages_read = readLines("/r-packages.txt")
-pnames = c(pnames, packages_read)
+packages_read <- readLines("/r-packages.txt")
+pnames <- c(pnames, packages_read)
 
 library(pak)
 
