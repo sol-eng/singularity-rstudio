@@ -286,42 +286,6 @@ pnames_deduped <- c(pinned, unpinned[!unpinned %in% pinned_names])
 # sub() is needed to account for version fixatures
 packages_needed <- pnames_deduped #[sub("@.*$", "", pnames) %in% avpack]
 
-# Some CRAN snapshots pinned to specific R releases select older package
-# versions that fail to compile with modern toolchains or link against
-# modern system libs. Rather than pin unconditionally (which causes solver
-# conflicts on unaffected R versions), resolve the full plan first via
-# pak::pkg_deps() and only add a floor pin when the resolved (transitive)
-# version is actually below the floor. Runs an extra solver pass — worth
-# it to keep the change surgical.
-min_versions <- list(
-  # s2 <= 1.1.9 vendors an abseil-cpp missing #include <cstdint>; gcc-15
-  # (used on all RHEL/Rocky variants) rejects the resulting uintptr_t
-  # references. Fixed in s2 1.1.10.
-  s2    = "1.1.10",
-  # terra <= 1.8-42 uses `char**` where GDAL 3.13's CSLConstList is
-  # `const char* const*`, tripping -fpermissive under gcc-15. Fixed in
-  # terra 1.9-11.
-  terra = "1.9-11"
-)
-
-paste("Resolving full dependency plan to apply version floors")
-full_plan <- pak::pkg_deps(packages_needed)
-for (pkg in names(min_versions)) {
-  min_ver <- min_versions[[pkg]]
-  row <- full_plan[full_plan$package == pkg, , drop = FALSE]
-  if (nrow(row) == 0) next
-  resolved_ver <- row$version[[1]]
-  if (utils::compareVersion(resolved_ver, min_ver) >= 0) next
-  # Below the floor: replace an existing top-level entry if present, else append.
-  idx <- which(sub("@.*$", "", packages_needed) == pkg)
-  if (length(idx) > 0) {
-    packages_needed[idx] <- paste0(pkg, "@", min_ver)
-  } else {
-    packages_needed <- c(packages_needed, paste0(pkg, "@", min_ver))
-  }
-  paste0("Flooring ", pkg, " ", resolved_ver, " -> ", min_ver)
-}
-
 paste("Installing packages for RSW integration")
 pak::pkg_install(packages_needed, lib = libdir)
 paste("Creating lock file for further reproducibility")
