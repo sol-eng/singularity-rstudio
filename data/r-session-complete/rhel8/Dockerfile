@@ -79,6 +79,10 @@ INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
     # gcc toolset 13 (optional)
     R_HOME=/opt/R/${R_VERSION}/lib/R && \
     if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi && \
+    sed -i "s/^CXX = .*/CXX = g++/ ; \
+        s/^CXXFLAGS = .*/CXXFLAGS = -g -O2 -fpermissive -Wno-error=template-body -Wno-template-body \$(LTO)/ ; \
+        s/^CXXPICFLAGS = .*/CXXPICFLAGS = -fpic/" \
+        $R_HOME/etc/Makeconf && \
     for std in 17 20 23 ;\
     do \
         sed -i "s/^CXX${std} .*/CXX${std} = g++/ ; \
