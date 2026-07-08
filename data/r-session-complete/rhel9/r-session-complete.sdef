@@ -51,7 +51,7 @@ From: redhat/ubi9:latest
     yum -y install java-21-openjdk-devel
 
     # Install GCC developer toolset
-    yum -y install gcc-toolset-13
+    yum -y install gcc-toolset-15
 
     # Install and configure new set of defined R versions
     for R_VERSION in {{ R_VERSION_LIST }}
@@ -61,31 +61,31 @@ From: redhat/ubi9:latest
         # Set up gcc toolset 15 for R only (optional)
         cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
 # GCC Toolset Root directory
-DEVTOOLSROOT=/opt/rh/gcc-toolset-13/root
+DEVTOOLSROOT=/opt/rh/gcc-toolset-15/root
 
 # Environment variables needed
 PCP_DIR=\${DEVTOOLSROOT}
-X_SCLS=gcc-toolset-13 
+X_SCLS=gcc-toolset-15 
 SHLVL=4
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ 
 
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}
-PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-13/root/usr/bin:\${PATH}
-LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/gdal313/lib64:/usr/proj98/lib:/usr/proj98/lib64:/usr/geos314/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-13/root/usr/lib64:/opt/rh/gcc-toolset-13/root/usr/lib:\${LD_LIBRARY_PATH}
-PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/gdal313/lib64/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/proj98/lib64/pkgconfig:/usr/geos314/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-13/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
+PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH}
+LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/gdal313/lib64:/usr/proj98/lib:/usr/proj98/lib64:/usr/geos314/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH}
+PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/gdal313/lib64/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/proj98/lib64/pkgconfig:/usr/geos314/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
 CPPFLAGS=-I/usr/gdal313/include -I/usr/proj98/include -I/usr/geos314/include
 LDFLAGS=-L/usr/gdal313/lib -L/usr/gdal313/lib64 -L/usr/proj98/lib -L/usr/proj98/lib64 -L/usr/geos314/lib -L/usr/geos314/lib64
-INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}
+INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}
 EOF
 
         # Update R Makevars to use the new compiler features from  
         # gcc toolset 15 (optional)
         R_HOME=/opt/R/${R_VERSION}/lib/R
         if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi
-        for std in 20 23
+        for std in 17 20 23
         do
           sed -i "s/^CXX${std} .?*/CXX${std} = g++/ ; \
-          s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 \$(LTO)/ ; \
+          s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 -fpermissive -Wno-error=template-body -Wno-template-body \$(LTO)/ ; \
           s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
           s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
           $R_HOME/etc/Makeconf
