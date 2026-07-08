@@ -3,7 +3,7 @@ FROM redhat/ubi10:latest
 # Basic tools
 COPY scripts/rhn.sh /
 RUN bash /rhn.sh && rm /rhn.sh
-RUN yum -y install yum-utils diffutils https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm && yum-config-manager --enable codeready-builder-for-rhel-10-x86_64-rpms
+RUN yum -y install yum-utils diffutils libxml2-devel https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm && yum-config-manager --enable codeready-builder-for-rhel-10-x86_64-rpms
 
 # Install modern gdal/proj/geos from PostgreSQL community repo (pgdg-common).
 # The RHEL/Rocky base gdal is too old for current terra/sf; pgdg-common ships

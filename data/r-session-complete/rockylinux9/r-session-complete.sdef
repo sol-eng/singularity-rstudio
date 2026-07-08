@@ -14,7 +14,7 @@ From: rockylinux:9
 
 %post -c /bin/bash
     # Basic tools
-    yum -y install yum-utils epel-release && yum-config-manager --enable crb
+    yum -y install yum-utils libxml2-devel epel-release && yum-config-manager --enable crb
 
     # Install modern gdal/proj/geos from PostgreSQL community repo (pgdg-common).
     # The RHEL/Rocky base gdal is too old for current terra/sf; pgdg-common ships
