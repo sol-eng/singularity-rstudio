@@ -81,7 +81,7 @@ INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
     if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi && \
     for std in 17 20 23 ;\
     do \
-        sed -i "s/^CXX${std} .?*/CXX${std} = g++/ ; \
+        sed -i "s/^CXX${std} .*/CXX${std} = g++/ ; \
             s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 -fpermissive -Wno-error=template-body -Wno-template-body \$(LTO)/ ; \
             s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
             s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
