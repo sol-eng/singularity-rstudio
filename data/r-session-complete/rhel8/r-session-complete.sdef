@@ -105,6 +105,8 @@ EOF
         # Need to make sure R is in PATH so that pak can run R as a subprocess
         rm -f /usr/local/bin/{R,Rscript}
         ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin
+        export CXXFLAGS="-g -O2 -fpermissive -Wno-error=template-body -Wno-template-body"
+        export CFLAGS="-g -O2"
         /opt/R/${R_VERSION}/bin/Rscript /run.R
         rm -f /usr/local/bin/{R,Rscript}
     done
