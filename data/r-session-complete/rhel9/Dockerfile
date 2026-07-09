@@ -73,7 +73,7 @@ LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/gdal313/lib64:/usr/proj98/lib:/usr/proj98/
 PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/gdal313/lib64/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/proj98/lib64/pkgconfig:/usr/geos314/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-13/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
 CPPFLAGS=-I/usr/gdal313/include -I/usr/proj98/include -I/usr/geos314/include \n\
 LDFLAGS=-L/usr/gdal313/lib -L/usr/gdal313/lib64 -L/usr/proj98/lib -L/usr/proj98/lib64 -L/usr/geos314/lib -L/usr/geos314/lib64 \n\
-CXXFLAGS=-g -O2 -fpermissive -Wno-error=template-body -Wno-template-body \n\
+CXXFLAGS=-g -O2 -fpermissive \n\
 CFLAGS=-g -O2 \n\
 INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
@@ -81,13 +81,13 @@ INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
     R_HOME=/opt/R/${R_VERSION}/lib/R && \
     if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi && \
     sed -i "s/^CXX = .*/CXX = g++/ ; \
-        s/^CXXFLAGS = .*/CXXFLAGS = -g -O2 -fpermissive -Wno-error=template-body -Wno-template-body \$(LTO)/ ; \
+        s/^CXXFLAGS = .*/CXXFLAGS = -g -O2 -fpermissive \$(LTO)/ ; \
         s/^CXXPICFLAGS = .*/CXXPICFLAGS = -fpic/" \
         $R_HOME/etc/Makeconf && \
     for std in 17 20 23 ;\
     do \
         sed -i "s/^CXX${std} .*/CXX${std} = g++/ ; \
-            s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 -fpermissive -Wno-error=template-body -Wno-template-body \$(LTO)/ ; \
+            s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 -fpermissive \$(LTO)/ ; \
             s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
             s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
             $R_HOME/etc/Makeconf; \
@@ -99,7 +99,7 @@ INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_V
     # Need to make sure R is in PATH so that pak can run R as a subprocess
     rm -f /usr/local/bin/{R,Rscript} && \
     ln -s /opt/R/${R_VERSION}/bin/{R,Rscript} /usr/local/bin && \
-    export CXXFLAGS="-g -O2 -fpermissive -Wno-error=template-body -Wno-template-body" && \
+    export CXXFLAGS="-g -O2 -fpermissive" && \
     export CFLAGS="-g -O2" && \
     /opt/R/${R_VERSION}/bin/Rscript /run.R && \
     rm -f /usr/local/bin/{R,Rscript}; \
