@@ -47,7 +47,7 @@ RUN /install-session-components.sh rhel9 ${PWB_VERSION} x86_64 && rm -f /install
 RUN yum -y install java-21-openjdk-devel
 
 # Install GCC developer toolset
-RUN yum -y install gcc-toolset-15
+RUN yum -y install gcc-toolset-13
 
 # Install and configure new set of defined R versions
 ARG R_VERSION_LIST
@@ -59,23 +59,23 @@ do \
     yum install -y https://cdn.rstudio.com/r/rhel-9/pkgs/R-${R_VERSION}-1-1.x86_64.rpm &&\
     # Set up gcc toolset 15 for R only (optional)
     echo -e "# GCC Toolset Root directory \n\
-DEVTOOLSROOT=/opt/rh/gcc-toolset-15/root \n\
+DEVTOOLSROOT=/opt/rh/gcc-toolset-13/root \n\
 \n\
 # Environment variables needed\n\
 PCP_DIR=\${DEVTOOLSROOT} \n\
-X_SCLS=gcc-toolset-15 \n\
+X_SCLS=gcc-toolset-13 \n\
 SHLVL=4 \n\
 DEBUGINFOD_URLS=https://debuginfod.centos.org/ \n\
 \n\
 MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH} \n\
-PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-15/root/usr/bin:\${PATH} \n\
-LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/gdal313/lib64:/usr/proj98/lib:/usr/proj98/lib64:/usr/geos314/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-15/root/usr/lib64:/opt/rh/gcc-toolset-15/root/usr/lib:\${LD_LIBRARY_PATH} \n\
-PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/gdal313/lib64/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/proj98/lib64/pkgconfig:/usr/geos314/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-15/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
+PATH=/usr/gdal313/bin:/usr/proj98/bin:/usr/geos314/bin:/opt/rh/gcc-toolset-13/root/usr/bin:\${PATH} \n\
+LD_LIBRARY_PATH=/usr/gdal313/lib:/usr/gdal313/lib64:/usr/proj98/lib:/usr/proj98/lib64:/usr/geos314/lib:/usr/geos314/lib64:/opt/rh/gcc-toolset-13/root/usr/lib64:/opt/rh/gcc-toolset-13/root/usr/lib:\${LD_LIBRARY_PATH} \n\
+PKG_CONFIG_PATH=/usr/gdal313/lib/pkgconfig:/usr/gdal313/lib64/pkgconfig:/usr/proj98/lib/pkgconfig:/usr/proj98/lib64/pkgconfig:/usr/geos314/lib/pkgconfig:/usr/geos314/lib64/pkgconfig:/opt/rh/gcc-toolset-13/root/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH} \n\
 CPPFLAGS=-I/usr/gdal313/include -I/usr/proj98/include -I/usr/geos314/include \n\
 LDFLAGS=-L/usr/gdal313/lib -L/usr/gdal313/lib64 -L/usr/proj98/lib -L/usr/proj98/lib64 -L/usr/geos314/lib -L/usr/geos314/lib64 \n\
 CXXFLAGS=-g -O2 -fpermissive -Wno-error=template-body -Wno-template-body \n\
 CFLAGS=-g -O2 \n\
-INFOPATH=/opt/rh/gcc-toolset-15/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
+INFOPATH=/opt/rh/gcc-toolset-13/root/usr/share/info:\${INFOPATH}" > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site && \
     # Update R Makevars to use the new compiler features from  
     # gcc toolset 13 (optional)
     R_HOME=/opt/R/${R_VERSION}/lib/R && \
