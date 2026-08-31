@@ -50,6 +50,26 @@ jobs:
           s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
           aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
 
+  build-resolute:
+      runs-on: ubuntu-24.04
+      permissions:
+        contents: write
+        id-token: write
+      steps:
+        - name: Check out repository
+          uses: actions/checkout@v4
+        - name: Install Apptainer 
+          run: |
+            sudo apt-get update && \
+            sudo curl -LO https://github.com/apptainer/apptainer/releases/download/v1.3.5/apptainer_1.3.5_amd64.deb && \
+            sudo apt install -y ./apptainer_1.3.5_amd64.deb && sudo rm -rf appt*
+        - name: Build & Check Ubuntu Resolute Racoon
+          uses: ./.github/actions/singularity
+          with:
+            linux_distro: "resolute"
+            s3_bucket: ${{ secrets.AWS_S3_BUCKET }}
+            aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+
   build-rockylinux8:
     runs-on: ubuntu-24.04
     permissions:
