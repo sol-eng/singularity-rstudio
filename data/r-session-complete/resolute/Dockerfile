@@ -56,7 +56,7 @@ RUN for R_VERSION in ${R_VERSION_LIST}; \
         DEBIAN_FRONTEND=noninteractive gdebi -n r-${R_VERSION}_1_amd64.deb && \
         rm -f r-${R_VERSION}_1_amd64.deb && \
         # Reconfigure R for Java (optional) 
-        export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 && \
+        export JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 && \
         /opt/R/${R_VERSION}/bin/R CMD javareconf && \
 	    echo $JAVA_HOME/lib/server > /etc/ld.so.conf.d/java.conf && \
         # Need to make sure R is in PATH so that pak can run R as a subprocess
