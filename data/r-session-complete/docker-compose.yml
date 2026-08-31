@@ -12,6 +12,6 @@ services:
         - R_VERSION_DEFAULT=${R_VERSION_DEFAULT:-4.6.1}
         - PYTHON_VERSION_LIST=${PYTHON_VERSION_LIST:-3.14.6 3.13.14 3.13.13}
         - PYTHON_VERSION_DEFAULT=${PYTHON_VERSION_DEFAULT:-3.13.14}
-        - PWB_VERSION=${RSW_VERSION:-2026.06.0-242.pro13}
+        - PWB_VERSION=${RSW_VERSION:-2026.08.2-200.pro1}
         - SLURM_VERSION=${SLURM_VERSION:-26.05.1}
-    image: r-session-complete-hpc:${LINUX_DISTRO:-rockylinux9}-pwb-${RSW_VERSION:-2026.06.0-242.pro13}-slurm-${SLURM_VERSION:-26.05.1}
+    image: r-session-complete-hpc:${LINUX_DISTRO:-rockylinux9}-pwb-${RSW_VERSION:-2026.08.2-200.pro1}-slurm-${SLURM_VERSION:-26.05.1}

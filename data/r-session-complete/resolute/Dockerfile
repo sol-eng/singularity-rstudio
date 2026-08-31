@@ -31,7 +31,7 @@ RUN /install-quarto.sh ${QUARTO_VERSION} && rm -f /install-quarto.sh
 ARG PYTHON_VERSION_LIST
 ARG PYTHON_VERSION_DEFAULT
 COPY scripts/install-python.sh /
-RUN /install-python.sh deb  ubuntu-2404 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSION_LIST} && rm -f /install-python.sh deb
+RUN /install-python.sh deb  ubuntu-2604 ${PYTHON_VERSION_DEFAULT} ${PYTHON_VERSION_LIST} && rm -f /install-python.sh deb
 
 # Install PWB session components 
 ARG PWB_VERSION
@@ -52,7 +52,7 @@ COPY scripts/r-packages.txt /
 ARG R_VERSION_LIST
 RUN for R_VERSION in ${R_VERSION_LIST}; \
     do \
-        curl -O https://cdn.rstudio.com/r/ubuntu-2404/pkgs/r-${R_VERSION}_1_amd64.deb && \
+        curl -O https://cdn.rstudio.com/r/ubuntu-2604/pkgs/r-${R_VERSION}_1_amd64.deb && \
         DEBIAN_FRONTEND=noninteractive gdebi -n r-${R_VERSION}_1_amd64.deb && \
         rm -f r-${R_VERSION}_1_amd64.deb && \
         # Reconfigure R for Java (optional) 
