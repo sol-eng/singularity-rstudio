@@ -3,7 +3,12 @@
 PKG_TYPE=$1
 PRO_DRIVERS_VERSION=$2
 
-echo "Installing Pro Drivers $PRO_DRIVERS_VERSION..."
+echo ""
+echo "====================================================================="
+echo "STAGE: Starting Pro Drivers $PRO_DRIVERS_VERSION..."
+echo "====================================================================="
+echo ""
+
 case $PKG_TYPE in
     "deb")
     curl -O https://cdn.rstudio.com/drivers/7C152C12/installer/rstudio-drivers_${PRO_DRIVERS_VERSION}_amd64.deb && \
@@ -18,3 +23,9 @@ case $PKG_TYPE in
         exit 1
     ;;
 esac    
+
+echo ""
+echo "====================================================================="
+echo "STAGE: Pro Drivers $PRO_DRIVERS_VERSION finished..."
+echo "====================================================================="
+echo ""
