@@ -5,6 +5,14 @@ PYTHON_VERSION_DEFAULT=${@: 3:1}
 PKG_TYPE=${@: 1:1}
 DISTRO=${@: 2:1}
 
+echo ""
+echo "====================================================================="
+echo "STAGE: Installing Python"
+echo "       Python Versions $PYTHON_VERSION_LIST"
+echo "       Default version $PYTHON_VERSION_DEFAULT"
+echo "====================================================================="
+echo ""
+
 echo $DISTRO
 echo $PKG_TYPE
 
@@ -64,3 +72,11 @@ if [ ! -z ${PYTHON_VERSION_DEFAULT} ]; then
     ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/python /usr/local/bin
     ln -s /opt/python/${PYTHON_VERSION_DEFAULT}/bin/python3 /usr/local/bin
 fi
+
+echo ""
+echo "====================================================================="
+echo "STAGE: Python installation finished..."
+echo "       Python Versions $PYTHON_VERSION_LIST"
+echo "       Default version $PYTHON_VERSION_DEFAULT"
+echo "====================================================================="
+echo ""

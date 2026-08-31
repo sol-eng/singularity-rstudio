@@ -2,6 +2,12 @@
 
 SLURM_VERSION=$1
 
+echo ""
+echo "====================================================================="
+echo "STAGE: Installing Slurm $SLURM_VERSION..."
+echo "====================================================================="
+echo ""
+
 groupadd -g 401 slurm
 useradd -u 401 -g 401 slurm
 
@@ -24,3 +30,10 @@ dir=`mktemp -d` && \
     cd / && \
     rm -rf $dir && \
     ln -s /usr/local/slurm/bin/* /usr/local/bin
+
+
+echo ""
+echo "====================================================================="
+echo "STAGE: Slurm $SLURM_VERSION installation finished..."
+echo "====================================================================="
+echo ""

@@ -15,6 +15,11 @@ curl --retry 5 --retry-delay 10 --retry-connrefused -LO ${TEXLIVE_MIRROR}/instal
 
 TEXLIVE_VERSION=`ls /usr/local/texlive/ | grep [0-9]`
 
+echo ""
+echo "====================================================================="
+echo "STAGE: Installing TexLive $TEXLIVE_VERSION..."
+echo "====================================================================="
+echo ""
 
 # Add environment variables so that user space installs of additional texlive packages work.
 cat > /etc/profile.d/texlive.sh << EOF
@@ -117,3 +122,9 @@ ln -sf ${TEXLIVE_BIN}/fmtutil-sys /usr/local/bin/fmtutil-sys
 # Pre-generate the lualatex font database so the first user render is not slow.
 # luaotfload otherwise generates this on-demand, which can take several minutes.
 /usr/local/texlive/${TEXLIVE_VERSION}/bin/x86_64-linux/luaotfload-tool --update
+
+echo ""
+echo "====================================================================="
+echo "STAGE: Installation of TexLive $TEXLIVE_VERSION finsihed..."
+echo "====================================================================="
+echo ""
