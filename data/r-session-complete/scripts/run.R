@@ -317,6 +317,9 @@ sink()
 
 paste("R_LIBS_USER_BASE_PATH magic")
 sink(paste0("/opt/R/", currver, "/lib/R/etc/Rprofile.site"), append = TRUE)
+# Use posit mirror for Bioconductor
+cat('# Redirect Bioconductor to posit mirror\n')
+cat('options(BioC_mirror = "https://bioconductor.posit.co/")\n')
 # Add the lines to check and set the R_LIBS_USER environment variable
 # to prepend R_LIBS_USER_BASE_PATH if the same is set
 cat('# Redirect R_LIBS_USER if R_LIBS_USER_BASE_PATH is set\n')
